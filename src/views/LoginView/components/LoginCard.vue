@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import CardTemplate from '@/components/CardTemplate.vue'
-import MyInput from '@/components/MyInput.vue'
 import { ref } from 'vue'
 import MyButton from '@/components/MyButton.vue'
+import axios from 'axios'
+import MyInput from '@/components/MyInput.vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
 // login
 const username = ref('')
@@ -23,12 +26,50 @@ const cancelRegisterClick = () => {
   reg.value = false
 }
 
-const loginClick = () => {}
+const router = useRouter()
+const auth = useAuthStore()
+const loginClick = () => {
+  console.log('login click')
+  axios
+    .post('http://192.168.1.114:8090/board/login', {
+      username: username.value,
+      password: pwd.value
+    })
+    .then((resp) => {
+      console.log(resp)
+      if (resp.status == 200) {
+        auth.setLogin(resp.data.obj)
+        router.push('/home')
+      }
+    })
+    .catch((err) => {
+      console.error(err)
+    })
+}
 
 const registerConfirm = () => {
   if (pwd.value !== confPwd.value) {
     pwdErrorShow.value = true
   }
+  console.log('register confirm')
+  axios
+    .post('http://192.168.1.114:8090/board/register', {
+      username: username.value,
+      password: pwd.value,
+      role: '1',
+      email: email.value
+    })
+    .then((resp) => {
+      console.log(resp)
+      if (resp.status == 200) {
+        username.value = ''
+        pwd.value = ''
+        reg.value = false
+      }
+    })
+    .catch((err) => {
+      console.error(err)
+    })
 }
 </script>
 
@@ -40,16 +81,16 @@ const registerConfirm = () => {
   >
     <div class="flex flex-row w-full gst-r mx-5">
       <div class="gs-r mr-2 h-8 mt-1 w-32">Username</div>
-      <my-input class="w-64" placeholder="Your preferred username" v-model="username" />
+      <my-input class="w-72" placeholder="Your preferred username" v-model="username" />
     </div>
     <div class="flex flex-row w-full gst-r mt-2 mx-5">
-      <div class="gs-r mr-2 h-8 mt-1 w-32">email</div>
-      <my-input class="w-64" placeholder="Your email" v-model="email" />
+      <div class="gs-r mr-2 h-8 mt-1 w-32">Email</div>
+      <my-input class="w-72" placeholder="Your email" v-model="email" />
     </div>
     <div class="flex flex-row w-full gst-r mt-2 mx-5">
       <div class="gs-r mr-2 h-8 mt-1 w-32">Password</div>
       <my-input
-        class="w-64"
+        class="w-72"
         placeholder="Your password"
         v-model="pwd"
         @change="pwdErrorShow = false"
@@ -58,7 +99,7 @@ const registerConfirm = () => {
     <div class="flex flex-row w-full gst-r mt-2 mx-5">
       <div class="gs-r mr-2 h-8 mt-1 w-32">Confirm Password</div>
       <my-input
-        class="w-64"
+        class="w-72"
         placeholder="Your password again"
         v-model="confPwd"
         @change="pwdErrorShow = false"
@@ -87,16 +128,16 @@ const registerConfirm = () => {
 
   <CardTemplate
     v-else
-    class="bg-green-50 rounded-3xl border border-green-600 shadow shadow-green-100"
+    class="bg-green-50 rounded-3xl border border-green-600 shadow shadow-green-100 justify-center"
     title="Login"
   >
-    <div class="flex flex-row w-full gst-r mx-5">
+    <div class="flex flex-row w-full gst-r mx-7">
       <div class="gs-r mr-2 h-8 mt-1 w-20">Username</div>
-      <my-input class="w-64" placeholder="Username or email" v-model="username" />
+      <my-input class="w-80" placeholder="Username or email" v-model="username" />
     </div>
-    <div class="flex flex-row w-full gst-r mt-2 mx-5">
+    <div class="flex flex-row w-full gst-r mt-2 mx-7">
       <div class="gs-r mr-2 h-8 mt-1 w-20">Password</div>
-      <my-input class="w-64" placeholder="Your password" v-model="pwd" />
+      <my-input class="w-80" placeholder="Your password" v-model="pwd" />
     </div>
 
     <div class="flex flex-row justify-between mt-4">

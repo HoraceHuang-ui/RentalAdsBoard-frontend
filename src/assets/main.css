@@ -2,11 +2,11 @@
 @import 'bootstrap-icons/font/bootstrap-icons.css';
 
 #app {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 2rem;
-
+    width: 100vw;
+    height: 100vh;
+    padding: 1rem;
     font-weight: normal;
+    background: rgb(220 252 231);
 }
 
 a,
@@ -22,18 +22,18 @@ a,
     }
 }
 
-@media (min-width: 1024px) {
-    body {
-        display: flex;
-        place-items: center;
-    }
+/*@media (min-width: 1024px) {*/
+/*    body {*/
+/*        display: flex;*/
+/*        place-items: center;*/
+/*    }*/
 
-    #app {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        padding: 0 2rem;
-    }
-}
+/*    #app {*/
+/*        display: grid;*/
+/*        grid-template-columns: 1fr 1fr;*/
+/*        padding: 0 2rem;*/
+/*    }*/
+/*}*/
 
 .gs-r {
     font-family: google-sans, sans-serif;
