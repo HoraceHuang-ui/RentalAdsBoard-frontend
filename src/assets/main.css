@@ -1,35 +1,68 @@
 @import './base.css';
+@import 'bootstrap-icons/font/bootstrap-icons.css';
 
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem;
 
-  font-weight: normal;
+    font-weight: normal;
 }
 
 a,
 .green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
+    text-decoration: none;
+    color: hsla(160, 100%, 37%, 1);
+    transition: 0.4s;
 }
 
 @media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
+    a:hover {
+        background-color: hsla(160, 100%, 37%, 0.2);
+    }
 }
 
 @media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
+    body {
+        display: flex;
+        place-items: center;
+    }
 
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
+    #app {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        padding: 0 2rem;
+    }
+}
+
+.gs-r {
+    font-family: google-sans, sans-serif;
+}
+
+.gs-ri {
+    font-family: google-sans-italic, sans-serif;
+}
+
+.gs-b {
+    font-family: google-sans-bold, sans-serif;
+}
+
+.gs-bi {
+    font-family: google-sans-bold-italic, sans-serif;
+}
+
+.gst-r {
+    font-family: google-sans-text, sans-serif;
+}
+
+.gst-ri {
+    font-family: google-sans-text-italic, sans-serif;
+}
+
+.gst-b {
+    font-family: google-sans-text-bold, sans-serif;
+}
+
+.gst-bi {
+    font-family: google-sans-text-bold-italic, sans-serif;
 }
