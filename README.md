@@ -1,5 +1,7 @@
 # rental-ads-board-frontend
 
+Backend reference: [陈带佬](https://github.com/Phoenix0356/RentalAdsBoard)
+
 This template should help get you started developing with Vue 3 in Vite.
 
 ## Recommended IDE Setup
