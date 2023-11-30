@@ -81,15 +81,21 @@ const registerConfirm = () => {
   >
     <div class="flex flex-row w-full gst-r mx-5">
       <div class="gs-r mr-2 h-8 mt-1 w-32">Username</div>
-      <my-input class="w-72" placeholder="Your preferred username" v-model="username" />
+      <my-input
+        type="input"
+        class="w-72"
+        placeholder="Your preferred username"
+        v-model="username"
+      />
     </div>
     <div class="flex flex-row w-full gst-r mt-2 mx-5">
       <div class="gs-r mr-2 h-8 mt-1 w-32">Email</div>
-      <my-input class="w-72" placeholder="Your email" v-model="email" />
+      <my-input type="input" class="w-72" placeholder="Your email" v-model="email" />
     </div>
     <div class="flex flex-row w-full gst-r mt-2 mx-5">
       <div class="gs-r mr-2 h-8 mt-1 w-32">Password</div>
       <my-input
+        type="password"
         class="w-72"
         placeholder="Your password"
         v-model="pwd"
@@ -99,6 +105,7 @@ const registerConfirm = () => {
     <div class="flex flex-row w-full gst-r mt-2 mx-5">
       <div class="gs-r mr-2 h-8 mt-1 w-32">Confirm Password</div>
       <my-input
+        type="password"
         class="w-72"
         placeholder="Your password again"
         v-model="confPwd"
@@ -133,11 +140,11 @@ const registerConfirm = () => {
   >
     <div class="flex flex-row w-full gst-r mx-7">
       <div class="gs-r mr-2 h-8 mt-1 w-20">Username</div>
-      <my-input class="w-80" placeholder="Username or email" v-model="username" />
+      <my-input type="input" class="w-80" placeholder="Username or email" v-model="username" />
     </div>
     <div class="flex flex-row w-full gst-r mt-2 mx-7">
       <div class="gs-r mr-2 h-8 mt-1 w-20">Password</div>
-      <my-input class="w-80" placeholder="Your password" v-model="pwd" />
+      <my-input type="password" class="w-80" placeholder="Your password" v-model="pwd" />
     </div>
 
     <div class="flex flex-row justify-between mt-4">
