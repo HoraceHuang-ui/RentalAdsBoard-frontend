@@ -31,7 +31,7 @@ const auth = useAuthStore()
 const loginClick = () => {
   console.log('login click')
   axios
-    .post('http://192.168.1.114:8090/board/login', {
+    .post('/api/board/login', {
       username: username.value,
       password: pwd.value
     })
@@ -53,7 +53,7 @@ const registerConfirm = () => {
   }
   console.log('register confirm')
   axios
-    .post('http://192.168.1.114:8090/board/register', {
+    .post('/api/board/register', {
       username: username.value,
       password: pwd.value,
       role: '1',

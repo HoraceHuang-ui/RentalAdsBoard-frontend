@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 // import UserInfoApi from '@/api/user/user-info.api'
-import { reactive } from 'vue'
+// import { reactive } from 'vue'
 
 export const useAuthStore = defineStore('auth', {
   state: (): {
@@ -16,6 +16,9 @@ export const useAuthStore = defineStore('auth', {
     },
     getUserInfo(): object | undefined {
       return this.userInfo
+    },
+    getToken(): string | undefined {
+      return this.token
     }
   },
   actions: {
