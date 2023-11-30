@@ -1,60 +1,27 @@
 <script setup lang="ts">
 import TopHeader from '@/components/TopHeader.vue'
 import MyInput from '@/components/MyInput.vue'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import axios from 'axios'
+import { useAuthStore } from '@/stores/auth'
 
+const userInfo = ref<any>({})
 const title = ref('')
 const addr = ref('')
 const details = ref('')
 
-const images = ref<string[]>([])
+const titleErrorShow = ref(false)
+const addrErrorShow = ref(false)
 
-function toDataURL(url: string, callback: Function) {
-  const xhr = new XMLHttpRequest()
-  xhr.onload = function () {
-    const reader = new FileReader()
-    reader.onloadend = function () {
-      callback(reader.result)
-    }
-    reader.readAsDataURL(xhr.response)
-  }
-  xhr.open('GET', url)
-  xhr.responseType = 'blob'
-  xhr.send()
-}
+const images = ref<string[]>([])
+// const auth = useAuthStore()
 
 const addImageClick = () => {
-  // images.value.push('https://avatars.githubusercontent.com/u/67905897?v=4')
   const imageInput = document.getElementById('imageInput')
   if (imageInput) {
     imageInput.click()
   }
 }
-const getBase64StringFromDataURL = (dataURL: string) =>
-  dataURL.replace('data:', '').replace(/^.+,/, '')
-// const addImage = async (e) => {
-//   // var files = document.getElementById('imageInput')!!.value
-//   // if (!/\.(jpg|jpeg|png|webp)$/i.test(files)) {
-//   //   // ElMessage.warning("图片类型必须是jpeg,jpg,png中的一种,请重新上传")
-//   //   return false
-//   // }
-//   let file = e.target.files[0]
-//   // toDataURL(file, function (dataUrl: string) {
-//   //   console.log('RESULT:', dataUrl)
-//   //   images.value.push(dataUrl)
-//   // })
-//   const img = new Image()
-//   // console.log()
-//   img.src = document.getElementById('imageInput')!!.value
-//   const canvas = document.createElement('canvas')
-//   canvas.width = 300
-//   canvas.height = 300
-//   const ctx = canvas.getContext('2d')
-//   ctx.drawImage(img, 0, 0)
-//
-//   images.value.push(canvas.toDataURL())
-//   console.log(canvas.toDataURL())
-// }
 
 const addImage = (event) => {
   let base64 = ''
@@ -75,6 +42,29 @@ const addImage = (event) => {
 const deleteImage = (idx: number) => {
   images.value.splice(idx, 1)
 }
+
+const postClick = () => {
+  titleErrorShow.value = false
+  addrErrorShow.value = false
+  if (title.value === '') {
+    titleErrorShow.value = true
+  }
+  if (addr.value === '') {
+    addrErrorShow.value = true
+  }
+  if (!addrErrorShow.value && !titleErrorShow.value) {
+    axios.post('/api/ads/save', {
+      title: title.value,
+      address: addr.value,
+      description: details.value,
+      userId: userInfo.value.userId
+    })
+  }
+}
+
+onMounted(() => {
+  userInfo.value = JSON.parse(localStorage.getItem('userInfo')!!)
+})
 </script>
 
 <template>
@@ -83,6 +73,7 @@ const deleteImage = (idx: number) => {
   <div class="px-2 pt-8 justify-between w-full flex flex-row">
     <div class="gs-b text-5xl">Post an Ad...</div>
     <div
+      @click="postClick"
       class="rounded-full flex flex-row mr-16 px-4 py-1 text-green-700 border-2 border-green-600 hover:text-green-100 hover:bg-green-600 transition-all cursor-pointer"
     >
       <i class="bi bi-send text-3xl"></i>
@@ -94,11 +85,22 @@ const deleteImage = (idx: number) => {
     <div>
       <div class="flex flex-row gst-r mx-7 mt-8">
         <div class="gs-r mr-2 h-8 mt-1 w-16">Title</div>
-        <my-input type="input" v-model="title" style="width: 40vw" />
+        <my-input
+          type="input"
+          v-model="title"
+          style="width: 40vw"
+          @change="titleErrorShow = false"
+        />
+      </div>
+      <div v-if="titleErrorShow" class="w-full text-right gst-ri text-red-600 pr-8">
+        Please provide a title
       </div>
       <div class="flex flex-row gst-r mx-7 mt-2">
         <div class="gs-r mr-2 h-8 mt-1 w-16">Address</div>
-        <my-input type="input" v-model="addr" style="width: 40vw" />
+        <my-input type="input" v-model="addr" style="width: 40vw" @change="addrErrorShow = false" />
+      </div>
+      <div v-if="addrErrorShow" class="w-full text-right gst-ri text-red-600 pr-8">
+        Please provide an address
       </div>
       <div class="flex flex-row gst-r mx-7 mt-2">
         <div class="gs-r mr-2 h-8 mt-1 w-16">Details</div>
@@ -124,10 +126,10 @@ const deleteImage = (idx: number) => {
             class="w-full h-full rounded-2xl shadow-lg shadow-green-300 object-cover"
           />
           <div
-            class="text-red-500 text-2xl absolute -top-1 left-0 cursor-pointer"
+            class="text-white text-xl w-7 h-7 absolute top-0 left-0 cursor-pointer rounded-full bg-red-500 text-center"
             @click="deleteImage(idx)"
           >
-            <i class="bi bi-x-circle-fill"></i>
+            <i class="bi bi-x"></i>
           </div>
         </div>
         <div

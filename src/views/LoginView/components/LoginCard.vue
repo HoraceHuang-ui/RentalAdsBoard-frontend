@@ -12,6 +12,7 @@ const username = ref('')
 const pwd = ref('')
 
 //reg exclusive
+const avatar = ref('')
 const confPwd = ref('')
 const email = ref('')
 const pwdErrorShow = ref(false)
@@ -27,7 +28,7 @@ const cancelRegisterClick = () => {
 }
 
 const router = useRouter()
-const auth = useAuthStore()
+// const auth = useAuthStore()
 const loginClick = () => {
   console.log('login click')
   axios
@@ -38,7 +39,8 @@ const loginClick = () => {
     .then((resp) => {
       console.log(resp)
       if (resp.status == 200) {
-        auth.setLogin(resp.data.obj)
+        // auth.setUserInfo(resp.data.obj)
+        localStorage.setItem('userInfo', JSON.stringify(resp.data.obj))
         router.push('/home')
       }
     })
@@ -57,7 +59,8 @@ const registerConfirm = () => {
       username: username.value,
       password: pwd.value,
       role: '1',
-      email: email.value
+      email: email.value,
+      avatarBase64: avatar.value
     })
     .then((resp) => {
       console.log(resp)
@@ -71,6 +74,31 @@ const registerConfirm = () => {
       console.error(err)
     })
 }
+
+const addAvatarClick = () => {
+  // images.value.push('https://avatars.githubusercontent.com/u/67905897?v=4')
+  console.log('avatar click')
+  const imageInput = document.getElementById('imageInput')
+  if (imageInput) {
+    imageInput.click()
+  }
+}
+
+const addAvatar = (event) => {
+  let base64 = ''
+  const file = event.target.files[0]
+  if (file) {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = () => {
+      base64 = reader.result
+      avatar.value = base64
+    }
+    reader.onerror = (error) => {
+      console.error('Error reading file:', error)
+    }
+  }
+}
 </script>
 
 <template>
@@ -79,6 +107,26 @@ const registerConfirm = () => {
     class="bg-green-50 rounded-3xl border border-green-600 shadow shadow-green-100"
     title="Register"
   >
+    <div class="w-full justify-between flex flex-row mb-6">
+      <div class="w-0.5"></div>
+      <div
+        v-show="avatar === ''"
+        @click="addAvatarClick"
+        class="rounded-full w-16 h-16 border-4 border-dashed border-gray-400 text-center relative text-gray-500 hover:border-green-600 hover:text-green-600 transition-all cursor-pointer"
+      >
+        <input type="file" id="imageInput" class="opacity-0" @change="addAvatar($event)" />
+        <div class="gs-r text-4xl absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+          +
+        </div>
+      </div>
+      <img
+        v-show="avatar !== ''"
+        :src="avatar"
+        @click="addAvatarClick"
+        class="rounded-full w-16 h-16 cursor-pointer"
+      />
+      <div class="w-0.5"></div>
+    </div>
     <div class="flex flex-row w-full gst-r mx-5">
       <div class="gs-r mr-2 h-8 mt-1 w-32">Username</div>
       <my-input
@@ -88,11 +136,11 @@ const registerConfirm = () => {
         v-model="username"
       />
     </div>
-    <div class="flex flex-row w-full gst-r mt-2 mx-5">
+    <div class="flex flex-row gst-r mt-2 mx-5">
       <div class="gs-r mr-2 h-8 mt-1 w-32">Email</div>
       <my-input type="input" class="w-72" placeholder="Your email" v-model="email" />
     </div>
-    <div class="flex flex-row w-full gst-r mt-2 mx-5">
+    <div class="flex flex-row gst-r mt-2 mx-5">
       <div class="gs-r mr-2 h-8 mt-1 w-32">Password</div>
       <my-input
         type="password"
@@ -102,7 +150,7 @@ const registerConfirm = () => {
         @change="pwdErrorShow = false"
       />
     </div>
-    <div class="flex flex-row w-full gst-r mt-2 mx-5">
+    <div class="flex flex-row gst-r mt-2 mx-5">
       <div class="gs-r mr-2 h-8 mt-1 w-32">Confirm Password</div>
       <my-input
         type="password"
@@ -112,7 +160,7 @@ const registerConfirm = () => {
         @change="pwdErrorShow = false"
       />
     </div>
-    <div v-if="pwdErrorShow" class="w-full text-right gst-i text-red-600 pr-6">
+    <div v-if="pwdErrorShow" class="text-right gst-ri text-red-600 pr-6">
       Inconsistent passwords!
     </div>
 
@@ -144,7 +192,13 @@ const registerConfirm = () => {
     </div>
     <div class="flex flex-row w-full gst-r mt-2 mx-7">
       <div class="gs-r mr-2 h-8 mt-1 w-20">Password</div>
-      <my-input type="password" class="w-80" placeholder="Your password" v-model="pwd" />
+      <my-input
+        type="password"
+        class="w-80"
+        placeholder="Your password"
+        v-model="pwd"
+        @keyup.native.enter="loginClick"
+      />
     </div>
 
     <div class="flex flex-row justify-between mt-4">

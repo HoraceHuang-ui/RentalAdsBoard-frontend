@@ -5,11 +5,12 @@ import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 defineProps(['selection'])
-const userInfo = ref({})
+const userInfo = ref<any>({})
 
-const auth = useAuthStore()
+// const auth = useAuthStore()
 onMounted(() => {
-  userInfo.value = auth.getUserInfo
+  // userInfo.value = auth.userInfo
+  userInfo.value = JSON.parse(localStorage.getItem('userInfo')!!)
   console.log(userInfo.value)
 })
 
@@ -68,7 +69,7 @@ const postClick = () => {
       </div>
       <img
         class="rounded-full h-10 w-10 object-cover"
-        src="https://avatars.githubusercontent.com/u/67905897?v=4"
+        :src="userInfo.avatarBase64"
         alt="user avatar"
       />
     </div>
