@@ -52,8 +52,11 @@ const loginClick = () => {
 const registerConfirm = () => {
   if (pwd.value !== confPwd.value) {
     pwdErrorShow.value = true
+    return
   }
-  console.log('register confirm')
+  if (username.value.length > 20) {
+    return
+  }
   axios
     .post('/api/board/register', {
       username: username.value,
@@ -134,7 +137,7 @@ onMounted(() => {
       />
       <div class="w-0.5"></div>
     </div>
-    <div class="flex flex-row w-full gst-r mx-5">
+    <div class="flex flex-row w-full gst-r mx-5 relative">
       <div class="gs-r mr-2 h-8 mt-1 w-32">Username</div>
       <my-input
         type="input"
@@ -142,6 +145,13 @@ onMounted(() => {
         placeholder="Your preferred username"
         v-model="username"
       />
+      <div
+        class="absolute right-14 top-0.5 h-7 py-1 gst-r px-2 rounded-full"
+        :class="username.length <= 20 ? 'text-gray-400' : 'text-red-500'"
+        style="background-color: rgba(255 255 255 / 0.8)"
+      >
+        {{ username.length }}/20
+      </div>
     </div>
     <div class="flex flex-row gst-r mt-2 mx-5">
       <div class="gs-r mr-2 h-8 mt-1 w-32">Email</div>
@@ -167,7 +177,7 @@ onMounted(() => {
         @change="pwdErrorShow = false"
       />
     </div>
-    <div v-if="pwdErrorShow" class="text-right gst-ri text-red-600 pr-6">
+    <div v-if="pwdErrorShow" class="text-right gst-ri text-red-600 pr-10">
       Inconsistent passwords!
     </div>
 
@@ -226,8 +236,4 @@ onMounted(() => {
   </CardTemplate>
 </template>
 
-<style scoped>
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-</style>
+<style scoped></style>

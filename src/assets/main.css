@@ -1,6 +1,10 @@
 @import './base.css';
 @import 'bootstrap-icons/font/bootstrap-icons.css';
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 #app {
     width: 100vw;
     height: 100vh;

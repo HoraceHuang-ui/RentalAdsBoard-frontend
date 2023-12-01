@@ -11,10 +11,6 @@ import LoginCard from '@/views/LoginView/components/LoginCard.vue'
 </template>
 
 <style scoped>
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 .main-wrapper {
   @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
   width: 480px;

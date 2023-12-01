@@ -77,10 +77,6 @@ const postClick = () => {
 </template>
 
 <style scoped>
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 .icontext-wrapper {
   @apply rounded-full flex flex-row px-2 py-1 ml-1 my-1 cursor-pointer transition-all;
 }

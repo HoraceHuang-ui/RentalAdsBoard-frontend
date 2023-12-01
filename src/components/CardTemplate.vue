@@ -16,10 +16,6 @@ const props = defineProps({
 </template>
 
 <style scoped>
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 .card-wrapper {
   min-width: 200px;
   min-height: 50px;
