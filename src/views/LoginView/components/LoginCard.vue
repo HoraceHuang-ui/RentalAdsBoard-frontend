@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import CardTemplate from '@/components/CardTemplate.vue'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import MyButton from '@/components/MyButton.vue'
 import axios from 'axios'
 import MyInput from '@/components/MyInput.vue'
@@ -67,6 +67,9 @@ const registerConfirm = () => {
       if (resp.status == 200) {
         username.value = ''
         pwd.value = ''
+        confPwd.value = ''
+        email.value = ''
+        avatar.value = ''
         reg.value = false
       }
     })
@@ -99,6 +102,10 @@ const addAvatar = (event) => {
     }
   }
 }
+
+onMounted(() => {
+  localStorage.clear()
+})
 </script>
 
 <template>

@@ -4,6 +4,7 @@ import ScrollWrapper from '@/components/ScrollWrapper.vue'
 import CardTemplate from '@/components/CardTemplate.vue'
 import { onMounted, ref } from 'vue'
 import axios from 'axios'
+import HomePostCard from '@/views/HomeView/componenets/HomePostCard.vue'
 
 const lipsum = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus malesuada efficitur neque, ut semper augue vestibulum vel. Mauris velit erat, sagittis egestas fringilla non, hendrerit vel purus. Cras nec efficitur turpis. Cras massa sem, aliquet quis elementum ut, auctor ornare massa. Maecenas vitae felis commodo odio ullamcorper dictum eu sit amet ante. Proin facilisis dapibus volutpat. Sed tempor nibh sed mattis cursus. Suspendisse molestie nisl quis rhoncus mattis. Aenean rhoncus sapien at est vulputate sagittis. Quisque elit justo, dictum at dignissim eget, semper nec lorem. Fusce sit amet ante fermentum, scelerisque lacus vitae, varius augue. Sed gravida sapien vitae massa venenatis feugiat. Mauris elementum rhoncus consequat. Aenean condimentum justo a quam semper sagittis. Nullam vitae metus sit amet lacus iaculis rutrum in sit amet mauris. Vestibulum efficitur sagittis dolor, nec posuere nisi fermentum sed.
 
@@ -24,11 +25,14 @@ type Ad = {
 }
 const adsList = ref<Ad[]>([])
 
+const getAdImages = async (ad: Ad) => {
+  return await axios.get('/api/picture/get/first?ad_id=' + ad.adId)
+}
+
 onMounted(() => {
   axios
     .get('/api/ads/home')
     .then((resp) => {
-      console.log(resp.data.obj)
       for (const ad of resp.data.obj) {
         adsList.value.push(ad)
       }
@@ -48,20 +52,24 @@ onMounted(() => {
     class="bg-white mx-2 pl-6 rounded-3xl border border-green-600"
   >
     <div class="w-full gs-b text-5xl mt-8">Home</div>
-    <div class="grid grid-cols-2 w-full gap-2 pr-4 mt-6 pb-4">
-      <card-template
+    <div v-if="adsList.length > 0" class="grid grid-cols-2 w-full gap-2 pr-4 mt-6 pb-4">
+      <home-post-card
         v-for="ad in adsList"
         :key="ad.adId"
-        :title="ad.title"
+        :ad="ad"
         class="border border-gray-400 rounded-3xl"
-      >
-        <!--        <div class="h-40 px-4 py-2 flex flex-row justify-center">-->
-        <!--          <img class="rounded-xl mx-3" src="https://avatars.githubusercontent.com/u/67905897?v=4" />-->
-        <!--          <img class="rounded-xl mx-3" src="https://avatars.githubusercontent.com/u/67905897?v=4" />-->
-        <!--          <img class="rounded-xl mx-3" src="https://avatars.githubusercontent.com/u/67905897?v=4" />-->
-        <!--        </div>-->
-        <div class="body-detail gst-r m-6">{{ ad.description }}</div>
-      </card-template>
+      />
+    </div>
+    <div v-else class="gst-r text-center" style="margin-top: 15%">
+      <i class="bi bi-emoji-frown text-4xl text-green-600 opacity-40" />
+      <div class="mt-1">
+        <span class="text-gray-400 cursor-default">Empty here...</span>
+        <span
+          class="text-green-600 cursor-pointer rounded-full px-2 py-1 hover:border hover:border-green-700 transition-all"
+          @click="$router.push('/post')"
+          >Post one!</span
+        >
+      </div>
     </div>
   </scroll-wrapper>
 </template>
@@ -70,17 +78,4 @@ onMounted(() => {
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-.body-detail {
-  text-align: left;
-  font-size: 15px;
-  position: relative;
-  margin-top: 1vh;
-  line-height: 20px;
-  max-height: 80px;
-  overflow: hidden;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  text-overflow: ellipsis;
-}
 </style>

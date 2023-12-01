@@ -53,12 +53,22 @@ const postClick = () => {
     addrErrorShow.value = true
   }
   if (!addrErrorShow.value && !titleErrorShow.value) {
-    axios.post('/api/ads/save', {
-      title: title.value,
-      address: addr.value,
-      description: details.value,
-      userId: userInfo.value.userId
-    })
+    axios
+      .post('/api/ads/save', {
+        title: title.value,
+        address: addr.value,
+        description: details.value,
+        userId: userInfo.value.userId
+      })
+      .then((resp) => {
+        const adId = resp.data.obj.adId
+        for (const image of images.value) {
+          axios.post('/api/picture/save', {
+            adId: adId,
+            pictureBase64: image
+          })
+        }
+      })
   }
 }
 
@@ -119,7 +129,10 @@ onMounted(() => {
     </div>
     <div>
       <div class="gs-r mt-8">Attach images...</div>
-      <div class="grid grid-cols-3 grid-rows-3 gap-2 mt-3" style="height: 30rem; width: 30rem">
+      <div
+        class="grid grid-cols-3 grid-rows-3 gap-2 mt-3"
+        style="height: 40vw; width: 40vw; max-height: 30rem; max-width: 30rem"
+      >
         <div v-for="(image, idx) in images" :key="idx" class="relative">
           <img
             :src="image"
