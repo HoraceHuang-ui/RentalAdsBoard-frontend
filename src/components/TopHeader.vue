@@ -6,6 +6,7 @@ import { useRouter } from 'vue-router'
 
 defineProps(['selection'])
 const userInfo = ref<any>({})
+const userOptionsShow = ref(false)
 
 // const auth = useAuthStore()
 onMounted(() => {
@@ -23,6 +24,15 @@ const manageClick = () => {
 }
 const postClick = () => {
   router.push('/post')
+}
+
+const editUserInfoClick = () => {
+  console.log('edit user info')
+}
+
+const logout = () => {
+  localStorage.clear()
+  router.push('/')
 }
 </script>
 
@@ -63,8 +73,12 @@ const postClick = () => {
     <!-- MID PART -->
 
     <!-- RIGHT PART -->
-    <div class="flex flex-row mr-1 my-1">
-      <div class="gs-r rounded-full px-2 py-1 text-green-100 mt-0.5 mr-1">
+    <div
+      @mouseenter="userOptionsShow = true"
+      @mouseleave="userOptionsShow = false"
+      class="flex flex-row rounded-full mr-1 my-1 cursor-default text-green-100 hover:bg-green-100 hover:text-green-600 transition-all"
+    >
+      <div class="gs-r rounded-full px-2 py-1 mt-0.5 mr-1">
         {{ userInfo.username }}
       </div>
       <img
@@ -72,6 +86,30 @@ const postClick = () => {
         :src="userInfo.avatarBase64"
         alt="user avatar"
       />
+      <div
+        class="absolute right-2 top-11 transition-all z-50"
+        :class="userOptionsShow ? '' : 'user-options-hide'"
+        style="transition-duration: 300ms"
+      >
+        <div
+          class="bg-green-50 rounded-3xl w-56 mt-4 gst-r text-lg px-5 py-4 border border-green-600 shadow-xl shadow-green-200"
+        >
+          <div
+            @click="editUserInfoClick"
+            class="flex flex-row text-gray-700 w-full py-1 pl-3 rounded-full hover:text-green-700 hover:bg-green-200 transition-all cursor-pointer"
+          >
+            <i class="bi bi-person-vcard text-3xl" />
+            <div class="ml-3 mt-1">Edit user info</div>
+          </div>
+          <div
+            @click="logout"
+            class="flex flex-row text-red-600 w-full py-1 pl-3 rounded-full hover:bg-red-100 transition-all cursor-pointer"
+          >
+            <i class="bi bi-box-arrow-left text-3xl" />
+            <div class="ml-3 mt-1">Log out</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -92,5 +130,9 @@ const postClick = () => {
 .v-divisor {
   @apply my-2 bg-green-300 mx-2;
   width: 1px;
+}
+
+.user-options-hide {
+  @apply opacity-0 pointer-events-none translate-y-3;
 }
 </style>

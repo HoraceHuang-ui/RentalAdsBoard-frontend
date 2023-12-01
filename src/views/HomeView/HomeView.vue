@@ -48,7 +48,7 @@ onMounted(() => {
   >
     <div class="w-full gs-b text-5xl mt-8">Home</div>
     <my-pagination
-      class="absolute right-8 top-2"
+      class="absolute right-8 top-2 z-10"
       v-if="totalPages > 1"
       v-model="curPage"
       :total-pages="totalPages"
@@ -58,7 +58,7 @@ onMounted(() => {
         v-for="ad in curPageAds"
         :key="ad.adId"
         :ad="ad"
-        class="border border-gray-400 rounded-3xl"
+        class="border border-gray-400 rounded-3xl z-0"
       />
     </div>
     <div v-else class="gst-r text-center" style="margin-top: 15%">

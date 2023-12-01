@@ -38,10 +38,12 @@ const loginClick = () => {
     })
     .then((resp) => {
       console.log(resp)
-      if (resp.status == 200) {
+      if (resp.data.stateCode == 200) {
         // auth.setUserInfo(resp.data.obj)
         localStorage.setItem('userInfo', JSON.stringify(resp.data.obj))
         router.push('/home')
+      } else {
+        pwd.value = ''
       }
     })
     .catch((err) => {
@@ -107,7 +109,10 @@ const addAvatar = (event) => {
 }
 
 onMounted(() => {
-  localStorage.clear()
+  const userInfo = localStorage.getItem('userInfo')
+  if (userInfo) {
+    router.push('/home')
+  }
 })
 </script>
 

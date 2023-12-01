@@ -58,7 +58,7 @@ const switchPageTo = (page: number) => {
 }
 
 .pagination-button-pages-enabled {
-  @apply text-green-600 hover:bg-green-600 hover:text-green-100 transition-all;
+  @apply text-green-600 bg-green-100 hover:bg-green-600 hover:text-green-100 transition-all;
 }
 
 .pagination-button-pages-disabled {
