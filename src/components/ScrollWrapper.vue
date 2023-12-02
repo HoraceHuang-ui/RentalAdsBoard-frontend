@@ -6,13 +6,19 @@ defineProps(['height', 'width', 'showBar'])
 const scrollRef = ref()
 // const barRef = ref()
 
-const trackHeight = ref(0) // 滚动条轨道高度
-const wrapHeight = ref(0) // 容器可视高度
-const wrapContentHeight = ref(0) // 内容高度
+const trackHeight = computed(() => {
+  return scrollRef.value ? scrollRef.value.scrollHeight : 0
+}) // 滚动条轨道高度
+const wrapHeight = computed(() => {
+  return scrollRef.value ? scrollRef.value.clientHeight - 40 : 0
+}) // 容器可视高度
+const wrapContentHeight = computed(() => {
+  return scrollRef.value ? scrollRef.value.clientHeight : 0
+}) // 内容高度
 const translateY = ref(0)
 const moveClientY = ref(0)
 const isMove = ref(false)
-const scrollTop = ref(0)
+// const scrollTop = ref(0)
 
 const heightPre = computed(() => {
   return wrapHeight.value / wrapContentHeight.value
@@ -21,15 +27,19 @@ const barHeight = computed(() => {
   return heightPre.value * trackHeight.value
 })
 
-const initScrollListener = () => {
-  wrapContentHeight.value = scrollRef.value.scrollHeight
-  wrapHeight.value = scrollRef.value.clientHeight - 40
-  trackHeight.value = scrollRef.value.clientHeight
-}
+// const initScrollListener = () => {
+//   wrapContentHeight.value = scrollRef.value.scrollHeight
+//   wrapHeight.value = scrollRef.value.clientHeight - 40
+//   trackHeight.value = scrollRef.value.clientHeight
+//
+//   console.log('wrap content height: ' + wrapContentHeight.value)
+//   console.log('wrap height: ' + wrapHeight.value)
+//   console.log('track height: ' + trackHeight.value)
+// }
 
-const updateScroll = () => {
-  initScrollListener()
-}
+// const updateScroll = () => {
+//   initScrollListener()
+// }
 
 const onMouseWheel = (e) => {
   scrollY(e.target.scrollTop * heightPre.value)
@@ -69,9 +79,9 @@ const moveEnd = () => {
   }
 }
 
-onMounted(() => {
-  initScrollListener()
-})
+// onMounted(() => {
+//  initScrollListener()
+// })
 </script>
 
 <template>

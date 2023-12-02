@@ -1,15 +1,20 @@
 <script setup lang="ts">
 import TopHeader from '@/components/TopHeader.vue'
 import MyInput from '@/components/MyInput.vue'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import ScrollWrapper from '@/components/ScrollWrapper.vue'
 import { ApiPost } from '@/utils/req'
+import { marked } from 'marked'
 
 const userInfo = ref<any>({})
 const title = ref('')
 const addr = ref('')
 const details = ref('')
+const showDetailsPreview = ref(true)
+const detailsPreviewContent = computed(() => {
+  return marked(details.value)
+})
 
 const titleErrorShow = ref(false)
 const addrErrorShow = ref(false)
@@ -117,19 +122,41 @@ onMounted(() => {
           Please provide an address
         </div>
         <div class="flex flex-row gst-r mx-7 mt-2">
-          <div class="gs-r mr-2 h-8 mt-1" style="width: 64px">Details</div>
+          <div class="gs-r mr-2 h-8 mt-1" style="width: 64px">
+            Details
+            <i class="bi bi-markdown-fill" />
+          </div>
           <div class="flex flex-col" style="width: 100%">
             <my-input
               class="h-full textarea-height-limits"
               type="textarea"
               v-model="details"
             ></my-input>
-            <div class="gst-r w-full text-right text-sm mt-0.5">
+            <div class="flex flex-row justify-between gst-r w-full text-right text-sm mt-0.5">
+              <div
+                @click="showDetailsPreview = !showDetailsPreview"
+                class="flex flex-row cursor-pointer hover:text-green-600 transition-all"
+                :class="showDetailsPreview ? 'text-green-700 gst-b' : 'text-gray-600 gst-r'"
+              >
+                <i v-if="showDetailsPreview" class="bi bi-check-circle-fill mr-1" />
+                <i v-else class="bi bi-circle mr-1" />
+                Show preview
+              </div>
               Characters: {{ details.length }} / 9999
             </div>
+            <scroll-wrapper
+              v-if="showDetailsPreview"
+              width="100%"
+              height="30vh"
+              class="border rounded-3xl border-green-600 mt-2"
+              :show-bar="true"
+            >
+              <div class="p-4" v-html="detailsPreviewContent"></div>
+            </scroll-wrapper>
           </div>
         </div>
       </div>
+
       <div class="ml-7">
         <div class="gs-r mt-8">Attach images...</div>
         <scroll-wrapper height="420px" width="100%" class="overflow-x-hidden">

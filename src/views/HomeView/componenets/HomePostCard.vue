@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import CardTemplate from '@/components/CardTemplate.vue'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { ApiGet } from '@/utils/req'
+import { marked } from 'marked'
 
 const props = defineProps(['ad'])
 
@@ -48,7 +49,9 @@ onMounted(() => {
         :alt="`first image of ${ad.title}`"
       />
     </div>
-    <div class="body-detail gst-r m-6">{{ ad.description }}</div>
+    <div class="h-20 overflow-clip">
+      <div class="body-detail gst-r m-6 max-h-9" v-html="marked(ad.description)"></div>
+    </div>
     <div class="flex flex-row absolute bottom-2 left-2">
       <div class="flex flex-row rounded-full border border-gray-400 px-3 py-1 bg-white">
         <i class="bi bi-geo-alt-fill" />
