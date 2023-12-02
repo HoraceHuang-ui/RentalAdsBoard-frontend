@@ -3,6 +3,7 @@
 import { useAuthStore } from '@/stores/auth'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { ApiGet } from '@/utils/req'
 
 defineProps(['selection'])
 const userInfo = ref<any>({})
@@ -11,8 +12,9 @@ const userOptionsShow = ref(false)
 // const auth = useAuthStore()
 onMounted(() => {
   // userInfo.value = auth.userInfo
-  userInfo.value = JSON.parse(localStorage.getItem('userInfo')!!)
-  console.log(userInfo.value)
+  ApiGet('board/home').then((resp) => {
+    userInfo.value = resp.data.obj
+  })
 })
 
 const router = useRouter()

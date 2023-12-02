@@ -1,35 +1,32 @@
 <script setup lang="ts">
 import CardTemplate from '@/components/CardTemplate.vue'
 import { onMounted, ref } from 'vue'
-import axios from 'axios'
+import { ApiGet } from '@/utils/req'
 
 const props = defineProps(['ad'])
 
-const images = ref<string[]>([])
+const image = ref<string>('')
 const adUser = ref<any>({})
 
-const clipString = (str: string) => {
-  if (str.length > 30) {
-    str = str.substring(0, 31) + '...'
+const clipString = (str: string, len: number) => {
+  if (str.length > len) {
+    str = str.substring(0, len + 1) + '...'
   }
   return str
 }
 
 onMounted(() => {
-  axios
-    .get('/api/picture/list?ad_id=' + props.ad.adId)
+  ApiGet(`picture/get/first?ad_id=${props.ad.adId}`)
     .then((resp) => {
-      if (resp.data.obj && resp.data.obj.length > 0) {
-        for (const pictureInfo of resp.data.obj) {
-          images.value.push(pictureInfo.pictureBase64)
-        }
+      if (resp.data.obj) {
+        image.value = resp.data.obj.pictureBase64
       }
     })
     .catch((err) => {
       console.error(err)
     })
 
-  axios.get(`/api/board/home?user_id=${props.ad.userId}`).then((resp) => {
+  ApiGet(`board/home?user_id=${props.ad.userId}`).then((resp) => {
     if (resp.data.obj) {
       adUser.value = resp.data.obj
     }
@@ -43,14 +40,12 @@ onMounted(() => {
     class="border border-gray-400 rounded-3xl relative pb-6 hover:border-green-600 hover:shadow-md hover:shadow-green-100 hover:-translate-y-1 hover:bg-green-50 transition-all cursor-pointer"
     style="transition-duration: 300ms"
   >
-    <div v-if="images.length > 0" class="px-4 py-2 flex flex-row justify-center">
+    <div v-if="image !== ''" class="px-4 py-2 flex flex-row justify-center">
       <img
-        v-for="(image, idx) in images"
-        :key="idx"
         class="rounded-xl mx-3 object-cover"
-        style="width: 20vh; height: 20vh"
+        style="width: max-content; height: 20vh"
         :src="image"
-        :alt="`image ${idx + 1} of ${ad.title}`"
+        :alt="`first image of ${ad.title}`"
       />
     </div>
     <div class="body-detail gst-r m-6">{{ ad.description }}</div>
@@ -58,7 +53,7 @@ onMounted(() => {
       <div class="flex flex-row rounded-full border border-gray-400 px-3 py-1 bg-white">
         <i class="bi bi-geo-alt-fill" />
         <span class="gst-r ml-2">
-          {{ clipString(ad.address) }}
+          {{ clipString(ad.address, 25) }}
         </span>
       </div>
       <div class="flex flex-row rounded-full border border-gray-400 px-3 py-1 ml-3 bg-white">

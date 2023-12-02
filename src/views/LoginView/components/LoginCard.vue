@@ -2,10 +2,9 @@
 import CardTemplate from '@/components/CardTemplate.vue'
 import { onMounted, ref } from 'vue'
 import MyButton from '@/components/MyButton.vue'
-import axios from 'axios'
 import MyInput from '@/components/MyInput.vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
+import { ApiPost } from '@/utils/req'
 
 // login
 const username = ref('')
@@ -31,16 +30,13 @@ const router = useRouter()
 // const auth = useAuthStore()
 const loginClick = () => {
   console.log('login click')
-  axios
-    .post('/api/board/login', {
-      username: username.value,
-      password: pwd.value
-    })
+  ApiPost('board/login', {
+    username: username.value,
+    password: pwd.value
+  })
     .then((resp) => {
-      console.log(resp)
       if (resp.data.stateCode == 200) {
-        // auth.setUserInfo(resp.data.obj)
-        localStorage.setItem('userInfo', JSON.stringify(resp.data.obj))
+        localStorage.setItem('token', 'Bearer ' + resp.data.obj)
         router.push('/home')
       } else {
         pwd.value = ''
@@ -59,14 +55,13 @@ const registerConfirm = () => {
   if (username.value.length > 20) {
     return
   }
-  axios
-    .post('/api/board/register', {
-      username: username.value,
-      password: pwd.value,
-      role: '1',
-      email: email.value,
-      avatarBase64: avatar.value
-    })
+  ApiPost('board/register', {
+    username: username.value,
+    password: pwd.value,
+    role: '1',
+    email: email.value,
+    avatarBase64: avatar.value
+  })
     .then((resp) => {
       console.log(resp)
       if (resp.status == 200) {

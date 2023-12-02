@@ -2,8 +2,9 @@
 import TopHeader from '@/components/TopHeader.vue'
 import MyInput from '@/components/MyInput.vue'
 import { onMounted, ref } from 'vue'
-import axios from 'axios'
 import { useAuthStore } from '@/stores/auth'
+import ScrollWrapper from '@/components/ScrollWrapper.vue'
+import { ApiPost } from '@/utils/req'
 
 const userInfo = ref<any>({})
 const title = ref('')
@@ -53,22 +54,19 @@ const postClick = () => {
     addrErrorShow.value = true
   }
   if (!addrErrorShow.value && !titleErrorShow.value) {
-    axios
-      .post('/api/ads/save', {
-        title: title.value,
-        address: addr.value,
-        description: details.value,
-        userId: userInfo.value.userId
-      })
-      .then((resp) => {
-        const adId = resp.data.obj.adId
-        for (const image of images.value) {
-          axios.post('/api/picture/save', {
-            adId: adId,
-            pictureBase64: image
-          })
-        }
-      })
+    ApiPost('ads/save', {
+      title: title.value,
+      address: addr.value,
+      description: details.value
+    }).then((resp) => {
+      const adId = resp.data.obj.adId
+      for (const image of images.value) {
+        ApiPost('picture/save', {
+          adId: adId,
+          pictureBase64: image
+        })
+      }
+    })
   }
 }
 
@@ -84,80 +82,109 @@ onMounted(() => {
     <div class="gs-b text-5xl">Post an Ad...</div>
     <div
       @click="postClick"
-      class="rounded-full flex flex-row mr-16 px-4 py-1 text-green-700 border-2 border-green-600 hover:text-green-100 hover:bg-green-600 transition-all cursor-pointer"
+      class="rounded-full flex flex-row px-4 py-1 text-green-700 border-2 border-green-600 hover:text-green-100 hover:bg-green-600 transition-all cursor-pointer"
     >
       <i class="bi bi-send text-3xl"></i>
       <div class="text-3xl gs-b ml-3">Post</div>
     </div>
   </div>
 
-  <div class="grid grid-cols-2 gap-4">
-    <div>
-      <div class="flex flex-row gst-r mx-7 mt-8">
-        <div class="gs-r mr-2 h-8 mt-1 w-16">Title</div>
-        <my-input
-          type="input"
-          v-model="title"
-          style="width: 40vw"
-          @change="titleErrorShow = false"
-        />
-      </div>
-      <div v-if="titleErrorShow" class="w-full text-right gst-ri text-red-600 pr-8">
-        Please provide a title
-      </div>
-      <div class="flex flex-row gst-r mx-7 mt-2">
-        <div class="gs-r mr-2 h-8 mt-1 w-16">Address</div>
-        <my-input type="input" v-model="addr" style="width: 40vw" @change="addrErrorShow = false" />
-      </div>
-      <div v-if="addrErrorShow" class="w-full text-right gst-ri text-red-600 pr-8">
-        Please provide an address
-      </div>
-      <div class="flex flex-row gst-r mx-7 mt-2">
-        <div class="gs-r mr-2 h-8 mt-1 w-16">Details</div>
-        <div class="flex flex-col" style="width: 40vw">
+  <scroll-wrapper height="80%" width="100%" class="mt-2">
+    <div class="post-area-wrapper">
+      <div>
+        <div class="flex flex-row gst-r mx-7 mt-8">
+          <div class="gs-r mr-2 h-8 mt-1" style="width: 64px">Title</div>
           <my-input
-            class="h-full"
-            type="textarea"
-            v-model="details"
-            style="min-height: 30vh; max-height: 60vh"
-          ></my-input>
-          <div class="gst-r w-full text-right text-sm mt-0.5">
-            Characters: {{ details.length }} / 9999
-          </div>
-        </div>
-      </div>
-    </div>
-    <div>
-      <div class="gs-r mt-8">Attach images...</div>
-      <div
-        class="grid grid-cols-3 grid-rows-3 gap-2 mt-3"
-        style="height: 40vw; width: 40vw; max-height: 30rem; max-width: 30rem"
-      >
-        <div v-for="(image, idx) in images" :key="idx" class="relative">
-          <img
-            :src="image"
-            class="w-full h-full rounded-2xl shadow-lg shadow-green-300 object-cover"
+            type="input"
+            v-model="title"
+            style="width: 100%"
+            @change="titleErrorShow = false"
           />
-          <div
-            class="text-white text-xl w-7 h-7 absolute top-0 left-0 cursor-pointer rounded-full bg-red-500 text-center"
-            @click="deleteImage(idx)"
-          >
-            <i class="bi bi-x"></i>
-          </div>
         </div>
-        <div
-          v-if="images.length < 9"
-          @click="addImageClick"
-          class="rounded-2xl w-full h-full border-4 border-dashed border-gray-400 text-center relative text-gray-500 hover:border-green-600 hover:text-green-600 transition-all cursor-pointer"
-        >
-          <div class="gs-r text-5xl absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-            +
+        <div v-if="titleErrorShow" class="w-full text-right gst-ri text-red-600 pr-8">
+          Please provide a title
+        </div>
+        <div class="flex flex-row gst-r mx-7 mt-2">
+          <div class="gs-r mr-2 h-8 mt-1" style="width: 64px">Address</div>
+          <my-input
+            type="input"
+            v-model="addr"
+            style="width: 100%"
+            @change="addrErrorShow = false"
+          />
+        </div>
+        <div v-if="addrErrorShow" class="w-full text-right gst-ri text-red-600 pr-8">
+          Please provide an address
+        </div>
+        <div class="flex flex-row gst-r mx-7 mt-2">
+          <div class="gs-r mr-2 h-8 mt-1" style="width: 64px">Details</div>
+          <div class="flex flex-col" style="width: 100%">
+            <my-input
+              class="h-full textarea-height-limits"
+              type="textarea"
+              v-model="details"
+            ></my-input>
+            <div class="gst-r w-full text-right text-sm mt-0.5">
+              Characters: {{ details.length }} / 9999
+            </div>
           </div>
-          <input type="file" id="imageInput" class="opacity-0" @change="addImage($event)" />
         </div>
       </div>
+      <div class="ml-7">
+        <div class="gs-r mt-8">Attach images...</div>
+        <scroll-wrapper height="420px" width="100%" class="overflow-x-hidden">
+          <div class="grid grid-cols-3 grid-rows-3 gap-2 mt-3" style="height: 380px; width: 380px">
+            <div v-for="(image, idx) in images" :key="idx" class="relative">
+              <img
+                :src="image"
+                class="w-full h-full rounded-2xl shadow-lg shadow-green-300 object-cover"
+              />
+              <div
+                class="text-white text-xl w-7 h-7 absolute top-0 left-0 cursor-pointer rounded-full bg-red-500 text-center"
+                @click="deleteImage(idx)"
+              >
+                <i class="bi bi-x"></i>
+              </div>
+            </div>
+            <div
+              v-if="images.length < 9"
+              @click="addImageClick"
+              class="rounded-2xl w-full h-full border-4 border-dashed border-gray-400 text-center relative text-gray-500 hover:border-green-600 hover:text-green-600 transition-all cursor-pointer"
+            >
+              <div
+                class="gs-r text-5xl absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+              >
+                +
+              </div>
+              <input type="file" id="imageInput" class="opacity-0" @change="addImage($event)" />
+            </div>
+          </div>
+        </scroll-wrapper>
+      </div>
     </div>
-  </div>
+  </scroll-wrapper>
 </template>
 
-<style scoped></style>
+<style scoped>
+@media (min-width: 900px) {
+  .post-area-wrapper {
+    @apply grid grid-cols-2 overflow-x-hidden;
+  }
+
+  .textarea-height-limits {
+    min-height: 30vh;
+    max-height: 56vh;
+  }
+}
+
+@media (max-width: 900px) {
+  .post-area-wrapper {
+    @apply flex flex-col;
+  }
+
+  .textarea-height-limits {
+    min-height: 20vh;
+    max-height: 60vh;
+  }
+}
+</style>

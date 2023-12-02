@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import TopHeader from '@/components/TopHeader.vue'
 import ScrollWrapper from '@/components/ScrollWrapper.vue'
-import CardTemplate from '@/components/CardTemplate.vue'
 import { computed, onMounted, ref } from 'vue'
-import axios from 'axios'
 import HomePostCard from '@/views/HomeView/componenets/HomePostCard.vue'
 import MyPagination from '@/components/MyPagination.vue'
+import { ApiGet } from '@/utils/req'
 
 type Ad = {
   adId: number
@@ -25,8 +24,7 @@ const curPageAds = computed(() => {
 })
 
 onMounted(() => {
-  axios
-    .get('/api/ads/home')
+  ApiGet('ads/home')
     .then((resp) => {
       for (const ad of resp.data.obj) {
         adsList.value.push(ad)
@@ -42,6 +40,7 @@ onMounted(() => {
   <top-header :selection="1" />
   <div class="pt-10"></div>
   <scroll-wrapper
+    :show-bar="true"
     height="84vh"
     width="96vw"
     class="bg-white mx-2 pl-6 rounded-3xl border border-green-600 relative"
@@ -53,7 +52,7 @@ onMounted(() => {
       v-model="curPage"
       :total-pages="totalPages"
     />
-    <div v-if="adsList.length > 0" class="grid grid-cols-2 w-full gap-2 pr-4 mt-6 pb-4">
+    <div v-if="adsList.length > 0" class="main-cards-wrapper w-full gap-2 pr-4 mt-6 pb-4">
       <home-post-card
         v-for="ad in curPageAds"
         :key="ad.adId"
@@ -75,4 +74,16 @@ onMounted(() => {
   </scroll-wrapper>
 </template>
 
-<style scoped></style>
+<style scoped>
+@media (max-width: 1024px) {
+  .main-cards-wrapper {
+    @apply grid grid-cols-2;
+  }
+}
+
+@media (min-width: 1024px) {
+  .main-cards-wrapper {
+    @apply grid grid-cols-3;
+  }
+}
+</style>

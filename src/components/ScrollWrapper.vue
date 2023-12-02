@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 
-defineProps(['height', 'width'])
+defineProps(['height', 'width', 'showBar'])
 
 const scrollRef = ref()
 // const barRef = ref()
@@ -76,19 +76,19 @@ onMounted(() => {
 
 <template>
   <div class="overflow-hidden" :style="{ height: height, width: width }">
-    <div class="h-full relative" style="margin-right: -14px">
+    <div class="h-full relative" style="margin-right: -16px">
       <div ref="scrollRef" class="h-full overflow-y-scroll" @scroll="onMouseWheel">
         <slot></slot>
       </div>
       <div
-        v-show="heightPre <= 1"
+        v-show="heightPre <= 1 && showBar"
         ref="barRef"
         class="absolute top-5 right-4 bottom-5 w-0.5 rounded-full"
       >
         <div
           :style="{
             height: barHeight + 'px',
-            transform: 'translate(-5px,' + translateY + 'px)'
+            transform: 'translate(-7px,' + translateY + 'px)'
           }"
           class="w-1 rounded-full bg-green-600 opacity-40 hover:w-2 hover:opacity-100 transition-all"
           @mousedown.stop.prevent="moveStart"

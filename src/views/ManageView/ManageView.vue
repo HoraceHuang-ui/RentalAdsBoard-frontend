@@ -3,9 +3,9 @@ import TopHeader from '@/components/TopHeader.vue'
 import ScrollWrapper from '@/components/ScrollWrapper.vue'
 import CardTemplate from '@/components/CardTemplate.vue'
 import { computed, onMounted, ref } from 'vue'
-import axios from 'axios'
 import HomePostCard from '@/views/HomeView/componenets/HomePostCard.vue'
 import MyPagination from '@/components/MyPagination.vue'
+import { ApiGet } from '@/utils/req'
 
 type Ad = {
   adId: number
@@ -28,8 +28,7 @@ const userInfo = ref<any>({})
 
 onMounted(() => {
   userInfo.value = JSON.parse(localStorage.getItem('userInfo')!!)
-  axios
-    .get(`/api/ads/get?user_id=${userInfo.value.userId}`)
+  ApiGet(`ads/get?user_id=${userInfo.value.userId}`)
     .then((resp) => {
       for (const ad of resp.data.obj) {
         adsList.value.push(ad)
