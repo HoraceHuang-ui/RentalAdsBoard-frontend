@@ -4,7 +4,9 @@ import { onMounted, ref } from 'vue'
 import MyButton from '@/components/MyButton.vue'
 import MyInput from '@/components/MyInput.vue'
 import { useRouter } from 'vue-router'
-import { ApiPost } from '@/utils/req'
+import axios from 'axios'
+import TemplateMessage from '@/components/TemplateMessage.vue'
+import { useTemplateMessage } from '@/utils/template-message'
 
 // login
 const username = ref('')
@@ -30,20 +32,27 @@ const router = useRouter()
 // const auth = useAuthStore()
 const loginClick = () => {
   console.log('login click')
-  ApiPost('board/login', {
-    username: username.value,
-    password: pwd.value
-  })
+  axios
+    .post('/api/board/login', {
+      username: username.value,
+      password: pwd.value
+    })
     .then((resp) => {
       if (resp.data.stateCode == 200) {
         localStorage.setItem('token', 'Bearer ' + resp.data.obj)
+        useTemplateMessage(TemplateMessage, {
+          msg: 'Login successful',
+          type: 'success',
+          timeout: 3000
+        })
         router.push('/home')
       } else {
         pwd.value = ''
+        useTemplateMessage(TemplateMessage, {
+          msg: 'Login failed',
+          type: 'alert'
+        })
       }
-    })
-    .catch((err) => {
-      console.error(err)
     })
 }
 
@@ -55,26 +64,33 @@ const registerConfirm = () => {
   if (username.value.length > 20) {
     return
   }
-  ApiPost('board/register', {
-    username: username.value,
-    password: pwd.value,
-    role: '1',
-    email: email.value,
-    avatarBase64: avatar.value
-  })
+  axios
+    .post('/api/board/register', {
+      username: username.value,
+      password: pwd.value,
+      role: '1',
+      email: email.value,
+      avatarBase64: avatar.value
+    })
     .then((resp) => {
       console.log(resp)
-      if (resp.status == 200) {
+      if (resp.data.stateCode == 200) {
         username.value = ''
         pwd.value = ''
         confPwd.value = ''
         email.value = ''
         avatar.value = ''
         reg.value = false
+        useTemplateMessage(TemplateMessage, {
+          msg: 'Register successful',
+          type: 'success'
+        })
+      } else {
+        useTemplateMessage(TemplateMessage, {
+          msg: 'Register failed',
+          type: 'alert'
+        })
       }
-    })
-    .catch((err) => {
-      console.error(err)
     })
 }
 
@@ -117,7 +133,7 @@ onMounted(() => {
     class="bg-green-50 rounded-3xl border border-green-600 shadow shadow-green-100"
     title="Register"
   >
-    <div class="w-full justify-between flex flex-row mb-6">
+    <div class="w-full justify-between flex flex-row mb-6 mt-6">
       <div class="w-0.5"></div>
       <div
         v-show="avatar === ''"
@@ -203,7 +219,7 @@ onMounted(() => {
     class="bg-green-50 rounded-3xl border border-green-600 shadow shadow-green-100 justify-center"
     title="Login"
   >
-    <div class="flex flex-row w-full mx-7">
+    <div class="flex flex-row w-full mx-7 mt-6">
       <div class="gs-r mr-2 h-8 mt-1 w-20">Username</div>
       <my-input type="input" class="w-80" placeholder="Username or email" v-model="username" />
     </div>

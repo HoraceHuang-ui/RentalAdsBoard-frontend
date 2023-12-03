@@ -6,6 +6,8 @@ import HomePostCard from '@/views/HomeView/componenets/HomePostCard.vue'
 import MyPagination from '@/components/MyPagination.vue'
 import { ApiGet } from '@/utils/req'
 import { useRouter } from 'vue-router'
+import { useTemplateMessage } from '@/utils/template-message'
+import TemplateMessage from '@/components/TemplateMessage.vue'
 
 type Ad = {
   adId: number

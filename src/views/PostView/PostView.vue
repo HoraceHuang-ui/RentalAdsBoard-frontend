@@ -6,6 +6,9 @@ import { useAuthStore } from '@/stores/auth'
 import ScrollWrapper from '@/components/ScrollWrapper.vue'
 import { ApiPost } from '@/utils/req'
 import { marked } from 'marked'
+import { useTemplateMessage } from '@/utils/template-message'
+import TemplateMessage from '@/components/TemplateMessage.vue'
+import { useRouter } from 'vue-router'
 
 const userInfo = ref<any>({})
 const title = ref('')
@@ -49,6 +52,7 @@ const deleteImage = (idx: number) => {
   images.value.splice(idx, 1)
 }
 
+const router = useRouter()
 const postClick = () => {
   titleErrorShow.value = false
   addrErrorShow.value = false
@@ -65,10 +69,25 @@ const postClick = () => {
       description: details.value
     }).then((resp) => {
       const adId = resp.data.obj.adId
-      for (const image of images.value) {
+      for (const [idx, image] of images.value.entries()) {
         ApiPost('picture/save', {
           adId: adId,
           pictureBase64: image
+        }).then((resp) => {
+          if (resp.data.stateCode == 200) {
+            if (idx == images.value.length) {
+              useTemplateMessage(TemplateMessage, {
+                msg: 'Ad posted successfully',
+                type: 'success'
+              })
+              router.push('/home')
+            }
+          } else {
+            useTemplateMessage(TemplateMessage, {
+              msg: 'Failed posting ad',
+              type: 'warn'
+            })
+          }
         })
       }
     })

@@ -1,23 +1,33 @@
 <script setup lang="ts">
-// 1: home; 2: manage
-import { useAuthStore } from '@/stores/auth'
+// 1: home; 2: manage; 3: post/edit
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ApiGet } from '@/utils/req'
+import { useTemplateMessage } from '@/utils/template-message'
+import TemplateMessage from '@/components/TemplateMessage.vue'
 
 defineProps(['selection'])
 const userInfo = ref<any>({})
 const userOptionsShow = ref(false)
 
-// const auth = useAuthStore()
+const router = useRouter()
 onMounted(() => {
   // userInfo.value = auth.userInfo
-  ApiGet('board/home').then((resp) => {
-    userInfo.value = resp.data.obj
-  })
+  ApiGet('board/home')
+    .then((resp) => {
+      userInfo.value = resp.data.obj
+    })
+    .catch((err) => {
+      if (err.data.message === 'get user info failed') {
+        useTemplateMessage(TemplateMessage, {
+          msg: 'Auth expired, please re-login.',
+          type: 'alert'
+        })
+        router.push('/')
+      }
+    })
 })
 
-const router = useRouter()
 const homeClick = () => {
   router.push('/home')
 }
