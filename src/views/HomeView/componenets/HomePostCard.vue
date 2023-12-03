@@ -39,12 +39,6 @@ onMounted(() => {
     .catch((err) => {
       console.error(err)
     })
-
-  ApiGet(`board/home?user_id=${props.ad.userId}`).then((resp) => {
-    if (resp.data.obj) {
-      adUser.value = resp.data.obj
-    }
-  })
 })
 </script>
 
@@ -74,7 +68,7 @@ onMounted(() => {
       </div>
       <div class="flex flex-row rounded-2xl border border-gray-400 px-3 py-1 ml-3 mr-2 bg-white">
         <i class="bi bi-person-circle" />
-        <div class="ml-2">{{ adUser.username }}</div>
+        <div class="ml-2">{{ ad.username }}</div>
       </div>
     </div>
   </card-template>

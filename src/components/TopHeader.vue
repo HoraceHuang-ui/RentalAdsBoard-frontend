@@ -18,7 +18,7 @@ onMounted(() => {
       userInfo.value = resp.data.obj
     })
     .catch((err) => {
-      if (err.data.message === 'get user info failed') {
+      if (err.response.data === 'need to login') {
         useTemplateMessage(TemplateMessage, {
           msg: 'Auth expired, please re-login.',
           type: 'alert'
@@ -90,6 +90,12 @@ const logout = () => {
       @mouseleave="userOptionsShow = false"
       class="flex flex-row rounded-full mr-1 my-1 cursor-default text-green-100 hover:bg-green-100 hover:text-green-600 transition-all"
     >
+      <div
+        v-if="userInfo.role === '2'"
+        class="gs-b rounded-full border-2 border-red-600 bg-red-100 text-red-600 text-sm my-1 py-1 px-2 ml-1"
+      >
+        Admin
+      </div>
       <div class="gs-r rounded-full px-2 py-1 mt-0.5 mr-1">
         {{ userInfo.username }}
       </div>
@@ -106,6 +112,14 @@ const logout = () => {
         <div
           class="bg-green-50 rounded-3xl w-56 mt-4 text-lg px-5 py-4 border border-green-600 shadow-xl shadow-green-200"
         >
+          <div
+            v-if="userInfo.role === '2'"
+            @click="editUserInfoClick"
+            class="flex flex-row text-gray-700 w-full py-1 pl-3 rounded-full hover:text-green-700 hover:bg-green-200 transition-all cursor-pointer"
+          >
+            <i class="bi bi-person-gear text-3xl" />
+            <div class="ml-3 mt-1">Manage users</div>
+          </div>
           <div
             @click="editUserInfoClick"
             class="flex flex-row text-gray-700 w-full py-1 pl-3 rounded-full hover:text-green-700 hover:bg-green-200 transition-all cursor-pointer"

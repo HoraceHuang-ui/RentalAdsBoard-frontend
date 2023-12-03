@@ -4,13 +4,15 @@ import MyInput from '@/components/MyInput.vue'
 import { computed, onMounted, ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import ScrollWrapper from '@/components/ScrollWrapper.vue'
-import { ApiPost } from '@/utils/req'
+import { ApiDelete, ApiGet, ApiPost } from '@/utils/req'
 import { marked } from 'marked'
 import { useTemplateMessage } from '@/utils/template-message'
 import TemplateMessage from '@/components/TemplateMessage.vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
-const userInfo = ref<any>({})
+const route = useRoute()
+const editMode = !!route.query.adId
+
 const title = ref('')
 const addr = ref('')
 const details = ref('')
@@ -22,7 +24,15 @@ const detailsPreviewContent = computed(() => {
 const titleErrorShow = ref(false)
 const addrErrorShow = ref(false)
 
-const images = ref<string[]>([])
+type Image = {
+  pictureId: number
+  adId: number
+  pictureBase64: string
+}
+
+const originalImages = ref<Image[]>([])
+const imagesToRemove = ref<number[]>([])
+const imagesToAdd = ref<string[]>([])
 // const auth = useAuthStore()
 
 const addImageClick = () => {
@@ -40,16 +50,19 @@ const addImage = (event) => {
     reader.readAsDataURL(file)
     reader.onload = () => {
       base64 = reader.result
-      images.value.push(base64)
+      imagesToAdd.value.push(base64)
     }
-    console.log(images.value)
     reader.onerror = (error) => {
       console.error('Error reading file:', error)
     }
   }
 }
-const deleteImage = (idx: number) => {
-  images.value.splice(idx, 1)
+const deleteOriginalImage = (idx: number) => {
+  imagesToRemove.value.push(originalImages.value.splice(idx, 1)[0].pictureId)
+}
+
+const deleteNewImage = (idx: number) => {
+  imagesToAdd.value.splice(idx, 1)
 }
 
 const router = useRouter()
@@ -63,31 +76,49 @@ const postClick = () => {
     addrErrorShow.value = true
   }
   if (!addrErrorShow.value && !titleErrorShow.value) {
-    ApiPost('ads/save', {
+    ApiPost(editMode ? 'ads/update' : 'ads/save', {
+      adId: editMode ? route.query.adId : null,
       title: title.value,
       address: addr.value,
       description: details.value
-    }).then((resp) => {
-      const adId = resp.data.obj.adId
-      for (const [idx, image] of images.value.entries()) {
-        ApiPost('picture/save', {
-          adId: adId,
-          pictureBase64: image
-        }).then((resp) => {
-          if (resp.data.stateCode == 200) {
-            if (idx == images.value.length) {
+    }).then((adResp) => {
+      if (adResp.data.stateCode == 200) {
+        if (imagesToAdd.value.length == 0) {
+          useTemplateMessage(TemplateMessage, {
+            msg: 'Ad posted successfully',
+            type: 'success'
+          })
+          router.go(-1)
+        }
+        const adId = adResp.data.obj.adId
+        for (const imageId of imagesToRemove.value) {
+          ApiDelete(`picture/delete?picture_id=${imageId}`)
+        }
+        for (const [idx, image] of imagesToAdd.value.entries()) {
+          ApiPost('picture/save', {
+            adId: adId,
+            pictureBase64: image
+          }).then((imgResp) => {
+            if (imgResp.data.stateCode == 200) {
+              if (idx == imagesToAdd.value.length - 1) {
+                useTemplateMessage(TemplateMessage, {
+                  msg: 'Ad posted successfully',
+                  type: 'success'
+                })
+                router.go(-1)
+              }
+            } else {
               useTemplateMessage(TemplateMessage, {
-                msg: 'Ad posted successfully',
-                type: 'success'
+                msg: 'Failed posting ad',
+                type: 'warn'
               })
-              router.push('/home')
             }
-          } else {
-            useTemplateMessage(TemplateMessage, {
-              msg: 'Failed posting ad',
-              type: 'warn'
-            })
-          }
+          })
+        }
+      } else {
+        useTemplateMessage(TemplateMessage, {
+          msg: 'Failed posting ad',
+          type: 'warn'
         })
       }
     })
@@ -95,7 +126,23 @@ const postClick = () => {
 }
 
 onMounted(() => {
-  userInfo.value = JSON.parse(localStorage.getItem('userInfo')!!)
+  if (editMode) {
+    ApiGet(`ads/user/get?ad_id=${route.query.adId}`).then((resp) => {
+      console.log(resp)
+      if (resp.data.obj) {
+        const adInfo = resp.data.obj
+        title.value = adInfo.title
+        addr.value = adInfo.address
+        details.value = adInfo.description
+        ApiGet(`picture/list?ad_id=${adInfo.adId}`).then((pictureResp) => {
+          console.log(pictureResp)
+          for (const pictureObj of pictureResp.data.obj) {
+            originalImages.value.push(pictureObj)
+          }
+        })
+      }
+    })
+  }
 })
 </script>
 
@@ -103,7 +150,7 @@ onMounted(() => {
   <top-header :selection="3" />
 
   <div class="px-2 pt-8 justify-between w-full flex flex-row">
-    <div class="gs-b text-5xl">Post an Ad...</div>
+    <div class="gs-b text-5xl">{{ editMode ? 'Edit Your Ad...' : 'Post an Ad...' }}</div>
     <div
       @click="postClick"
       class="rounded-full flex flex-row px-4 py-1 text-green-700 border-2 border-green-600 hover:text-green-100 hover:bg-green-600 transition-all cursor-pointer"
@@ -180,20 +227,32 @@ onMounted(() => {
         <div class="gs-r mt-8">Attach images...</div>
         <scroll-wrapper height="420px" width="100%" class="overflow-x-hidden">
           <div class="grid grid-cols-3 grid-rows-3 gap-2 mt-3" style="height: 380px; width: 380px">
-            <div v-for="(image, idx) in images" :key="idx" class="relative">
+            <div v-for="(image, idx) in originalImages" :key="idx" class="relative">
+              <img
+                :src="image.pictureBase64"
+                class="w-full h-full rounded-2xl shadow-lg shadow-green-300 object-cover"
+              />
+              <div
+                class="text-white text-xl w-7 h-7 absolute top-0 left-0 cursor-pointer rounded-full bg-red-500 text-center"
+                @click="deleteOriginalImage(idx)"
+              >
+                <i class="bi bi-x"></i>
+              </div>
+            </div>
+            <div v-for="(image, idx) in imagesToAdd" :key="idx" class="relative">
               <img
                 :src="image"
                 class="w-full h-full rounded-2xl shadow-lg shadow-green-300 object-cover"
               />
               <div
                 class="text-white text-xl w-7 h-7 absolute top-0 left-0 cursor-pointer rounded-full bg-red-500 text-center"
-                @click="deleteImage(idx)"
+                @click="deleteNewImage(idx)"
               >
                 <i class="bi bi-x"></i>
               </div>
             </div>
             <div
-              v-if="images.length < 9"
+              v-if="originalImages.length + imagesToAdd.length < 9"
               @click="addImageClick"
               class="rounded-2xl w-full h-full border-4 border-dashed border-gray-400 text-center relative text-gray-500 hover:border-green-600 hover:text-green-600 transition-all cursor-pointer"
             >

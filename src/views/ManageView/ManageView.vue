@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import TopHeader from '@/components/TopHeader.vue'
 import ScrollWrapper from '@/components/ScrollWrapper.vue'
-import CardTemplate from '@/components/CardTemplate.vue'
 import { computed, onMounted, ref } from 'vue'
-import HomePostCard from '@/views/HomeView/componenets/HomePostCard.vue'
+import ManagePostCard from '@/views/ManageView/components/ManagePostCard.vue'
 import MyPagination from '@/components/MyPagination.vue'
 import { ApiGet } from '@/utils/req'
+import MySwitch from '@/components/MySwitch.vue'
 
 type Ad = {
   adId: number
@@ -15,20 +15,39 @@ type Ad = {
   userId: number
 }
 const adsList = ref<Ad[]>([])
+const adminAdsList = ref<Ad[]>([])
+const adminShowAll = ref(false)
+
+const isAdmin = ref(false)
 
 const curPage = ref(1)
 const totalPages = computed(() => {
-  return Math.floor((adsList.value.length - 1) / 6) + 1
+  return Math.floor(((adminShowAll.value ? adminAdsList : adsList).value.length - 1) / 6) + 1
 })
 const curPageAds = computed(() => {
-  return adsList.value.slice((curPage.value - 1) * 6, (curPage.value - 1) * 6 + 6)
+  return (adminShowAll.value ? adminAdsList : adsList).value.slice(
+    (curPage.value - 1) * 6,
+    (curPage.value - 1) * 6 + 6
+  )
 })
 
-const userInfo = ref<any>({})
-
 onMounted(() => {
-  userInfo.value = JSON.parse(localStorage.getItem('userInfo')!!)
-  ApiGet(`ads/get?user_id=${userInfo.value.userId}`)
+  ApiGet('board/home').then((resp) => {
+    isAdmin.value = resp.data.obj.role === '2'
+    if (isAdmin.value) {
+      ApiGet('ads/home')
+        .then((resp) => {
+          for (const ad of resp.data.obj) {
+            adminAdsList.value.push(ad)
+          }
+        })
+        .catch((err) => {
+          console.error(err)
+        })
+    }
+  })
+
+  ApiGet('ads/get')
     .then((resp) => {
       for (const ad of resp.data.obj) {
         adsList.value.push(ad)
@@ -44,18 +63,40 @@ onMounted(() => {
   <top-header :selection="2" />
   <div class="pt-10"></div>
   <scroll-wrapper
+    :show-bar="true"
     height="84vh"
     width="96vw"
     class="bg-white mx-2 pl-6 rounded-3xl border border-green-600 relative"
   >
-    <div class="w-full gs-b text-5xl mt-8">Manage Your Ads</div>
-    <my-pagination v-if="totalPages > 1" v-model="curPage" :total-pages="totalPages" />
-    <div v-if="adsList.length > 0" class="grid grid-cols-2 w-full gap-2 pr-4 mt-6 pb-4">
-      <home-post-card
-        v-for="ad in curPageAds"
+    <div class="flex flex-row w-full mt-8">
+      <div class="gs-b text-5xl">Manage Ads...</div>
+      <my-switch
+        v-if="isAdmin"
+        text-l="All"
+        text-r="Mine"
+        wrapper-width="150px"
+        track-width="75px"
+        v-model="adminShowAll"
+        class="ml-3 my-2"
+      ></my-switch>
+    </div>
+    <my-pagination
+      class="absolute right-8 top-2 z-10 shadow-green-200 shadow-xl border border-green-300"
+      v-if="totalPages > 1"
+      v-model="curPage"
+      :total-pages="totalPages"
+    />
+
+    <div
+      v-if="(adminShowAll ? adminAdsList : adsList).length > 0"
+      class="main-cards-wrapper w-full gap-2 pr-4 mt-6 pb-4"
+    >
+      <manage-post-card
+        v-for="(ad, idx) in curPageAds"
         :key="ad.adId"
         :ad="ad"
-        class="border border-gray-400 rounded-3xl"
+        @delete="(adminShowAll ? adminAdsList : adsList).splice(idx, 1)"
+        class="border border-gray-400 rounded-3xl z-0"
       />
     </div>
     <div v-else class="text-center" style="margin-top: 15%">
@@ -72,4 +113,16 @@ onMounted(() => {
   </scroll-wrapper>
 </template>
 
-<style scoped></style>
+<style scoped>
+@media (max-width: 900px) {
+  .main-cards-wrapper {
+    @apply flex flex-col;
+  }
+}
+
+@media (min-width: 900px) {
+  .main-cards-wrapper {
+    @apply grid grid-cols-2;
+  }
+}
+</style>
