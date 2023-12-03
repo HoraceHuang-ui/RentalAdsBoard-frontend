@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { inject, onMounted, ref } from 'vue'
 
-defineProps({
+const props = defineProps({
   timeout: {
     type: Number,
     default: 5000
@@ -26,8 +26,8 @@ function startCountdown() {
     cShow.value = false
     setTimeout(() => {
       unmount()
-    }, 500)
-  }, 5000)
+    }, 350)
+  }, props.timeout)
 }
 
 onMounted(() => {
