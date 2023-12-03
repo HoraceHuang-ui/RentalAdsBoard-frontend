@@ -11,8 +11,8 @@ const switchPageTo = (page: number) => {
 </script>
 
 <template>
-  <div class="rounded-full shadow-green-200 shadow-xl px-1 py-1 border border-green-300 bg-white">
-    <div class="flex flex-row">
+  <div class="rounded-full px-1 py-1 bg-white">
+    <div class="flex flex-row w-full justify-center">
       <div
         class="pagination-button"
         @click="switchPageTo(1)"
@@ -26,7 +26,7 @@ const switchPageTo = (page: number) => {
         v-for="idx in 5"
         :key="idx"
         @click="switchPageTo(modelValue - 3 + idx)"
-        class="pagination-button gst-r"
+        class="pagination-button"
         :class="
           modelValue - 3 + idx == modelValue
             ? 'pagination-button-nums-selected'

@@ -9,11 +9,24 @@ const props = defineProps(['ad'])
 const image = ref<string>('')
 const adUser = ref<any>({})
 
-const clipString = (str: string, len: number) => {
-  if (str.length > len) {
-    str = str.substring(0, len + 1) + '...'
+const clipString = (str: string, targetLen: number) => {
+  let len = 0
+  let i = 0
+  for (; i < str.length; i++) {
+    let charCode = str.charCodeAt(i)
+    if (charCode < 128) {
+      len += 1
+    } else {
+      len += 2
+    }
+    if (len >= targetLen) {
+      break
+    }
   }
-  return str
+  if (i == str.length) {
+    return str
+  }
+  return str.substring(0, i + 1) + '...'
 }
 
 onMounted(() => {
@@ -37,9 +50,9 @@ onMounted(() => {
 
 <template>
   <card-template
-    :title="ad.title"
-    class="border border-gray-400 rounded-3xl relative pb-6 hover:border-green-600 hover:shadow-md hover:shadow-green-100 hover:-translate-y-1 hover:bg-green-50 transition-all cursor-pointer"
-    style="transition-duration: 300ms"
+    :title="clipString(ad.title, 20)"
+    class="flex flex-col relative border border-gray-400 rounded-3xl pb-6 hover:border-green-600 hover:shadow-md hover:shadow-green-100 hover:-translate-y-1 hover:bg-green-50 transition-all cursor-pointer"
+    style="transition-duration: 300ms; max-height: 50vh"
   >
     <div v-if="image !== ''" class="px-4 py-2 flex flex-row justify-center">
       <img
@@ -49,19 +62,19 @@ onMounted(() => {
         :alt="`first image of ${ad.title}`"
       />
     </div>
-    <div class="h-20 overflow-clip">
-      <div class="body-detail gst-r m-6 max-h-9" v-html="marked(ad.description)"></div>
+    <div class="h-full overflow-hidden mx-6 mt-2 mb-5 rounded-lg">
+      <div class="body-detail" v-html="marked(ad.description)"></div>
     </div>
-    <div class="flex flex-row absolute bottom-2 left-2">
-      <div class="flex flex-row rounded-full border border-gray-400 px-3 py-1 bg-white">
+    <div class="flex flex-row absolute left-2 bottom-2">
+      <div class="flex flex-row rounded-2xl border border-gray-400 px-3 py-1 bg-white">
         <i class="bi bi-geo-alt-fill" />
-        <span class="gst-r ml-2">
-          {{ clipString(ad.address, 25) }}
+        <span class="ml-2">
+          {{ clipString(ad.address, 20) }}
         </span>
       </div>
-      <div class="flex flex-row rounded-full border border-gray-400 px-3 py-1 ml-3 bg-white">
+      <div class="flex flex-row rounded-2xl border border-gray-400 px-3 py-1 ml-3 mr-2 bg-white">
         <i class="bi bi-person-circle" />
-        <div class="gst-r ml-2">{{ adUser.username }}</div>
+        <div class="ml-2">{{ adUser.username }}</div>
       </div>
     </div>
   </card-template>

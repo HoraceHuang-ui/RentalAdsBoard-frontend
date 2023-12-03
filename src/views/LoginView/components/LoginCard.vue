@@ -137,7 +137,7 @@ onMounted(() => {
       />
       <div class="w-0.5"></div>
     </div>
-    <div class="flex flex-row w-full gst-r mx-5 relative">
+    <div class="flex flex-row w-full mx-5 relative">
       <div class="gs-r mr-2 h-8 mt-1 w-32">Username</div>
       <my-input
         type="input"
@@ -146,18 +146,18 @@ onMounted(() => {
         v-model="username"
       />
       <div
-        class="absolute right-14 top-0.5 h-7 py-1 gst-r px-2 rounded-full"
+        class="absolute right-14 top-0.5 h-7 py-1 px-2 rounded-full"
         :class="username.length <= 20 ? 'text-gray-400' : 'text-red-500'"
         style="background-color: rgba(255 255 255 / 0.8)"
       >
         {{ username.length }}/20
       </div>
     </div>
-    <div class="flex flex-row gst-r mt-2 mx-5">
+    <div class="flex flex-row mt-2 mx-5">
       <div class="gs-r mr-2 h-8 mt-1 w-32">Email</div>
       <my-input type="input" class="w-72" placeholder="Your email" v-model="email" />
     </div>
-    <div class="flex flex-row gst-r mt-2 mx-5">
+    <div class="flex flex-row mt-2 mx-5">
       <div class="gs-r mr-2 h-8 mt-1 w-32">Password</div>
       <my-input
         type="password"
@@ -167,7 +167,7 @@ onMounted(() => {
         @change="pwdErrorShow = false"
       />
     </div>
-    <div class="flex flex-row gst-r mt-2 mx-5">
+    <div class="flex flex-row mt-2 mx-5">
       <div class="gs-r mr-2 h-8 mt-1 w-32">Confirm Password</div>
       <my-input
         type="password"
@@ -203,11 +203,11 @@ onMounted(() => {
     class="bg-green-50 rounded-3xl border border-green-600 shadow shadow-green-100 justify-center"
     title="Login"
   >
-    <div class="flex flex-row w-full gst-r mx-7">
+    <div class="flex flex-row w-full mx-7">
       <div class="gs-r mr-2 h-8 mt-1 w-20">Username</div>
       <my-input type="input" class="w-80" placeholder="Username or email" v-model="username" />
     </div>
-    <div class="flex flex-row w-full gst-r mt-2 mx-7">
+    <div class="flex flex-row w-full mt-2 mx-7">
       <div class="gs-r mr-2 h-8 mt-1 w-20">Password</div>
       <my-input
         type="password"

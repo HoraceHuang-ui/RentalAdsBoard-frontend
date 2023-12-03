@@ -94,7 +94,7 @@ const logout = () => {
         style="transition-duration: 300ms"
       >
         <div
-          class="bg-green-50 rounded-3xl w-56 mt-4 gst-r text-lg px-5 py-4 border border-green-600 shadow-xl shadow-green-200"
+          class="bg-green-50 rounded-3xl w-56 mt-4 text-lg px-5 py-4 border border-green-600 shadow-xl shadow-green-200"
         >
           <div
             @click="editUserInfoClick"

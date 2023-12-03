@@ -58,7 +58,7 @@ onMounted(() => {
         class="border border-gray-400 rounded-3xl"
       />
     </div>
-    <div v-else class="gst-r text-center" style="margin-top: 15%">
+    <div v-else class="text-center" style="margin-top: 15%">
       <i class="bi bi-emoji-frown text-4xl text-green-600 opacity-40" />
       <div class="mt-1">
         <span class="text-gray-400 cursor-default">Empty here...</span>

@@ -109,7 +109,7 @@ onMounted(() => {
         <div v-if="titleErrorShow" class="w-full text-right gst-ri text-red-600 pr-8">
           Please provide a title
         </div>
-        <div class="flex flex-row gst-r mx-7 mt-2">
+        <div class="flex flex-row mx-7 mt-2">
           <div class="gs-r mr-2 h-8 mt-1" style="width: 64px">Address</div>
           <my-input
             type="input"
@@ -121,7 +121,7 @@ onMounted(() => {
         <div v-if="addrErrorShow" class="w-full text-right gst-ri text-red-600 pr-8">
           Please provide an address
         </div>
-        <div class="flex flex-row gst-r mx-7 mt-2">
+        <div class="flex flex-row mx-7 mt-2">
           <div class="gs-r mr-2 h-8 mt-1" style="width: 64px">
             Details
             <i class="bi bi-markdown-fill" />
@@ -132,11 +132,11 @@ onMounted(() => {
               type="textarea"
               v-model="details"
             ></my-input>
-            <div class="flex flex-row justify-between gst-r w-full text-right text-sm mt-0.5">
+            <div class="flex flex-row justify-between w-full text-right text-sm mt-0.5">
               <div
                 @click="showDetailsPreview = !showDetailsPreview"
                 class="flex flex-row cursor-pointer hover:text-green-600 transition-all"
-                :class="showDetailsPreview ? 'text-green-700 gst-b' : 'text-gray-600 gst-r'"
+                :class="showDetailsPreview ? 'text-green-700 gst-b' : 'text-gray-600'"
               >
                 <i v-if="showDetailsPreview" class="bi bi-check-circle-fill mr-1" />
                 <i v-else class="bi bi-circle mr-1" />
@@ -148,7 +148,7 @@ onMounted(() => {
               v-if="showDetailsPreview"
               width="100%"
               height="30vh"
-              class="border rounded-3xl border-green-600 mt-2"
+              class="border rounded-3xl border-green-600 mt-2 bg-green-50"
               :show-bar="true"
             >
               <div class="p-4" v-html="detailsPreviewContent"></div>
