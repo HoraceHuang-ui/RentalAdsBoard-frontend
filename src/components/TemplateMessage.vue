@@ -24,9 +24,7 @@ const cShow = ref(show)
 function startCountdown() {
   setTimeout(() => {
     cShow.value = false
-    setTimeout(() => {
-      unmount()
-    }, 350)
+    setTimeout(unmount, 350)
   }, props.timeout)
 }
 

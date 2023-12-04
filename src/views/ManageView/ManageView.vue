@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import TopHeader from '@/components/TopHeader.vue'
+import TopHeader from '@/components/TopHeader/TopHeader.vue'
 import ScrollWrapper from '@/components/ScrollWrapper.vue'
 import { computed, onMounted, ref } from 'vue'
 import ManagePostCard from '@/views/ManageView/components/ManagePostCard.vue'

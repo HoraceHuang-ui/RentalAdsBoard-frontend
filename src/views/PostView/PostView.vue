@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import TopHeader from '@/components/TopHeader.vue'
+import TopHeader from '@/components/TopHeader/TopHeader.vue'
 import MyInput from '@/components/MyInput.vue'
 import { computed, onMounted, ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import ScrollWrapper from '@/components/ScrollWrapper.vue'
 import { ApiDelete, ApiGet, ApiPost } from '@/utils/req'
 import { marked } from 'marked'
-import { useTemplateMessage } from '@/utils/template-message'
+import { useTemplateMessage, msgProps } from '@/utils/template-message'
 import TemplateMessage from '@/components/TemplateMessage.vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -84,10 +84,7 @@ const postClick = () => {
     }).then((adResp) => {
       if (adResp.data.stateCode == 200) {
         if (imagesToAdd.value.length == 0) {
-          useTemplateMessage(TemplateMessage, {
-            msg: 'Ad posted successfully',
-            type: 'success'
-          })
+          useTemplateMessage(TemplateMessage, msgProps('Ad posted successfully', 'success'))
           router.go(-1)
         }
         const adId = adResp.data.obj.adId
@@ -101,25 +98,16 @@ const postClick = () => {
           }).then((imgResp) => {
             if (imgResp.data.stateCode == 200) {
               if (idx == imagesToAdd.value.length - 1) {
-                useTemplateMessage(TemplateMessage, {
-                  msg: 'Ad posted successfully',
-                  type: 'success'
-                })
+                useTemplateMessage(TemplateMessage, msgProps('Ad posted successfully', 'success'))
                 router.go(-1)
               }
             } else {
-              useTemplateMessage(TemplateMessage, {
-                msg: 'Failed posting ad',
-                type: 'warn'
-              })
+              useTemplateMessage(TemplateMessage, msgProps('Failed posting ad', 'warn'))
             }
           })
         }
       } else {
-        useTemplateMessage(TemplateMessage, {
-          msg: 'Failed posting ad',
-          type: 'warn'
-        })
+        useTemplateMessage(TemplateMessage, msgProps('Failed posting ad', 'warn'))
       }
     })
   }

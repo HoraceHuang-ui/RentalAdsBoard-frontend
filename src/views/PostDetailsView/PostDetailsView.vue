@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
-import TopHeader from '@/components/TopHeader.vue'
+import TopHeader from '@/components/TopHeader/TopHeader.vue'
 import { computed, onMounted, ref } from 'vue'
 import { ApiGet } from '@/utils/req'
 import MyPagination from '@/components/MyPagination.vue'

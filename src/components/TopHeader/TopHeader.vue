@@ -2,9 +2,11 @@
 // 1: home; 2: manage; 3: post/edit
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { ApiGet } from '@/utils/req'
+import { ApiGet, ApiPut } from '@/utils/req'
 import { useTemplateMessage } from '@/utils/template-message'
 import TemplateMessage from '@/components/TemplateMessage.vue'
+import { useTemplateDialog } from '@/utils/template-dialog'
+import InfoEditDialog from '@/components/TopHeader/components/InfoEditDialog.vue'
 
 defineProps(['selection'])
 const userInfo = ref<any>({})
@@ -12,6 +14,7 @@ const userOptionsShow = ref(false)
 
 const router = useRouter()
 onMounted(() => {
+  // ApiPut('board/root/resetPassword?username=otto')
   // userInfo.value = auth.userInfo
   ApiGet('board/home')
     .then((resp) => {
@@ -38,8 +41,14 @@ const postClick = () => {
   router.push('/post')
 }
 
+const adminManageUsersClick = () => {
+  console.log('admin manage users')
+}
+
 const editUserInfoClick = () => {
-  console.log('edit user info')
+  useTemplateDialog(InfoEditDialog, {
+    userInfo: userInfo.value
+  })
 }
 
 const logout = () => {
@@ -114,7 +123,7 @@ const logout = () => {
         >
           <div
             v-if="userInfo.role === '2'"
-            @click="editUserInfoClick"
+            @click="adminManageUsersClick"
             class="flex flex-row text-gray-700 w-full py-1 pl-3 rounded-full hover:text-green-700 hover:bg-green-200 transition-all cursor-pointer"
           >
             <i class="bi bi-person-gear text-3xl" />

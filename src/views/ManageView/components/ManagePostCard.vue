@@ -3,7 +3,7 @@ import CardTemplate from '@/components/CardTemplate.vue'
 import { computed, onMounted, ref } from 'vue'
 import { ApiDelete, ApiGet, ApiPost } from '@/utils/req'
 import { marked } from 'marked'
-import { useTemplateMessage } from '@/utils/template-message'
+import { useTemplateMessage, msgProps } from '@/utils/template-message'
 import TemplateMessage from '@/components/TemplateMessage.vue'
 import { useRouter } from 'vue-router'
 
@@ -46,10 +46,7 @@ const deletePost = () => {
     .then((resp) => {
       if (resp.data.stateCode == 200) {
         emit('delete')
-        useTemplateMessage(TemplateMessage, {
-          msg: 'Delete ad success',
-          type: 'success'
-        })
+        useTemplateMessage(TemplateMessage, msgProps('Delete ad success', 'success'))
       }
     })
     .catch(() => {

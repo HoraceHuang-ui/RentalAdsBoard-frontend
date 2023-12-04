@@ -6,7 +6,7 @@ import MyInput from '@/components/MyInput.vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import TemplateMessage from '@/components/TemplateMessage.vue'
-import { useTemplateMessage } from '@/utils/template-message'
+import { useTemplateMessage, msgProps } from '@/utils/template-message'
 
 // login
 const username = ref('')
@@ -40,18 +40,11 @@ const loginClick = () => {
     .then((resp) => {
       if (resp.data.stateCode == 200) {
         localStorage.setItem('token', 'Bearer ' + resp.data.obj)
-        useTemplateMessage(TemplateMessage, {
-          msg: 'Login successful',
-          type: 'success',
-          timeout: 3000
-        })
+        useTemplateMessage(TemplateMessage, msgProps('Login successful', 'success', 3000))
         router.push('/home')
       } else {
         pwd.value = ''
-        useTemplateMessage(TemplateMessage, {
-          msg: 'Login failed',
-          type: 'alert'
-        })
+        useTemplateMessage(TemplateMessage, msgProps('Login failed', 'alert'))
       }
     })
 }

@@ -1,7 +1,7 @@
 import { createApp, nextTick, ref } from 'vue'
 import type { Component } from 'vue'
 
-export function useTemplateMessage(component: Component, props: Record<string, any> = {}) {
+export function useTemplateDialog(component: Component, props: Record<string, any> = {}) {
   const app = createApp(component, props)
   const dom = document.createElement('div')
 
@@ -11,8 +11,8 @@ export function useTemplateMessage(component: Component, props: Record<string, a
   }
 
   const show = ref(false)
-  app.provide('app/showMessage', show)
-  app.provide('app/unmountMessage', unmount)
+  app.provide('app/showDialog', show)
+  app.provide('app/unmountDialog', unmount)
   app.mount(dom)
   document.body.appendChild(dom)
   nextTick(() => {
@@ -21,20 +21,10 @@ export function useTemplateMessage(component: Component, props: Record<string, a
 
   function hide() {
     show.value = false
-    unmount()
+    setTimeout(unmount, 350)
   }
 
   return {
     hide
-  }
-}
-
-type MsgType = 'info' | 'alert' | 'success' | 'warn'
-
-export function msgProps(msg?: string, msgType?: MsgType, msgTimeout?: number) {
-  return {
-    msg: msg,
-    type: msgType as string,
-    timeout: msgTimeout
   }
 }
