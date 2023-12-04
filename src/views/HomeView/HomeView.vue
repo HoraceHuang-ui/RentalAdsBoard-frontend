@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import TopHeader from '@/components/TopHeader/TopHeader.vue'
 import ScrollWrapper from '@/components/ScrollWrapper.vue'
-import { computed, onMounted, ref } from 'vue'
+import { computed, inject, onMounted, ref, watch } from 'vue'
 import HomePostCard from '@/views/HomeView/componenets/HomePostCard.vue'
 import MyPagination from '@/components/MyPagination.vue'
-import { ApiGet } from '@/utils/req'
+import { ApiGet, ApiPut } from '@/utils/req'
 import { useRouter } from 'vue-router'
-import { useTemplateMessage } from '@/utils/template-message'
+import { useTemplateMessage, msgProps } from '@/utils/template-message'
 import TemplateMessage from '@/components/TemplateMessage.vue'
 
 type Ad = {
@@ -18,6 +18,9 @@ type Ad = {
 }
 const adsList = ref<Ad[]>([])
 
+const progressArr = inject('topProgressArr')
+const router = useRouter()
+
 const curPage = ref(1)
 const totalPages = computed(() => {
   return Math.floor((adsList.value.length - 1) / 6) + 1
@@ -26,7 +29,14 @@ const curPageAds = computed(() => {
   return adsList.value.slice((curPage.value - 1) * 6, (curPage.value - 1) * 6 + 6)
 })
 
-const router = useRouter()
+watch(curPageAds, () => {
+  progressArr.value = []
+
+  for (let i = 0; i < curPageAds.value.length; i++) {
+    progressArr.value.push(false)
+  }
+})
+
 const toDetails = (adId: number) => {
   router.push({
     name: 'details',
@@ -37,14 +47,21 @@ const toDetails = (adId: number) => {
 }
 
 onMounted(() => {
+  // ApiPut('board/root/resetPassword?username=otto1', null)
+  progressArr.value = [false]
   ApiGet('ads/home')
     .then((resp) => {
       for (const ad of resp.data.obj) {
         adsList.value.push(ad)
       }
+      progressArr.value[0] = true
     })
-    .catch((err) => {
-      console.error(err)
+    .catch(() => {
+      progressArr.value = []
+      useTemplateMessage(
+        TemplateMessage,
+        msgProps('Error loading contents, try refreshing page.', 'alert')
+      )
     })
 })
 </script>
@@ -67,9 +84,10 @@ onMounted(() => {
     />
     <div v-if="adsList.length > 0" class="main-cards-wrapper w-full gap-2 pr-4 mt-6 pb-4">
       <home-post-card
-        v-for="ad in curPageAds"
+        v-for="(ad, idx) in curPageAds"
         :key="ad.adId"
         :ad="ad"
+        @load-complete="progressArr[idx] = true"
         @click="toDetails(ad.adId)"
         class="border border-gray-400 rounded-3xl z-0"
       />

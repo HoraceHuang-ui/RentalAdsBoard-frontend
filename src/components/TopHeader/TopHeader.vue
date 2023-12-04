@@ -14,7 +14,6 @@ const userOptionsShow = ref(false)
 
 const router = useRouter()
 onMounted(() => {
-  // ApiPut('board/root/resetPassword?username=otto')
   // userInfo.value = auth.userInfo
   ApiGet('board/home')
     .then((resp) => {
@@ -47,7 +46,10 @@ const adminManageUsersClick = () => {
 
 const editUserInfoClick = () => {
   useTemplateDialog(InfoEditDialog, {
-    userInfo: userInfo.value
+    userInfo: userInfo.value,
+    onClose: () => {
+      router.go(0)
+    }
   })
 }
 

@@ -8,7 +8,7 @@ import TemplateMessage from '@/components/TemplateMessage.vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps(['ad'])
-const emit = defineEmits(['delete'])
+const emit = defineEmits(['delete', 'loadComplete'])
 
 const image = ref<string>('')
 const router = useRouter()
@@ -63,9 +63,11 @@ onMounted(() => {
       if (resp.data.obj) {
         image.value = resp.data.obj.pictureBase64
       }
+      emit('loadComplete')
     })
     .catch((err) => {
       console.error(err)
+      emit('loadComplete')
     })
 })
 </script>

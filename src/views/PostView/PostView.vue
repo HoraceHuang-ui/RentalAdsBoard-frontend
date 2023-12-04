@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import TopHeader from '@/components/TopHeader/TopHeader.vue'
 import MyInput from '@/components/MyInput.vue'
-import { computed, onMounted, ref } from 'vue'
+import { computed, inject, onMounted, ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import ScrollWrapper from '@/components/ScrollWrapper.vue'
 import { ApiDelete, ApiGet, ApiPost } from '@/utils/req'
@@ -12,6 +12,7 @@ import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
 const editMode = !!route.query.adId
+const progressArr = inject('topProgressArr')
 
 const title = ref('')
 const addr = ref('')
@@ -76,60 +77,97 @@ const postClick = () => {
     addrErrorShow.value = true
   }
   if (!addrErrorShow.value && !titleErrorShow.value) {
+    progressArr.value = [false]
+    for (let i = 0; i < imagesToRemove.value.length + imagesToAdd.value.length; i++) {
+      progressArr.value.push(false)
+    }
+
     ApiPost(editMode ? 'ads/update' : 'ads/save', {
       adId: editMode ? route.query.adId : null,
       title: title.value,
       address: addr.value,
       description: details.value
-    }).then((adResp) => {
-      if (adResp.data.stateCode == 200) {
-        if (imagesToAdd.value.length == 0) {
-          useTemplateMessage(TemplateMessage, msgProps('Ad posted successfully', 'success'))
-          router.go(-1)
-        }
-        const adId = adResp.data.obj.adId
-        for (const imageId of imagesToRemove.value) {
-          ApiDelete(`picture/delete?picture_id=${imageId}`)
-        }
-        for (const [idx, image] of imagesToAdd.value.entries()) {
-          ApiPost('picture/save', {
-            adId: adId,
-            pictureBase64: image
-          }).then((imgResp) => {
-            if (imgResp.data.stateCode == 200) {
-              if (idx == imagesToAdd.value.length - 1) {
-                useTemplateMessage(TemplateMessage, msgProps('Ad posted successfully', 'success'))
-                router.go(-1)
-              }
-            } else {
-              useTemplateMessage(TemplateMessage, msgProps('Failed posting ad', 'warn'))
-            }
-          })
-        }
-      } else {
-        useTemplateMessage(TemplateMessage, msgProps('Failed posting ad', 'warn'))
-      }
     })
+      .then((adResp) => {
+        progressArr.value[0] = true
+
+        if (adResp.data.stateCode == 200) {
+          if (imagesToAdd.value.length == 0) {
+            useTemplateMessage(TemplateMessage, msgProps('Ad posted successfully', 'success'))
+            router.go(-1)
+          }
+          const adId = adResp.data.obj.adId
+          for (const [idx, imageId] of imagesToRemove.value.entries()) {
+            ApiDelete(`picture/delete?picture_id=${imageId}`)
+              .then(() => {
+                progressArr.value[idx + 1] = true
+              })
+              .catch(() => {
+                progressArr.value = []
+                useTemplateMessage(TemplateMessage, msgProps('Failed posting ad', 'warn'))
+                router.go(0)
+              })
+          }
+          for (const [idx, image] of imagesToAdd.value.entries()) {
+            ApiPost('picture/save', {
+              adId: adId,
+              pictureBase64: image
+            })
+              .then((imgResp) => {
+                progressArr.value[imagesToRemove.value.length + idx + 1] = true
+
+                if (imgResp.data.stateCode == 200) {
+                  if (idx == imagesToAdd.value.length - 1) {
+                    useTemplateMessage(
+                      TemplateMessage,
+                      msgProps('Ad posted successfully', 'success')
+                    )
+                    router.go(-1)
+                  }
+                }
+              })
+              .catch(() => {
+                progressArr.value = []
+                useTemplateMessage(TemplateMessage, msgProps('Failed posting ad', 'warn'))
+                router.go(0)
+              })
+          }
+        }
+      })
+      .catch(() => {
+        progressArr.value = []
+        useTemplateMessage(TemplateMessage, msgProps('Failed posting ad', 'warn'))
+      })
   }
 }
 
 onMounted(() => {
   if (editMode) {
-    ApiGet(`ads/user/get?ad_id=${route.query.adId}`).then((resp) => {
-      console.log(resp)
-      if (resp.data.obj) {
-        const adInfo = resp.data.obj
-        title.value = adInfo.title
-        addr.value = adInfo.address
-        details.value = adInfo.description
-        ApiGet(`picture/list?ad_id=${adInfo.adId}`).then((pictureResp) => {
-          console.log(pictureResp)
-          for (const pictureObj of pictureResp.data.obj) {
-            originalImages.value.push(pictureObj)
-          }
-        })
-      }
-    })
+    progressArr.value = [false, false]
+    ApiGet(`ads/user/get?ad_id=${route.query.adId}`)
+      .then((resp) => {
+        progressArr.value[0] = true
+        if (resp.data.obj) {
+          const adInfo = resp.data.obj
+          title.value = adInfo.title
+          addr.value = adInfo.address
+          details.value = adInfo.description
+          ApiGet(`picture/list?ad_id=${adInfo.adId}`).then((pictureResp) => {
+            progressArr.value[1] = true
+            for (const pictureObj of pictureResp.data.obj) {
+              originalImages.value.push(pictureObj)
+            }
+          })
+        }
+      })
+      .catch((err) => {
+        progressArr.value[0] = true
+        progressArr.value[1] = true
+        useTemplateMessage(
+          TemplateMessage,
+          msgProps('Error loading contents, try refreshing page.', 'alert', 3000)
+        )
+      })
   }
 })
 </script>

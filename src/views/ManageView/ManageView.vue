@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import TopHeader from '@/components/TopHeader/TopHeader.vue'
 import ScrollWrapper from '@/components/ScrollWrapper.vue'
-import { computed, onMounted, ref } from 'vue'
+import { computed, inject, onMounted, ref, watch } from 'vue'
 import ManagePostCard from '@/views/ManageView/components/ManagePostCard.vue'
 import MyPagination from '@/components/MyPagination.vue'
 import { ApiGet } from '@/utils/req'
 import MySwitch from '@/components/MySwitch.vue'
+import { useTemplateMessage, msgProps } from '@/utils/template-message'
+import TemplateMessage from '@/components/TemplateMessage.vue'
+import HomePostCard from '@/views/HomeView/componenets/HomePostCard.vue'
 
 type Ad = {
   adId: number
@@ -17,8 +20,9 @@ type Ad = {
 const adsList = ref<Ad[]>([])
 const adminAdsList = ref<Ad[]>([])
 const adminShowAll = ref(false)
-
 const isAdmin = ref(false)
+
+const progressArr = inject('topProgressArr')
 
 const curPage = ref(1)
 const totalPages = computed(() => {
@@ -31,30 +35,63 @@ const curPageAds = computed(() => {
   )
 })
 
+watch(curPageAds, () => {
+  progressArr.value = []
+
+  for (let i = 0; i < curPageAds.value.length; i++) {
+    progressArr.value.push(false)
+  }
+})
+
 onMounted(() => {
-  ApiGet('board/home').then((resp) => {
-    isAdmin.value = resp.data.obj.role === '2'
-    if (isAdmin.value) {
-      ApiGet('ads/home')
-        .then((resp) => {
-          for (const ad of resp.data.obj) {
-            adminAdsList.value.push(ad)
-          }
-        })
-        .catch((err) => {
-          console.error(err)
-        })
-    }
-  })
+  progressArr.value = [false, false, false]
+  ApiGet('board/home')
+    .then((resp) => {
+      progressArr.value[0] = true
+      isAdmin.value = resp.data.obj.role === '2'
+      if (isAdmin.value) {
+        ApiGet('ads/home')
+          .then((resp) => {
+            for (const ad of resp.data.obj) {
+              adminAdsList.value.push(ad)
+            }
+            progressArr.value[1] = true
+          })
+          .catch((err) => {
+            progressArr.value = []
+            console.error(err)
+            useTemplateMessage(
+              TemplateMessage,
+              msgProps('Error loading contents, try refreshing page.', 'alert', 3000)
+            )
+          })
+      } else {
+        progressArr.value[0] = true
+      }
+    })
+    .catch((err) => {
+      progressArr.value = []
+      console.error(err)
+      useTemplateMessage(
+        TemplateMessage,
+        msgProps('Error loading contents, try refreshing page.', 'alert', 3000)
+      )
+    })
 
   ApiGet('ads/get')
     .then((resp) => {
       for (const ad of resp.data.obj) {
         adsList.value.push(ad)
       }
+      progressArr.value[2] = true
     })
     .catch((err) => {
+      progressArr.value = []
       console.error(err)
+      useTemplateMessage(
+        TemplateMessage,
+        msgProps('Error loading contents, try refreshing page.', 'alert', 3000)
+      )
     })
 })
 </script>
@@ -95,6 +132,7 @@ onMounted(() => {
         v-for="(ad, idx) in curPageAds"
         :key="ad.adId"
         :ad="ad"
+        @load-complete="progressArr[idx] = true"
         @delete="(adminShowAll ? adminAdsList : adsList).splice(idx, 1)"
         class="border border-gray-400 rounded-3xl z-0"
       />

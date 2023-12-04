@@ -2,7 +2,7 @@
 import { inject, ref } from 'vue'
 import MyButton from '@/components/MyButton.vue'
 
-const props = defineProps({
+defineProps({
   title: {
     type: String,
     default: 'Template dialog'

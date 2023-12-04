@@ -5,6 +5,7 @@ import { ApiGet } from '@/utils/req'
 import { marked } from 'marked'
 
 const props = defineProps(['ad'])
+const emit = defineEmits(['loadComplete'])
 
 const image = ref<string>('')
 const adUser = ref<any>({})
@@ -35,9 +36,11 @@ onMounted(() => {
       if (resp.data.obj) {
         image.value = resp.data.obj.pictureBase64
       }
+      emit('loadComplete')
     })
     .catch((err) => {
       console.error(err)
+      emit('loadComplete')
     })
 })
 </script>

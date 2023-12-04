@@ -1,16 +1,19 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
 import TopHeader from '@/components/TopHeader/TopHeader.vue'
-import { computed, onMounted, ref } from 'vue'
+import { computed, inject, onMounted, ref } from 'vue'
 import { ApiGet } from '@/utils/req'
 import MyPagination from '@/components/MyPagination.vue'
 import { marked } from 'marked'
 import ScrollWrapper from '@/components/ScrollWrapper.vue'
+import { useTemplateMessage, msgProps } from '@/utils/template-message'
+import TemplateMessage from '@/components/TemplateMessage.vue'
 
 const route = useRoute()
+const progressArr = inject('topProgressArr')
+
 const adId = route.query.adId
 const adInfo = ref<any>({})
-const userInfo = ref<any>({})
 const images = ref<string[]>([])
 const curImageNum = ref(1)
 
@@ -21,18 +24,34 @@ const adDetailsMarkdown = computed(() => {
 })
 
 onMounted(() => {
-  ApiGet(`ads/user/get?ad_id=${adId}`).then((adResp) => {
-    adInfo.value = adResp.data.obj
-    ApiGet(`board/home?user_id=${adInfo.value.userId}`).then((userResp) => {
-      userInfo.value = userResp.data.obj
+  progressArr.value = [false, false]
+  ApiGet(`ads/user/get?ad_id=${adId}`)
+    .then((adResp) => {
+      progressArr.value[0] = true
+      adInfo.value = adResp.data.obj
     })
-  })
-  ApiGet(`picture/list?ad_id=${adId}`).then((pictureResp) => {
-    console.log(pictureResp)
-    for (const pictureObj of pictureResp.data.obj) {
-      images.value.push(pictureObj.pictureBase64)
-    }
-  })
+    .catch(() => {
+      progressArr.value = []
+      useTemplateMessage(
+        TemplateMessage,
+        msgProps('Error loading contents, try refreshing page.', 'alert')
+      )
+    })
+  ApiGet(`picture/list?ad_id=${adId}`)
+    .then((pictureResp) => {
+      progressArr.value[1] = true
+      console.log(pictureResp)
+      for (const pictureObj of pictureResp.data.obj) {
+        images.value.push(pictureObj.pictureBase64)
+      }
+    })
+    .catch(() => {
+      progressArr.value = []
+      useTemplateMessage(
+        TemplateMessage,
+        msgProps('Error loading contents, try refreshing page.', 'alert')
+      )
+    })
 })
 </script>
 
@@ -67,7 +86,7 @@ onMounted(() => {
           </div>
           <div class="text-green-600 opacity-80">
             <i class="bi bi-person-circle" />
-            {{ userInfo.username }}
+            {{ adInfo.username }}
           </div>
           <div class="mt-4" v-html="adDetailsMarkdown"></div>
         </div>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import CardTemplate from '@/components/CardTemplate.vue'
-import { onMounted, ref } from 'vue'
+import { inject, onMounted, ref } from 'vue'
 import MyButton from '@/components/MyButton.vue'
 import MyInput from '@/components/MyInput.vue'
 import { useRouter } from 'vue-router'
@@ -18,6 +18,8 @@ const confPwd = ref('')
 const email = ref('')
 const pwdErrorShow = ref(false)
 
+const progressArr = inject('topProgressArr')
+
 const reg = ref(false)
 
 const registerClick = () => {
@@ -32,20 +34,30 @@ const router = useRouter()
 // const auth = useAuthStore()
 const loginClick = () => {
   console.log('login click')
+  progressArr.value = [false]
   axios
     .post('/api/board/login', {
       username: username.value,
       password: pwd.value
     })
     .then((resp) => {
+      progressArr.value[0] = true
       if (resp.data.stateCode == 200) {
         localStorage.setItem('token', 'Bearer ' + resp.data.obj)
         useTemplateMessage(TemplateMessage, msgProps('Login successful', 'success', 3000))
         router.push('/home')
       } else {
         pwd.value = ''
-        useTemplateMessage(TemplateMessage, msgProps('Login failed', 'alert'))
+        useTemplateMessage(TemplateMessage, msgProps(resp.data.message, 'alert'))
       }
+    })
+    .catch((err) => {
+      progressArr.value = []
+      pwd.value = ''
+      useTemplateMessage(
+        TemplateMessage,
+        msgProps('Login failed, please check connection.', 'alert')
+      )
     })
 }
 
@@ -57,6 +69,7 @@ const registerConfirm = () => {
   if (username.value.length > 20) {
     return
   }
+  progressArr.value = [false]
   axios
     .post('/api/board/register', {
       username: username.value,
@@ -66,6 +79,7 @@ const registerConfirm = () => {
       avatarBase64: avatar.value
     })
     .then((resp) => {
+      progressArr.value[0] = true
       console.log(resp)
       if (resp.data.stateCode == 200) {
         username.value = ''
@@ -74,16 +88,14 @@ const registerConfirm = () => {
         email.value = ''
         avatar.value = ''
         reg.value = false
-        useTemplateMessage(TemplateMessage, {
-          msg: 'Register successful',
-          type: 'success'
-        })
+        useTemplateMessage(TemplateMessage, msgProps('Register successful', 'success'))
       } else {
-        useTemplateMessage(TemplateMessage, {
-          msg: 'Register failed',
-          type: 'alert'
-        })
+        useTemplateMessage(TemplateMessage, msgProps('Register failed', 'alert'))
       }
+    })
+    .catch((err) => {
+      progressArr.value = []
+      useTemplateMessage(TemplateMessage, msgProps('Register failed', 'alert'))
     })
 }
 
@@ -142,7 +154,7 @@ onMounted(() => {
         v-show="avatar !== ''"
         :src="avatar"
         @click="addAvatarClick"
-        class="rounded-full w-16 h-16 cursor-pointer"
+        class="rounded-full w-16 h-16 cursor-pointer object-cover"
       />
       <div class="w-0.5"></div>
     </div>
