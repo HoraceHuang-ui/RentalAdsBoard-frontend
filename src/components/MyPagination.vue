@@ -41,7 +41,7 @@ const switchPageTo = (page: number) => {
         class="pagination-button"
         @click="switchPageTo(totalPages)"
         :class="
-          modelValue == totalPages
+          modelValue >= totalPages
             ? 'pagination-button-pages-disabled'
             : 'pagination-button-pages-enabled'
         "
