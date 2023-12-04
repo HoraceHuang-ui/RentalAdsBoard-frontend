@@ -7,6 +7,9 @@ defineProps({
     type: String,
     default: 'Template dialog'
   },
+  contents: {
+    type: String
+  },
   width: {
     type: String,
     default: '50%'
@@ -55,6 +58,7 @@ const okClick = () => {
       >
         <div class="gs-b text-green-600 text-3xl mt-5 ml-6 mr-6">{{ title }}</div>
         <div class="ml-10 mr-6 mt-5">
+          {{ contents }}
           <slot></slot>
         </div>
         <div class="flex flex-row justify-between mt-6">

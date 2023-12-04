@@ -51,7 +51,7 @@ onMounted(() => {
       </div>
       <div
         v-else-if="type === 'success'"
-        class="w-max py-1 bg-green-500 rounded-3xl border border-green-100 shadow-2xl shadow-green-400 flex flex-row text-green-100"
+        class="w-max py-1 bg-white border-green-600 shadow-2xl shadow-green-400 flex flex-row text-green-700 rounded-3xl border"
       >
         <i class="bi bi-check-circle-fill mx-2 text-3xl h-full" />
         <div class="text-xl mr-3 py-1" style="max-width: 70vw">
@@ -69,7 +69,7 @@ onMounted(() => {
       </div>
       <div
         v-else
-        class="w-max py-1 bg-white rounded-3xl border border-green-600 shadow-2xl shadow-green-400 flex flex-row text-green-700"
+        class="w-max py-1 bg-white rounded-3xl border border-blue-600 shadow-2xl shadow-blue-300 flex flex-row text-blue-700"
       >
         <i class="bi bi-info-circle-fill mx-2 text-3xl h-full" />
         <div class="text-xl mr-3 py-1" style="max-width: 70vw">

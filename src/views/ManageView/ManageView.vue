@@ -133,7 +133,7 @@ onMounted(() => {
         :key="ad.adId"
         :ad="ad"
         @load-complete="progressArr[idx] = true"
-        @delete="(adminShowAll ? adminAdsList : adsList).splice(idx, 1)"
+        @delete="(adminShowAll ? adminAdsList : adsList).splice(idx + (curPage - 1) * 6, 1)"
         class="border border-gray-400 rounded-3xl z-0"
       />
     </div>

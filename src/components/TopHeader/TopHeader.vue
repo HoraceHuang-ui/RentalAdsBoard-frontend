@@ -41,7 +41,7 @@ const postClick = () => {
 }
 
 const adminManageUsersClick = () => {
-  console.log('admin manage users')
+  router.push('/admin')
 }
 
 const editUserInfoClick = () => {

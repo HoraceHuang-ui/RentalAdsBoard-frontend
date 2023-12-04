@@ -4,7 +4,10 @@ defineProps(['contentText'])
 
 <template>
   <div class="h-8 rounded-full px-3 py-1">
-    <div class="gs-r">{{ contentText }}</div>
+    <div class="gs-r">
+      <slot></slot>
+      {{ contentText }}
+    </div>
   </div>
 </template>
 
