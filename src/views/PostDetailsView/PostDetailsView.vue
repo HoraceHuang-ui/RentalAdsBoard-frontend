@@ -93,7 +93,18 @@ onMounted(() => {
       </scroll-wrapper>
     </div>
     <div v-else class="p-4">
-      <div v-html="adDetailsMarkdown"></div>
+      <div class="gs-b text-green-600 text-5xl">{{ adInfo.title }}</div>
+      <div class="text-green-600 opacity-80 flex flex-row mt-2">
+        <i class="bi bi-geo-alt-fill" />
+        <div class="ml-1">
+          {{ adInfo.address }}
+        </div>
+      </div>
+      <div class="text-green-600 opacity-80">
+        <i class="bi bi-person-circle" />
+        {{ adInfo.username }}
+      </div>
+      <div class="mt-4" v-html="adDetailsMarkdown"></div>
     </div>
   </scroll-wrapper>
 </template>
