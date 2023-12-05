@@ -2,11 +2,12 @@
 // 1: home; 2: manage; 3: post/edit
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { ApiGet, ApiPut } from '@/utils/req'
-import { useTemplateMessage } from '@/utils/template-message'
+import { ApiDelete, ApiGet, ApiPut } from '@/utils/req'
+import { msgProps, useTemplateMessage } from '@/utils/template-message'
 import TemplateMessage from '@/components/TemplateMessage.vue'
 import { useTemplateDialog } from '@/utils/template-dialog'
 import InfoEditDialog from '@/components/TopHeader/components/InfoEditDialog.vue'
+import ConfirmDialog from '@/views/AdminView/components/ConfirmDialog.vue'
 
 defineProps(['selection'])
 const userInfo = ref<any>({})
@@ -15,19 +16,23 @@ const userOptionsShow = ref(false)
 const router = useRouter()
 onMounted(() => {
   // userInfo.value = auth.userInfo
-  ApiGet('board/home')
-    .then((resp) => {
-      userInfo.value = resp.data.obj
-    })
-    .catch((err) => {
-      if (err.response.data === 'need to login') {
+  userInfo.value = localStorage.getItem('userInfo')
+  if (userInfo.value) {
+    userInfo.value = JSON.parse(userInfo.value)
+  } else {
+    ApiGet('board/home')
+      .then((resp) => {
+        userInfo.value = resp.data.obj
+        localStorage.setItem('userInfo', JSON.stringify(userInfo.value))
+      })
+      .catch(() => {
         useTemplateMessage(TemplateMessage, {
           msg: 'Auth expired, please re-login.',
           type: 'alert'
         })
         router.push('/')
-      }
-    })
+      })
+  }
 })
 
 const homeClick = () => {
@@ -56,6 +61,30 @@ const editUserInfoClick = () => {
 const logout = () => {
   localStorage.clear()
   router.push('/')
+}
+
+const deleteAccount = () => {
+  useTemplateDialog(ConfirmDialog, {
+    title: 'Delete Account',
+    contents: `Your account as well as all ads posted by you will be permanently deleted from database, this action can't be undone. Are you sure?`,
+    onOk: () => {
+      ApiDelete('board/delete')
+        .then((resp) => {
+          if (resp.data && resp.data.stateCode == 200) {
+            useTemplateMessage(
+              TemplateMessage,
+              msgProps(`Account deleted from database.`, 'success')
+            )
+            logout()
+          } else {
+            useTemplateMessage(TemplateMessage, msgProps(resp.data.msg, 'alert', 3000))
+          }
+        })
+        .catch(() => {
+          useTemplateMessage(TemplateMessage, msgProps('Error deleting account', 'alert', 3000))
+        })
+    }
+  })
 }
 </script>
 
@@ -111,9 +140,14 @@ const logout = () => {
         {{ userInfo.username }}
       </div>
       <img
-        class="rounded-full h-10 w-10 object-cover"
+        v-if="userInfo.avatarBase64"
+        class="rounded-full object-cover h-10 w-10"
         :src="userInfo.avatarBase64"
-        alt="user avatar"
+      />
+      <img
+        v-else
+        class="rounded-full object-cover h-10 w-10"
+        src="../../assets/images/default_avatar.jpg"
       />
       <div
         class="absolute right-2 top-11 transition-all z-50"
@@ -144,6 +178,14 @@ const logout = () => {
           >
             <i class="bi bi-box-arrow-left text-3xl" />
             <div class="ml-3 mt-1">Log out</div>
+          </div>
+          <div class="h-0.5 bg-red-600 opacity-50 rounded-full my-2 mx-2"></div>
+          <div
+            @click="deleteAccount"
+            class="flex flex-row text-red-600 w-full py-1 pl-3 rounded-full hover:bg-red-100 transition-all cursor-pointer"
+          >
+            <i class="bi bi-person-x text-3xl" />
+            <div class="ml-3 mt-1">Delete account</div>
           </div>
         </div>
       </div>

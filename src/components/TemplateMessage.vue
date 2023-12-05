@@ -38,7 +38,7 @@ onMounted(() => {
     <div
       v-if="cShow"
       class="absolute top-4 justify-center flex flex-row z-50 cursor-default pointer-events-none"
-      style="width: 95vw"
+      style="width: 100vw"
     >
       <div
         v-if="type === 'alert'"

@@ -104,7 +104,7 @@ const deleteUser = (idx: number) => {
   const user = usersList.value[idx]
   useTemplateDialog(ConfirmDialog, {
     title: 'Delete User',
-    contents: `This user will be permanently deleted from database, this action can't be undone. Are you sure?`,
+    contents: `This user as well as all related ads will be permanently deleted from database, this action can't be undone. Are you sure?`,
     onOk: () => {
       progressArr.value = [false]
 

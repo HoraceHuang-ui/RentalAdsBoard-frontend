@@ -90,7 +90,7 @@ const registerConfirm = () => {
         reg.value = false
         useTemplateMessage(TemplateMessage, msgProps('Register successful', 'success'))
       } else {
-        useTemplateMessage(TemplateMessage, msgProps('Register failed', 'alert'))
+        useTemplateMessage(TemplateMessage, msgProps(resp.data.message, 'alert'))
       }
     })
     .catch((err) => {
