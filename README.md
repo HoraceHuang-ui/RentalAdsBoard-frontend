@@ -7,13 +7,13 @@ Frontend repository by **21321108 Huang Yiyu**
 ## Tech Stack
 
 This project is built with `Vue3` + `Vite` + `TypeScript` for the ease of
-responsive programming and ease of debugging. The atomic CSS library `Tailwind`
-is implemented for the readability of the codes.
+responsive programming and debugging. The atomic CSS library `Tailwind`
+is implemented for readability of the codes.
 
 ### Disclaimer
 
 To keep this lab work meaningful and make myself more familiar with Vue
-programming, I hereby ensure that:
+programming, I hereby guarantee that:
 > All views and components in this project are built without any component
 > libraries (such as `Element Plus`) or any help with AI (such as `ChatGPT`).
 
@@ -25,9 +25,10 @@ The dependencies can be seen in `packages.json`.
   to Google's [Material You](https://material.io/blog/announcing-material-you). The
   result turned out to be pretty well, at least to me🥰.
 - All **HTTP requests** have a visual feedback, like a **progress bar**, or a **top
-  bullet message**, or both. This makes the user feel way better when there is a request
+  bullet message**, or both. This makes the user feel way better when there is are requests
   ongoing.
-- **Login** & **register** with common error handlers.
+- **Login** & **register** with common error handlers. User info include **username**, **password**,
+  **avatar**, and **email**.
 - Board **Homepage** ads list and **pagination**, with a **responsive** layout: 3-col grid
   when wide & 2-col grid when narrow. 6 ads per page.
 - **Post** or **edit** an ad in post view, with a **responsive** layout: horizontal when
