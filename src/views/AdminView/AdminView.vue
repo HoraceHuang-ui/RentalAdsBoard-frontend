@@ -208,16 +208,18 @@ onMounted(() => {
         :class="idx % 2 == 0 ? 'bg-green-100' : 'bg-white'"
       >
         <div class="flex flex-row mt-2 ml-2">
-          <img
-            v-if="user.avatarBase64"
-            class="rounded-full object-cover h-10 w-10 mt-1"
-            :src="user.avatarBase64"
-          />
-          <img
-            v-else
-            class="rounded-full object-cover h-10 w-10 mt-1"
-            src="../../assets/images/default_avatar.jpg"
-          />
+          <div class="bg-white rounded-full h-10 w-10 mt-1">
+            <img
+              v-if="user.avatarBase64"
+              class="rounded-full w-10 h-10 object-cover"
+              :src="user.avatarBase64"
+            />
+            <img
+              v-else
+              class="rounded-full object-cover"
+              src="../../assets/images/default_avatar.webp"
+            />
+          </div>
           <div class="ml-4 mt-3">{{ user.username }}</div>
         </div>
         <div class="text-center text-xl py-5">

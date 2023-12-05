@@ -1,5 +1,12 @@
 <script setup lang="ts">
 import LoginCard from '@/views/LoginView/components/LoginCard.vue'
+import { inject, onMounted } from 'vue'
+
+const progressArr = inject('topProgressArr')
+
+onMounted(() => {
+  progressArr.value = []
+})
 </script>
 
 <template>

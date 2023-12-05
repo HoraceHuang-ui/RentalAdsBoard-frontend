@@ -79,6 +79,16 @@ const confirmClick = () => {
   })
     .then((resp) => {
       progressArr.value[0] = true
+      localStorage.setItem(
+        'userInfo',
+        JSON.stringify({
+          username: username.value,
+          email: email.value,
+          avatarBase64: avatar.value,
+          role: props.userInfo.role
+        })
+      )
+
       if (resp.data && resp.data.stateCode == 200) {
         if (originPwd.value !== '') {
           ApiPut('board/update/password', {
@@ -122,7 +132,7 @@ const confirmClick = () => {
     <div class="w-full justify-between flex flex-row mb-6 mt-6">
       <div class="w-0.5"></div>
       <div
-        v-show="avatar === ''"
+        v-show="!avatar || avatar === ''"
         @click="addAvatarClick"
         class="rounded-full w-16 h-16 border-4 border-dashed border-gray-400 text-center relative text-gray-500 hover:border-green-600 hover:text-green-600 transition-all cursor-pointer"
       >
@@ -131,12 +141,13 @@ const confirmClick = () => {
           +
         </div>
       </div>
-      <img
-        v-show="avatar !== ''"
-        :src="avatar"
-        @click="addAvatarClick"
-        class="rounded-full w-16 h-16 cursor-pointer object-cover"
-      />
+      <div v-show="avatar !== ''" class="bg-white rounded-full w-16 h-16">
+        <img
+          @click="addAvatarClick"
+          class="rounded-full w-16 h-16 cursor-pointer object-cover"
+          :src="avatar"
+        />
+      </div>
       <div class="w-0.5"></div>
     </div>
     <div class="flex flex-row w-full mx-5 relative">

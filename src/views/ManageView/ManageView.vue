@@ -35,16 +35,27 @@ const curPageAds = computed(() => {
   )
 })
 
-watch(curPageAds, () => {
+const curProgressIdx = ref(0)
+watch(curPageAds, (value, oldValue) => {
+  curProgressIdx.value = 0
   progressArr.value = []
 
-  for (let i = 0; i < curPageAds.value.length; i++) {
+  let count = 0
+  for (const oldAd of oldValue) {
+    for (const newAd of value) {
+      if (oldAd.adId == newAd.adId) {
+        count++
+      }
+    }
+  }
+
+  for (let i = 0; i < value.length - count; i++) {
     progressArr.value.push(false)
   }
 })
 
 onMounted(() => {
-  progressArr.value = [false, false, false]
+  progressArr.value = [false, false]
   ApiGet('board/home')
     .then((resp) => {
       progressArr.value[0] = true
@@ -55,7 +66,6 @@ onMounted(() => {
             for (const ad of resp.data.obj) {
               adminAdsList.value.push(ad)
             }
-            progressArr.value[1] = true
           })
           .catch((err) => {
             progressArr.value = []
@@ -66,7 +76,7 @@ onMounted(() => {
             )
           })
       } else {
-        progressArr.value[0] = true
+        progressArr.value = []
       }
     })
     .catch((err) => {
@@ -83,7 +93,7 @@ onMounted(() => {
       for (const ad of resp.data.obj) {
         adsList.value.push(ad)
       }
-      progressArr.value[2] = true
+      progressArr.value[1] = true
     })
     .catch((err) => {
       progressArr.value = []
@@ -132,7 +142,7 @@ onMounted(() => {
         v-for="(ad, idx) in curPageAds"
         :key="ad.adId"
         :ad="ad"
-        @load-complete="progressArr[idx] = true"
+        @load-complete="progressArr[curProgressIdx++] = true"
         @delete="(adminShowAll ? adminAdsList : adsList).splice(idx + (curPage - 1) * 6, 1)"
         class="border border-gray-400 rounded-3xl z-0"
       />

@@ -136,19 +136,15 @@ const deleteAccount = () => {
       >
         Admin
       </div>
-      <div class="gs-r rounded-full px-2 py-1 mt-0.5 mr-1">
+      <div class="gs-r rounded-full px-3 pr-2 py-1 mt-0.5 mr-1">
         {{ userInfo.username }}
       </div>
-      <img
-        v-if="userInfo.avatarBase64"
-        class="rounded-full object-cover h-10 w-10"
-        :src="userInfo.avatarBase64"
-      />
-      <img
-        v-else
-        class="rounded-full object-cover h-10 w-10"
-        src="../../assets/images/default_avatar.jpg"
-      />
+      <div v-if="userInfo.avatarBase64" class="bg-white rounded-full h-10 w-10">
+        <img class="rounded-full object-cover h-10 w-10" :src="userInfo.avatarBase64" />
+      </div>
+      <div v-else class="bg-white rounded-full h-10 w-10">
+        <img class="rounded-full object-cover" src="../../assets/images/default_avatar.webp" />
+      </div>
       <div
         class="absolute right-2 top-11 transition-all z-50"
         :class="userOptionsShow ? '' : 'user-options-hide'"
