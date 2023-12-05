@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import TopHeader from '@/components/TopHeader/TopHeader.vue'
 import MyInput from '@/components/MyInput.vue'
-import { computed, inject, onMounted, ref } from 'vue'
+import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import ScrollWrapper from '@/components/ScrollWrapper.vue'
 import { ApiDelete, ApiGet, ApiPost } from '@/utils/req'
@@ -35,6 +35,31 @@ const originalImages = ref<Image[]>([])
 const imagesToRemove = ref<number[]>([])
 const imagesToAdd = ref<string[]>([])
 // const auth = useAuthStore()
+
+const scrollHeight = ref(0)
+const scrollContentRef = ref<HTMLDivElement>()
+const previewScrollHeight = ref(0)
+const previewScrollContentRef = ref<HTMLDivElement>()
+const debounce = (fn: Function, delay: number) => {
+  let timer: number | undefined = undefined
+  return function () {
+    if (timer) {
+      clearTimeout(timer)
+    }
+    timer = setTimeout(fn, delay)
+  }
+}
+const cancelDebounce = debounce(() => {
+  if (scrollContentRef.value) {
+    scrollHeight.value = scrollContentRef.value.scrollHeight
+  }
+  if (previewScrollContentRef.value) {
+    previewScrollHeight.value = previewScrollContentRef.value.scrollHeight
+  }
+}, 500)
+watch(() => {
+  return imagesToAdd.value.length + imagesToRemove.value.length + details.value.length
+}, cancelDebounce)
 
 const addImageClick = () => {
   const imageInput = document.getElementById('imageInput')
@@ -186,72 +211,82 @@ onMounted(() => {
     </div>
   </div>
 
-  <scroll-wrapper height="80%" width="100%" class="mt-2">
-    <div class="post-area-wrapper">
-      <div>
-        <div class="flex flex-row gst-r mx-7 mt-8">
-          <div class="gs-r mr-2 h-8 mt-1" style="width: 64px">Title</div>
-          <my-input
-            type="input"
-            v-model="title"
-            style="width: 100%"
-            @change="titleErrorShow = false"
-          />
-        </div>
-        <div v-if="titleErrorShow" class="w-full text-right gst-ri text-red-600 pr-8">
-          Please provide a title
-        </div>
-        <div class="flex flex-row mx-7 mt-2">
-          <div class="gs-r mr-2 h-8 mt-1" style="width: 64px">Address</div>
-          <my-input
-            type="input"
-            v-model="addr"
-            style="width: 100%"
-            @change="addrErrorShow = false"
-          />
-        </div>
-        <div v-if="addrErrorShow" class="w-full text-right gst-ri text-red-600 pr-8">
-          Please provide an address
-        </div>
-        <div class="flex flex-row mx-7 mt-2">
-          <div class="gs-r mr-2 h-8 mt-1" style="width: 64px">
-            Details
-            <i class="bi bi-markdown-fill" />
-          </div>
-          <div class="flex flex-col" style="width: 100%">
+  <scroll-wrapper
+    height="80%"
+    width="100%"
+    class="mt-2"
+    :show-bar="true"
+    :scroll-height="scrollHeight"
+  >
+    <div ref="scrollContentRef">
+      <div class="post-area-wrapper">
+        <div>
+          <div class="flex flex-row gst-r mx-7 mt-8">
+            <div class="gs-r mr-2 h-8 mt-1" style="width: 64px">Title</div>
             <my-input
-              class="h-full textarea-height-limits"
-              type="textarea"
-              v-model="details"
-            ></my-input>
-            <div class="flex flex-row justify-between w-full text-right text-sm mt-0.5">
-              <div
-                @click="showDetailsPreview = !showDetailsPreview"
-                class="flex flex-row cursor-pointer hover:text-green-600 transition-all"
-                :class="showDetailsPreview ? 'text-green-700 gst-b' : 'text-gray-600'"
-              >
-                <i v-if="showDetailsPreview" class="bi bi-check-circle-fill mr-1" />
-                <i v-else class="bi bi-circle mr-1" />
-                Show preview
-              </div>
-              Characters: {{ details.length }} / 9999
+              type="input"
+              v-model="title"
+              style="width: 100%"
+              @change="titleErrorShow = false"
+            />
+          </div>
+          <div v-if="titleErrorShow" class="w-full text-right gst-ri text-red-600 pr-8">
+            Please provide a title
+          </div>
+          <div class="flex flex-row mx-7 mt-2">
+            <div class="gs-r mr-2 h-8 mt-1" style="width: 64px">Address</div>
+            <my-input
+              type="input"
+              v-model="addr"
+              style="width: 100%"
+              @change="addrErrorShow = false"
+            />
+          </div>
+          <div v-if="addrErrorShow" class="w-full text-right gst-ri text-red-600 pr-8">
+            Please provide an address
+          </div>
+          <div class="flex flex-row mx-7 mt-2">
+            <div class="gs-r mr-2 h-8 mt-1" style="width: 64px">
+              Details
+              <i class="bi bi-markdown-fill" />
             </div>
-            <scroll-wrapper
-              v-if="showDetailsPreview"
-              width="100%"
-              height="30vh"
-              class="border rounded-3xl border-green-600 mt-2 bg-green-50"
-              :show-bar="true"
-            >
-              <div class="p-4" v-html="detailsPreviewContent"></div>
-            </scroll-wrapper>
+            <div class="flex flex-col" style="width: 100%">
+              <my-input
+                class="h-full textarea-height-limits"
+                type="textarea"
+                v-model="details"
+              ></my-input>
+              <div class="flex flex-row justify-between w-full text-right text-sm mt-0.5">
+                <div
+                  @click="showDetailsPreview = !showDetailsPreview"
+                  class="flex flex-row cursor-pointer hover:text-green-600 transition-all"
+                  :class="showDetailsPreview ? 'text-green-700 gst-b' : 'text-gray-600'"
+                >
+                  <i v-if="showDetailsPreview" class="bi bi-check-circle-fill mr-1" />
+                  <i v-else class="bi bi-circle mr-1" />
+                  Show preview
+                </div>
+                Characters: {{ details.length }} / 9999
+              </div>
+              <scroll-wrapper
+                v-if="showDetailsPreview"
+                width="100%"
+                height="30vh"
+                class="border rounded-3xl border-green-600 mt-2 bg-green-50"
+                :scroll-height="previewScrollHeight"
+                :scroll-padding="30"
+                :show-bar="true"
+              >
+                <div ref="previewScrollContentRef">
+                  <div class="p-4" v-html="detailsPreviewContent"></div>
+                </div>
+              </scroll-wrapper>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="ml-7">
-        <div class="gs-r mt-8">Attach images...</div>
-        <scroll-wrapper height="420px" width="100%" class="overflow-x-hidden">
+        <div class="ml-7">
+          <div class="gs-r mt-8">Attach images...</div>
           <div class="grid grid-cols-3 grid-rows-3 gap-2 mt-3" style="height: 380px; width: 380px">
             <div v-for="(image, idx) in originalImages" :key="idx" class="relative">
               <img
@@ -290,7 +325,7 @@ onMounted(() => {
               <input type="file" id="imageInput" class="opacity-0" @change="addImage($event)" />
             </div>
           </div>
-        </scroll-wrapper>
+        </div>
       </div>
     </div>
   </scroll-wrapper>

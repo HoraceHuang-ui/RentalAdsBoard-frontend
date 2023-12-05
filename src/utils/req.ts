@@ -28,7 +28,7 @@ export const ApiGet = async (path: string) => {
   return await instance.get(path)
 }
 
-export const ApiPost = async (path: string, data: object) => {
+export const ApiPost = async (path: string, data?: object) => {
   return await instance.post(path, data)
 }
 
@@ -36,6 +36,6 @@ export const ApiDelete = async (path: string) => {
   return await instance.delete(path)
 }
 
-export const ApiPut = async (path: string, data: object) => {
+export const ApiPut = async (path: string, data?: object) => {
   return await instance.put(path, data)
 }

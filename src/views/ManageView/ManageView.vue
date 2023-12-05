@@ -35,6 +35,40 @@ const curPageAds = computed(() => {
   )
 })
 
+const scrollHeight = ref(0)
+const scrollContentRef = ref<HTMLDivElement>()
+const watchFlag = ref(true)
+watch(
+  () => {
+    const len = progressArr.value.length
+    if (len > 0) {
+      for (const flag of progressArr.value) {
+        if (flag == false) {
+          watchFlag.value = !watchFlag.value
+          return watchFlag.value
+        }
+      }
+      watchFlag.value = !watchFlag.value
+      return watchFlag.value
+    } else {
+      watchFlag.value = !watchFlag.value
+      return watchFlag.value
+    }
+  },
+  () => {
+    if (scrollContentRef.value) {
+      scrollHeight.value = scrollContentRef.value.scrollHeight
+    }
+  }
+)
+watch(adminShowAll, () => {
+  setTimeout(() => {
+    if (scrollContentRef.value) {
+      scrollHeight.value = scrollContentRef.value.scrollHeight
+    }
+  }, 500)
+})
+
 const curProgressIdx = ref(0)
 watch(curPageAds, (value, oldValue) => {
   curProgressIdx.value = 0
@@ -111,22 +145,12 @@ onMounted(() => {
   <div class="pt-10"></div>
   <scroll-wrapper
     :show-bar="true"
+    :scroll-padding="30"
+    :scroll-height="scrollHeight"
     height="84vh"
     width="96vw"
     class="bg-white mx-2 pl-6 rounded-3xl border border-green-600 relative"
   >
-    <div class="flex flex-row w-full mt-8">
-      <div class="gs-b text-5xl">Manage Ads...</div>
-      <my-switch
-        v-if="isAdmin"
-        text-l="All"
-        text-r="Mine"
-        wrapper-width="150px"
-        track-width="75px"
-        v-model="adminShowAll"
-        class="ml-3 my-2"
-      ></my-switch>
-    </div>
     <my-pagination
       class="absolute right-8 top-2 z-10 shadow-green-200 shadow-xl border border-green-300"
       v-if="totalPages > 1"
@@ -134,28 +158,42 @@ onMounted(() => {
       :total-pages="totalPages"
     />
 
-    <div
-      v-if="(adminShowAll ? adminAdsList : adsList).length > 0"
-      class="main-cards-wrapper w-full gap-2 pr-4 mt-6 pb-4"
-    >
-      <manage-post-card
-        v-for="(ad, idx) in curPageAds"
-        :key="ad.adId"
-        :ad="ad"
-        @load-complete="progressArr[curProgressIdx++] = true"
-        @delete="(adminShowAll ? adminAdsList : adsList).splice(idx + (curPage - 1) * 6, 1)"
-        class="border border-gray-400 rounded-3xl z-0"
-      />
-    </div>
-    <div v-else class="text-center" style="margin-top: 15%">
-      <i class="bi bi-emoji-frown text-4xl text-green-600 opacity-40" />
-      <div class="mt-1">
-        <span class="text-gray-400 cursor-default">Empty here...</span>
-        <span
-          class="text-green-600 cursor-pointer rounded-full px-2 py-1 hover:border hover:border-green-700 transition-all"
-          @click="$router.push('/post')"
-          >Post one!</span
-        >
+    <div ref="scrollContentRef">
+      <div class="flex flex-row w-full mt-8">
+        <div class="gs-b text-5xl">Manage Ads...</div>
+        <my-switch
+          v-if="isAdmin"
+          text-l="All"
+          text-r="Mine"
+          wrapper-width="150px"
+          track-width="75px"
+          v-model="adminShowAll"
+          class="ml-3 my-2"
+        ></my-switch>
+      </div>
+      <div
+        v-if="(adminShowAll ? adminAdsList : adsList).length > 0"
+        class="main-cards-wrapper w-full gap-2 pr-4 mt-6 pb-4"
+      >
+        <manage-post-card
+          v-for="(ad, idx) in curPageAds"
+          :key="ad.adId"
+          :ad="ad"
+          @load-complete="progressArr[curProgressIdx++] = true"
+          @delete="(adminShowAll ? adminAdsList : adsList).splice(idx + (curPage - 1) * 6, 1)"
+          class="border border-gray-400 rounded-3xl z-0"
+        />
+      </div>
+      <div v-else class="text-center" style="margin-top: 15%">
+        <i class="bi bi-emoji-frown text-4xl text-green-600 opacity-40" />
+        <div class="mt-1">
+          <span class="text-gray-400 cursor-default">Empty here...</span>
+          <span
+            class="text-green-600 cursor-pointer rounded-full px-2 py-1 hover:border hover:border-green-700 transition-all"
+            @click="$router.push('/post')"
+            >Post one!</span
+          >
+        </div>
       </div>
     </div>
   </scroll-wrapper>

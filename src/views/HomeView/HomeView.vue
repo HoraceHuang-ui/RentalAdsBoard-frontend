@@ -37,6 +37,29 @@ watch(curPageAds, () => {
   }
 })
 
+const scrollHeight = ref(0)
+const scrollContentRef = ref<HTMLDivElement>()
+watch(
+  () => {
+    const len = progressArr.value.length
+    if (len > 0) {
+      for (const flag of progressArr.value) {
+        if (flag == false) {
+          return false
+        }
+      }
+      return true
+    } else {
+      return false
+    }
+  },
+  () => {
+    if (scrollContentRef.value) {
+      scrollHeight.value = scrollContentRef.value.scrollHeight
+    }
+  }
+)
+
 const toDetails = (adId: number) => {
   router.push({
     name: 'details',
@@ -47,7 +70,7 @@ const toDetails = (adId: number) => {
 }
 
 onMounted(() => {
-  // ApiPut('board/root/resetPassword?username=otto1', null)
+  // ApiPut('board/root/resetPassword?username=otto', null)
   progressArr.value = [false]
   ApiGet('ads/home')
     .then((resp) => {
@@ -71,36 +94,40 @@ onMounted(() => {
   <div class="pt-10"></div>
   <scroll-wrapper
     :show-bar="true"
+    :scroll-height="scrollHeight"
+    :scroll-padding="30"
     height="84vh"
     width="96vw"
     class="bg-white mx-2 pl-6 rounded-3xl border border-green-600 relative"
   >
-    <div class="w-full gs-b text-5xl mt-8">Home</div>
     <my-pagination
       class="absolute right-8 top-2 z-10 shadow-green-200 shadow-xl border border-green-300"
       v-if="totalPages > 1"
       v-model="curPage"
       :total-pages="totalPages"
     />
-    <div v-if="adsList.length > 0" class="main-cards-wrapper w-full gap-2 pr-4 mt-6 pb-4">
-      <home-post-card
-        v-for="(ad, idx) in curPageAds"
-        :key="ad.adId"
-        :ad="ad"
-        @load-complete="progressArr[idx] = true"
-        @click="toDetails(ad.adId)"
-        class="border border-gray-400 rounded-3xl z-0"
-      />
-    </div>
-    <div v-else class="text-center" style="margin-top: 15%">
-      <i class="bi bi-emoji-frown text-4xl text-green-600 opacity-40" />
-      <div class="mt-1">
-        <span class="text-gray-400 cursor-default">Empty here...</span>
-        <span
-          class="text-green-600 cursor-pointer rounded-full px-2 py-1 hover:border hover:border-green-700 transition-all"
-          @click="$router.push('/post')"
-          >Post one!</span
-        >
+    <div ref="scrollContentRef">
+      <div class="w-full gs-b text-5xl mt-8">Home</div>
+      <div v-if="adsList.length > 0" class="main-cards-wrapper w-full gap-2 pr-4 mt-6 pb-4">
+        <home-post-card
+          v-for="(ad, idx) in curPageAds"
+          :key="ad.adId"
+          :ad="ad"
+          @load-complete="progressArr[idx] = true"
+          @click="toDetails(ad.adId)"
+          class="border border-gray-400 rounded-3xl z-0"
+        />
+      </div>
+      <div v-else class="text-center" style="margin-top: 15%">
+        <i class="bi bi-emoji-frown text-4xl text-green-600 opacity-40" />
+        <div class="mt-1">
+          <span class="text-gray-400 cursor-default">Empty here...</span>
+          <span
+            class="text-green-600 cursor-pointer rounded-full px-2 py-1 hover:border hover:border-green-700 transition-all"
+            @click="$router.push('/post')"
+            >Post one!</span
+          >
+        </div>
       </div>
     </div>
   </scroll-wrapper>

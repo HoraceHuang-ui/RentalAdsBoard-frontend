@@ -1,40 +1,45 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 
-defineProps(['height', 'width', 'showBar'])
+const props = defineProps(['height', 'width', 'showBar', 'scrollHeight', 'scrollPadding'])
 
 const scrollRef = ref()
 // const barRef = ref()
 
 const trackHeight = computed(() => {
-  return scrollRef.value ? scrollRef.value.scrollHeight : 0
-}) // 滚动条轨道高度
-const wrapHeight = computed(() => {
-  return scrollRef.value ? scrollRef.value.clientHeight - 40 : 0
-}) // 容器可视高度
-const wrapContentHeight = computed(() => {
   return scrollRef.value ? scrollRef.value.clientHeight : 0
+}) // 滚动条轨道高度
+const wrapContentHeight = computed(() => {
+  if (props.scrollHeight) {
+    console.log('滚动条轨道高度 trackHeight: ' + trackHeight.value)
+    console.log('内容高度 wrapContentHeight: ' + props.scrollHeight)
+    console.log('---------------')
+    return props.scrollHeight
+  }
+  return scrollRef.value ? scrollRef.value.scrollHeight : 0
 }) // 内容高度
+
+// const trackHeight = ref(0)
+// const wrapContentHeight = ref(0)
+
 const translateY = ref(0)
 const moveClientY = ref(0)
 const isMove = ref(false)
 // const scrollTop = ref(0)
 
 const heightPre = computed(() => {
-  return wrapHeight.value / wrapContentHeight.value
+  return trackHeight.value / wrapContentHeight.value
 })
 const barHeight = computed(() => {
   return heightPre.value * trackHeight.value
 })
 
 // const initScrollListener = () => {
+//   trackHeight.value = scrollRef.value.clientHeight - 20
 //   wrapContentHeight.value = scrollRef.value.scrollHeight
-//   wrapHeight.value = scrollRef.value.clientHeight - 40
-//   trackHeight.value = scrollRef.value.clientHeight
 //
-//   console.log('wrap content height: ' + wrapContentHeight.value)
-//   console.log('wrap height: ' + wrapHeight.value)
-//   console.log('track height: ' + trackHeight.value)
+//   console.log('内容高度: ' + wrapContentHeight.value)
+//   console.log('滚动条高度: ' + trackHeight.value)
 // }
 
 // const updateScroll = () => {
@@ -80,7 +85,10 @@ const moveEnd = () => {
 }
 
 // onMounted(() => {
-//  initScrollListener()
+//   // initScrollListener()
+//   console.log('滚动条轨道高度 trackHeight: ' + trackHeight.value)
+//   console.log('内容高度 wrapContentHeight: ' + wrapContentHeight.value)
+//   console.log('---------------')
 // })
 </script>
 
@@ -90,19 +98,24 @@ const moveEnd = () => {
       <div ref="scrollRef" class="h-full overflow-y-scroll" @scroll="onMouseWheel">
         <slot></slot>
       </div>
-      <div
-        v-show="heightPre <= 1 && showBar"
-        ref="barRef"
-        class="absolute top-5 right-4 bottom-5 w-0.5 rounded-full"
-      >
+      <div class="absolute top-0 bottom-0 right-4 w-0.5 rounded-full">
         <div
+          v-show="heightPre < 1 && showBar"
           :style="{
             height: barHeight + 'px',
-            transform: 'translate(-7px,' + translateY + 'px)'
+            transform:
+              'translate(-7px,' +
+              ((scrollPadding ? scrollPadding : 5) +
+                translateY -
+                (translateY / (trackHeight - barHeight)) *
+                  2 *
+                  (scrollPadding ? scrollPadding : 5)) +
+              'px)'
           }"
-          class="w-1 rounded-full bg-green-600 opacity-40 hover:w-2 hover:opacity-100 transition-all"
+          style="transition-property: height, width; transition-duration: 0.2s"
+          class="w-1 rounded-full bg-green-600 opacity-40 hover:w-2 hover:opacity-100"
           @mousedown.stop.prevent="moveStart"
-        ></div>
+        />
       </div>
     </div>
   </div>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ScrollWrapper from '@/components/ScrollWrapper.vue'
 import TopHeader from '@/components/TopHeader/TopHeader.vue'
-import { computed, inject, onMounted, ref } from 'vue'
+import { computed, inject, onMounted, ref, watch } from 'vue'
 import { ApiDelete, ApiGet, ApiPut } from '@/utils/req'
 import { useTemplateMessage, msgProps } from '@/utils/template-message'
 import TemplateMessage from '@/components/TemplateMessage.vue'
@@ -19,15 +19,42 @@ type UserInfo = {
 
 const progressArr = inject('topProgressArr')
 const usersList = ref<UserInfo[]>([])
-const thisUserInfo = ref<UserInfo>({})
+const thisUserInfo = ref<any>({})
 
 const curPage = ref(1)
 const totalPages = computed(() => {
-  return Math.floor((usersList.value.length - 1) / 20)
+  return Math.floor((usersList.value.length - 1) / 10) + 1
 })
 const curPageUsers = computed(() => {
-  return usersList.value.slice((curPage.value - 1) * 20, (curPage.value - 1) * 20 + 20)
+  return usersList.value.slice((curPage.value - 1) * 10, (curPage.value - 1) * 10 + 10)
 })
+
+const scrollHeight = ref(0)
+const scrollContentRef = ref<HTMLDivElement>()
+const watchFlag = ref(true)
+watch(
+  () => {
+    const len = progressArr.value.length
+    if (len > 0) {
+      for (const flag of progressArr.value) {
+        if (flag == false) {
+          watchFlag.value = !watchFlag.value
+          return watchFlag.value
+        }
+      }
+      watchFlag.value = !watchFlag.value
+      return watchFlag.value
+    } else {
+      watchFlag.value = !watchFlag.value
+      return watchFlag.value
+    }
+  },
+  () => {
+    if (scrollContentRef.value) {
+      scrollHeight.value = scrollContentRef.value.scrollHeight
+    }
+  }
+)
 
 const switchRole = (idx: number) => {
   const user = usersList.value[idx]
@@ -188,70 +215,74 @@ onMounted(() => {
   </div>
 
   <scroll-wrapper
-    :show-bar="true"
+    :show-bar="false"
+    :scroll-padding="50"
+    :scroll-height="scrollHeight"
     height="78vh"
     width="96vw"
     class="bg-white mx-2 rounded-b-3xl border border-green-600 relative"
   >
-    <div class="w-full flex flex-row justify-center content-center align-middle pt-3">
+    <div class="w-full flex flex-row justify-center content-center pt-3">
       <my-pagination
         v-model="curPage"
         :total-pages="totalPages"
         class="absolute bottom-2 w-64 border border-green-400"
       />
     </div>
-    <div class="mt-4 mb-16 pl-8">
-      <div
-        v-for="(user, idx) in curPageUsers"
-        :key="idx"
-        class="h-16 grid grid-cols-3 rounded-full px-2 mr-10"
-        :class="idx % 2 == 0 ? 'bg-green-100' : 'bg-white'"
-      >
-        <div class="flex flex-row mt-2 ml-2">
-          <div class="bg-white rounded-full h-10 w-10 mt-1">
-            <img
-              v-if="user.avatarBase64"
-              class="rounded-full w-10 h-10 object-cover"
-              :src="user.avatarBase64"
-            />
-            <img
-              v-else
-              class="rounded-full object-cover"
-              src="../../assets/images/default_avatar.webp"
+    <div ref="scrollContentRef">
+      <div class="mt-4 mb-16 pl-8">
+        <div
+          v-for="(user, idx) in curPageUsers"
+          :key="idx"
+          class="h-16 grid grid-cols-3 rounded-full px-2 mr-10"
+          :class="idx % 2 == 0 ? 'bg-green-100' : 'bg-white'"
+        >
+          <div class="flex flex-row mt-2 ml-2">
+            <div class="bg-white rounded-full h-10 w-10 mt-1">
+              <img
+                v-if="user.avatarBase64"
+                class="rounded-full w-10 h-10 object-cover"
+                :src="user.avatarBase64"
+              />
+              <img
+                v-else
+                class="rounded-full object-cover"
+                src="../../assets/images/default_avatar.webp"
+              />
+            </div>
+            <div class="ml-4 mt-3">{{ user.username }}</div>
+          </div>
+          <div class="text-center text-xl py-5">
+            <i
+              @click="switchRole(idx + (curPage - 1) * 20)"
+              class="bi hover:text-green-600 cursor-pointer"
+              :class="
+                user.role === '1'
+                  ? 'bi-square'
+                  : user.username === thisUserInfo.username
+                    ? 'bi-check-square-fill check-disabled'
+                    : 'bi-check-square-fill'
+              "
             />
           </div>
-          <div class="ml-4 mt-3">{{ user.username }}</div>
-        </div>
-        <div class="text-center text-xl py-5">
-          <i
-            @click="switchRole(idx + (curPage - 1) * 20)"
-            class="bi hover:text-green-600 cursor-pointer"
-            :class="
-              user.role === '1'
-                ? 'bi-square'
-                : user.username === thisUserInfo.username
-                  ? 'bi-check-square-fill check-disabled'
-                  : 'bi-check-square-fill'
-            "
-          />
-        </div>
-        <div class="text-center justify-between flex flex-row mt-3 pr-1">
-          <div class="w-1" />
-          <div class="flex flex-row">
-            <div
-              @click="resetPwd(idx + (curPage - 1) * 20)"
-              class="h-10 mr-2 flex flex-row rounded-full text-blue-600 border border-blue-400 pl-1 pr-3 bg-white cursor-pointer hover:text-blue-100 hover:bg-blue-600 transition-all"
-              :class="user.username === thisUserInfo.username ? 'button-disabled' : ''"
-            >
-              <i class="bi bi-arrow-clockwise text-2xl mr-2 pt-1"></i>
-              <div class="pt-2">Reset PWD.</div>
-            </div>
-            <div
-              @click="deleteUser(idx + (curPage - 1) * 20)"
-              class="h-10 w-10 rounded-full text-red-600 border border-red-400 px-1 pt-2 bg-white cursor-pointer hover:text-red-100 hover:bg-red-600 transition-all"
-              :class="user.username === thisUserInfo.username ? 'button-disabled' : ''"
-            >
-              <i class="bi bi-trash-fill"></i>
+          <div class="text-center justify-between flex flex-row mt-3 pr-1">
+            <div class="w-1" />
+            <div class="flex flex-row">
+              <div
+                @click="resetPwd(idx + (curPage - 1) * 10)"
+                class="h-10 mr-2 flex flex-row rounded-full text-blue-600 border border-blue-400 pl-1 pr-3 bg-white cursor-pointer hover:text-blue-100 hover:bg-blue-600 transition-all"
+                :class="user.username === thisUserInfo.username ? 'button-disabled' : ''"
+              >
+                <i class="bi bi-arrow-clockwise text-2xl mr-2 pt-1"></i>
+                <div class="pt-2">Reset PWD.</div>
+              </div>
+              <div
+                @click="deleteUser(idx + (curPage - 1) * 10)"
+                class="h-10 w-10 rounded-full text-red-600 border border-red-400 px-1 pt-2 bg-white cursor-pointer hover:text-red-100 hover:bg-red-600 transition-all"
+                :class="user.username === thisUserInfo.username ? 'button-disabled' : ''"
+              >
+                <i class="bi bi-trash-fill"></i>
+              </div>
             </div>
           </div>
         </div>
