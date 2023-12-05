@@ -1,48 +1,71 @@
-# rental-ads-board-frontend
+# Urban Haven Rentals `frontend`
 
-Backend reference: [陈带佬](https://github.com/Phoenix0356/RentalAdsBoard)
+> Information Systems: **Rental ads board**
 
-This template should help get you started developing with Vue 3 in Vite.
+Frontend repository by **21321108 Huang Yiyu**
 
-## Recommended IDE Setup
+## Tech Stack
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+This project is built with `Vue3` + `Vite` + `TypeScript` for the ease of
+responsive programming and ease of debugging. The atomic CSS library `Tailwind`
+is implemented for the readability of the codes.
 
-## Type Support for `.vue` Imports in TS
+### Disclaimer
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
+To keep this lab work meaningful and make myself more familiar with Vue
+programming, I hereby ensure that:
+> All views and components in this project are built without any component
+> libraries (such as `Element Plus`) or any help with AI (such as `ChatGPT`).
 
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
+The dependencies can be seen in `packages.json`.
 
-1. Disable the built-in TypeScript Extension
-    1) Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-    2) Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
+## Features
 
-## Customize configuration
+- I have tried my best to make the UI style of this project as close as possible
+  to Google's [Material You](https://material.io/blog/announcing-material-you). The
+  result turned out to be pretty well, at least to me🥰.
+- All **HTTP requests** have a visual feedback, like a **progress bar**, or a **top
+  bullet message**, or both. This makes the user feel way better when there is a request
+  ongoing.
+- **Login** & **register** with common error handlers.
+- Board **Homepage** ads list and **pagination**, with a **responsive** layout: 3-col grid
+  when wide & 2-col grid when narrow. 6 ads per page.
+- **Post** or **edit** an ad in post view, with a **responsive** layout: horizontal when
+  wide & vertical when narrow. The ad detail info supports **rich text** via
+  `Markdown`. You can preview the compiled **markdown** as you type. Each ad can
+  **attach up to 9 images**.
+- **Manage** personal ads in a dedicated view. Admin can manage all ads, with a
+  switch component allowing to switch view. Each ad can be edited or deleted.
+- An admin can **manage all users** in a separate view, unseen to average users.
+  In this view, an admin can **upgrade/downgrade** other users to/from admin, or
+  **delete a user**, or **reset a user's password** to `12345`. All users are shown
+  in a list with **pagination**, 20 per page.
+- One can **edit** his **account information** in a separate dialog view, including
+  username, email, password, and avatar image.
+- One can **log out** or **delete his account**.
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+## Development
 
-## Project Setup
+### Dependencies
 
-```sh
-npm install
+```shell
+npm i
 ```
 
-### Compile and Hot-Reload for Development
+### Dev
 
-```sh
+```shell
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+### Build
 
-```sh
+```shell
 npm run build
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+### ESLint
 
-```sh
+```shell
 npm run lint
 ```
