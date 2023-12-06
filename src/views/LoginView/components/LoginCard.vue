@@ -47,7 +47,7 @@ const loginClick = () => {
   progressArr.value = [false]
   axios
     .post('/api/board/login', {
-      username: username.value,
+      username: username.value.toLowerCase(),
       password: pwd.value
     })
     .then((resp) => {
@@ -86,7 +86,7 @@ const registerConfirm = () => {
   progressArr.value = [false]
   axios
     .post('/api/board/register', {
-      username: username.value,
+      username: username.value.toLowerCase(),
       password: pwd.value,
       role: '1',
       email: email.value,
@@ -244,7 +244,7 @@ onMounted(() => {
   >
     <div class="flex flex-row w-full mx-7 mt-6">
       <div class="gs-r mr-2 h-8 mt-1 w-20">Username</div>
-      <my-input type="input" class="w-80" placeholder="Username or email" v-model="username" />
+      <my-input type="input" class="w-80" placeholder="Your username" v-model="username" />
     </div>
     <div class="flex flex-row w-full mt-2 mx-7">
       <div class="gs-r mr-2 h-8 mt-1 w-20">Password</div>

@@ -2,7 +2,7 @@
 // 1: home; 2: manage; 3: post/edit
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { ApiDelete, ApiGet, ApiPut } from '@/utils/req'
+import { ApiDelete, ApiGet } from '@/utils/req'
 import { msgProps, useTemplateMessage } from '@/utils/template-message'
 import TemplateMessage from '@/components/TemplateMessage.vue'
 import { useTemplateDialog } from '@/utils/template-dialog'
@@ -19,20 +19,20 @@ onMounted(() => {
   userInfo.value = localStorage.getItem('userInfo')
   if (userInfo.value) {
     userInfo.value = JSON.parse(userInfo.value)
-  } else {
-    ApiGet('board/home')
-      .then((resp) => {
-        userInfo.value = resp.data.obj
-        localStorage.setItem('userInfo', JSON.stringify(userInfo.value))
-      })
-      .catch(() => {
-        useTemplateMessage(TemplateMessage, {
-          msg: 'Auth expired, please re-login.',
-          type: 'alert'
-        })
-        router.push('/')
-      })
   }
+  ApiGet('board/home')
+    .then((resp) => {
+      userInfo.value = resp.data.obj
+      localStorage.setItem('userInfo', JSON.stringify(userInfo.value))
+    })
+    .catch(() => {
+      useTemplateMessage(TemplateMessage, {
+        msg: 'Auth expired, please re-login.',
+        type: 'alert'
+      })
+      localStorage.clear()
+      router.push('/')
+    })
 })
 
 const homeClick = () => {
@@ -53,7 +53,7 @@ const editUserInfoClick = () => {
   useTemplateDialog(InfoEditDialog, {
     userInfo: userInfo.value,
     onClose: () => {
-      router.go(0)
+      // router.go(0)
     }
   })
 }

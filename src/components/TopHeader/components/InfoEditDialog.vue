@@ -61,19 +61,32 @@ const addAvatar = (event) => {
   }
 }
 
+const strContains = (source: string, target: string) => {
+  for (let i = 0; i < source.length - target.length; i++) {
+    if (target == source.substring(i, i + target.length)) {
+      return true
+    }
+  }
+  return false
+}
+
 const confirmClick = () => {
   if (username.value.length > 20) {
-    useTemplateMessage(TemplateDialog, msgProps('Username too long', 'warn'))
+    useTemplateMessage(TemplateMessage, msgProps('Username too long', 'warn'))
+    return
+  }
+  if (email.value.length == 0 || !strContains(email.value, '@')) {
+    useTemplateMessage(TemplateMessage, msgProps('Invalid email', 'warn'))
     return
   }
   if (originPwd.value !== '' && newPwd.value !== confirmPwd.value) {
-    useTemplateMessage(TemplateDialog, msgProps('Inconsistent passwords', 'warn'))
+    useTemplateMessage(TemplateMessage, msgProps('Inconsistent passwords', 'warn'))
     return
   }
 
   progressArr.value = [false, false]
   ApiPut('board/update', {
-    username: username.value,
+    username: username.value.toLowerCase(),
     email: email.value,
     avatarBase64: avatar.value
   })
@@ -82,7 +95,7 @@ const confirmClick = () => {
       localStorage.setItem(
         'userInfo',
         JSON.stringify({
-          username: username.value,
+          username: username.value.toLowerCase(),
           email: email.value,
           avatarBase64: avatar.value,
           role: props.userInfo.role
@@ -91,16 +104,28 @@ const confirmClick = () => {
 
       if (resp.data && resp.data.stateCode == 200) {
         if (originPwd.value !== '') {
+          if (originPwd.value === newPwd.value) {
+            progressArr.value = []
+            useTemplateMessage(
+              TemplateMessage,
+              msgProps(`The new password can't be the same as the original one`, 'warn', 3000)
+            )
+            return
+          }
           ApiPut('board/update/password', {
             originPassword: originPwd.value,
             newPassword: newPwd.value
           })
             .then((pwdResp) => {
+              console.log(pwdResp)
               progressArr.value[1] = true
               if (pwdResp.data && pwdResp.data.stateCode == 200) {
                 useTemplateMessage(TemplateMessage, msgProps('User info updated', 'success'))
                 props.onClose()
                 closeDialog(500)
+              } else {
+                progressArr.value = []
+                useTemplateMessage(TemplateMessage, msgProps(pwdResp.data.message, 'warn', 3000))
               }
             })
             .catch((err) => {
