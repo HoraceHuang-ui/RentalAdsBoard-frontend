@@ -68,6 +68,22 @@ watch(adminShowAll, () => {
     }
   }, 500)
 })
+const debounce = (fn: Function, delay: number) => {
+  let timer: number | undefined = undefined
+  return function () {
+    if (timer) {
+      clearTimeout(timer)
+    }
+    timer = setTimeout(() => {
+      fn()
+    }, delay)
+  }
+}
+const cancelDebounce = debounce(() => {
+  if (scrollContentRef.value) {
+    scrollHeight.value = scrollContentRef.value.scrollHeight
+  }
+}, 200)
 
 const curProgressIdx = ref(0)
 watch(curPageAds, (value, oldValue) => {
@@ -89,6 +105,8 @@ watch(curPageAds, (value, oldValue) => {
 })
 
 onMounted(() => {
+  window.addEventListener('resize', cancelDebounce)
+
   progressArr.value = [false, false]
   ApiGet('board/home')
     .then((resp) => {

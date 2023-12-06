@@ -59,6 +59,22 @@ watch(
     }
   }
 )
+const debounce = (fn: Function, delay: number) => {
+  let timer: number | undefined = undefined
+  return function () {
+    if (timer) {
+      clearTimeout(timer)
+    }
+    timer = setTimeout(() => {
+      fn()
+    }, delay)
+  }
+}
+const cancelDebounce = debounce(() => {
+  if (scrollContentRef.value) {
+    scrollHeight.value = scrollContentRef.value.scrollHeight
+  }
+}, 200)
 
 const toDetails = (adId: number) => {
   router.push({
@@ -70,6 +86,8 @@ const toDetails = (adId: number) => {
 }
 
 onMounted(() => {
+  window.addEventListener('resize', cancelDebounce)
+
   // ApiPut('board/root/resetPassword?username=otto', null)
   progressArr.value = [false]
   ApiGet('ads/home')

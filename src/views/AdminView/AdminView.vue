@@ -17,16 +17,21 @@ type UserInfo = {
   username: string
 }
 
+const USERS_PER_PAGE = 20
+
 const progressArr = inject('topProgressArr')
 const usersList = ref<UserInfo[]>([])
 const thisUserInfo = ref<any>({})
 
 const curPage = ref(1)
 const totalPages = computed(() => {
-  return Math.floor((usersList.value.length - 1) / 10) + 1
+  return Math.floor((usersList.value.length - 1) / USERS_PER_PAGE) + 1
 })
 const curPageUsers = computed(() => {
-  return usersList.value.slice((curPage.value - 1) * 10, (curPage.value - 1) * 10 + 10)
+  return usersList.value.slice(
+    (curPage.value - 1) * USERS_PER_PAGE,
+    (curPage.value - 1) * USERS_PER_PAGE + USERS_PER_PAGE
+  )
 })
 
 const scrollHeight = ref(0)
@@ -50,11 +55,20 @@ watch(
     }
   },
   () => {
+    setTimeout(() => {
+      if (scrollContentRef.value) {
+        scrollHeight.value = scrollContentRef.value.scrollHeight
+      }
+    }, 500)
+  }
+)
+watch(curPage, () => {
+  setTimeout(() => {
     if (scrollContentRef.value) {
       scrollHeight.value = scrollContentRef.value.scrollHeight
     }
-  }
-)
+  }, 500)
+})
 
 const switchRole = (idx: number) => {
   const user = usersList.value[idx]
@@ -214,23 +228,24 @@ onMounted(() => {
     </div>
   </div>
 
+  <!-- TODO: fix admin view scroll issue -->
   <scroll-wrapper
-    :show-bar="false"
-    :scroll-padding="50"
+    :show-bar="true"
+    :scroll-padding="20"
     :scroll-height="scrollHeight"
     height="78vh"
     width="96vw"
     class="bg-white mx-2 rounded-b-3xl border border-green-600 relative"
   >
-    <div class="w-full flex flex-row justify-center content-center pt-3">
+    <div class="absolute bottom-2 w-full flex flex-row justify-center content-center pt-3 pr-4">
       <my-pagination
         v-model="curPage"
         :total-pages="totalPages"
-        class="absolute bottom-2 w-64 border border-green-400"
+        class="w-64 border border-green-400"
       />
     </div>
     <div ref="scrollContentRef">
-      <div class="mt-4 mb-16 pl-8">
+      <div class="pt-4 pb-16 pl-8">
         <div
           v-for="(user, idx) in curPageUsers"
           :key="idx"
@@ -254,7 +269,7 @@ onMounted(() => {
           </div>
           <div class="text-center text-xl py-5">
             <i
-              @click="switchRole(idx + (curPage - 1) * 20)"
+              @click="switchRole(idx + (curPage - 1) * USERS_PER_PAGE)"
               class="bi hover:text-green-600 cursor-pointer"
               :class="
                 user.role === '1'
@@ -269,7 +284,7 @@ onMounted(() => {
             <div class="w-1" />
             <div class="flex flex-row">
               <div
-                @click="resetPwd(idx + (curPage - 1) * 10)"
+                @click="resetPwd(idx + (curPage - 1) * USERS_PER_PAGE)"
                 class="h-10 mr-2 flex flex-row rounded-full text-blue-600 border border-blue-400 pl-1 pr-3 bg-white cursor-pointer hover:text-blue-100 hover:bg-blue-600 transition-all"
                 :class="user.username === thisUserInfo.username ? 'button-disabled' : ''"
               >
@@ -277,7 +292,7 @@ onMounted(() => {
                 <div class="pt-2">Reset PWD.</div>
               </div>
               <div
-                @click="deleteUser(idx + (curPage - 1) * 10)"
+                @click="deleteUser(idx + (curPage - 1) * USERS_PER_PAGE)"
                 class="h-10 w-10 rounded-full text-red-600 border border-red-400 px-1 pt-2 bg-white cursor-pointer hover:text-red-100 hover:bg-red-600 transition-all"
                 :class="user.username === thisUserInfo.username ? 'button-disabled' : ''"
               >

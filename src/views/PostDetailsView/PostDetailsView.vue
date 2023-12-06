@@ -85,7 +85,7 @@ const cancelDebounce = debounce(() => {
   if (innerScrollContentRef.value) {
     innerScrollHeight.value = innerScrollContentRef.value.scrollHeight
   }
-}, 500)
+}, 200)
 
 onMounted(() => {
   window.addEventListener('resize', cancelDebounce)

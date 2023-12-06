@@ -56,7 +56,7 @@ const cancelDebounce = debounce(() => {
   if (previewScrollContentRef.value) {
     previewScrollHeight.value = previewScrollContentRef.value.scrollHeight
   }
-}, 500)
+}, 200)
 watch(() => {
   return imagesToAdd.value.length + imagesToRemove.value.length + details.value.length
 }, cancelDebounce)
@@ -167,6 +167,8 @@ const postClick = () => {
 }
 
 onMounted(() => {
+  window.addEventListener('resize', cancelDebounce)
+
   if (editMode) {
     progressArr.value = [false, false]
     ApiGet(`ads/user/get?ad_id=${route.query.adId}`)
