@@ -1,31 +1,37 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 
-const props = defineProps(['height', 'width', 'showBar', 'scrollHeight', 'scrollPadding'])
+const props = defineProps([
+  'height',
+  'width',
+  'showBar',
+  'scrollHeight',
+  'wrapperHeight',
+  'scrollPadding'
+])
 
 const scrollRef = ref()
 // const barRef = ref()
 
 const trackHeight = computed(() => {
+  if (props.wrapperHeight) {
+    return props.wrapperHeight
+  }
   return scrollRef.value ? scrollRef.value.clientHeight : 0
-}) // 滚动条轨道高度
+}) // 轨道高度
 const wrapContentHeight = computed(() => {
   if (props.scrollHeight) {
-    console.log('滚动条轨道高度 trackHeight: ' + trackHeight.value)
-    console.log('内容高度 wrapContentHeight: ' + props.scrollHeight)
-    console.log('---------------')
+    // console.log('滚动条轨道高度 trackHeight: ' + trackHeight.value)
+    // console.log('内容高度 wrapContentHeight: ' + props.scrollHeight)
+    // console.log('---------------')
     return props.scrollHeight
   }
   return scrollRef.value ? scrollRef.value.scrollHeight : 0
-}) // 内容高度
-
-// const trackHeight = ref(0)
-// const wrapContentHeight = ref(0)
+}) // 内容滚动高度
 
 const translateY = ref(0)
 const moveClientY = ref(0)
 const isMove = ref(false)
-// const scrollTop = ref(0)
 
 const heightPre = computed(() => {
   return trackHeight.value / wrapContentHeight.value
@@ -33,18 +39,6 @@ const heightPre = computed(() => {
 const barHeight = computed(() => {
   return heightPre.value * trackHeight.value
 })
-
-// const initScrollListener = () => {
-//   trackHeight.value = scrollRef.value.clientHeight - 20
-//   wrapContentHeight.value = scrollRef.value.scrollHeight
-//
-//   console.log('内容高度: ' + wrapContentHeight.value)
-//   console.log('滚动条高度: ' + trackHeight.value)
-// }
-
-// const updateScroll = () => {
-//   initScrollListener()
-// }
 
 const onMouseWheel = (e) => {
   scrollY(e.target.scrollTop * heightPre.value)

@@ -60,6 +60,7 @@ const cancelDebounce = debounce(() => {
 watch(() => {
   return imagesToAdd.value.length + imagesToRemove.value.length + details.value.length
 }, cancelDebounce)
+watch(showDetailsPreview, cancelDebounce)
 
 const addImageClick = () => {
   const imageInput = document.getElementById('imageInput')

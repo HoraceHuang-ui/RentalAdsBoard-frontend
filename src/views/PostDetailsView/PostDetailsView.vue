@@ -16,6 +16,7 @@ const adId = route.query.adId
 const adInfo = ref<any>({})
 const images = ref<string[]>([])
 const curImageNum = ref(1)
+const adUserInfo = ref<any>({})
 
 const adDetailsMarkdown = computed(() => {
   if ('description' in adInfo.value) {
@@ -27,43 +28,10 @@ const outerScrollHeight = ref(0)
 const outerScrollContentRef = ref<HTMLElement>()
 const noImageScrollContentRef = ref<HTMLElement>()
 const innerScrollHeight = ref(0)
+const innerWrapperHeight = ref(0)
+// const innerWrapper = document.getElementById('innerWrapper')
 const innerScrollContentRef = ref<HTMLElement>()
 const watchFlag = ref(true)
-watch(
-  () => {
-    if (
-      noImageScrollContentRef.value ||
-      (outerScrollContentRef.value && innerScrollContentRef.value)
-    ) {
-      const len = progressArr.value.length
-      if (len > 0) {
-        for (const flag of progressArr.value) {
-          if (flag == false) {
-            watchFlag.value = !watchFlag.value
-            return watchFlag.value
-          }
-        }
-        watchFlag.value = !watchFlag.value
-        return watchFlag.value
-      } else {
-        watchFlag.value = !watchFlag.value
-        return watchFlag.value
-      }
-    }
-  },
-  () => {
-    if (outerScrollContentRef.value) {
-      outerScrollHeight.value =
-        images.value.length > 0
-          ? outerScrollContentRef.value.scrollHeight
-          : noImageScrollContentRef.value.scrollHeight
-    }
-    if (innerScrollContentRef.value) {
-      innerScrollHeight.value = innerScrollContentRef.value.scrollHeight
-    }
-  },
-  { immediate: true }
-)
 const debounce = (fn: Function, delay: number) => {
   let timer: number | undefined = undefined
   return function () {
@@ -83,18 +51,53 @@ const cancelDebounce = debounce(() => {
         : noImageScrollContentRef.value.scrollHeight
   }
   if (innerScrollContentRef.value) {
+    innerWrapperHeight.value = outerScrollHeight.value - 30
     innerScrollHeight.value = innerScrollContentRef.value.scrollHeight
   }
 }, 200)
+watch(() => {
+  if (
+    noImageScrollContentRef.value ||
+    (outerScrollContentRef.value && innerScrollContentRef.value)
+  ) {
+    const len = progressArr.value.length
+    if (len > 0) {
+      for (const flag of progressArr.value) {
+        if (flag == false) {
+          watchFlag.value = !watchFlag.value
+          return watchFlag.value
+        }
+      }
+      watchFlag.value = !watchFlag.value
+      return watchFlag.value
+    } else {
+      watchFlag.value = !watchFlag.value
+      return watchFlag.value
+    }
+  }
+}, cancelDebounce)
 
 onMounted(() => {
   window.addEventListener('resize', cancelDebounce)
 
-  progressArr.value = [false, false]
+  progressArr.value = [false, false, false]
   ApiGet(`ads/user/get?ad_id=${adId}`)
     .then((adResp) => {
       progressArr.value[0] = true
       adInfo.value = adResp.data.obj
+
+      ApiGet(`board/home?username=${adInfo.value.username}`)
+        .then((userResp) => {
+          progressArr.value[1] = true
+          adUserInfo.value = userResp.data.obj
+        })
+        .catch(() => {
+          progressArr.value = []
+          useTemplateMessage(
+            TemplateMessage,
+            msgProps('Error loading contents, try refreshing page.', 'alert')
+          )
+        })
     })
     .catch(() => {
       progressArr.value = []
@@ -105,7 +108,7 @@ onMounted(() => {
     })
   ApiGet(`picture/list?ad_id=${adId}`)
     .then((pictureResp) => {
-      progressArr.value[1] = true
+      progressArr.value[2] = true
       for (const pictureObj of pictureResp.data.obj) {
         images.value.push(pictureObj.pictureBase64)
       }
@@ -145,9 +148,11 @@ onMounted(() => {
           </div>
         </div>
         <scroll-wrapper
+          id="innerWrapper"
           height="100%"
           width="100%"
           :show-bar="true"
+          :wrapper-height="innerWrapperHeight"
           :scroll-height="innerScrollHeight"
           class="details-wrapper"
         >
@@ -162,6 +167,10 @@ onMounted(() => {
             <div class="text-green-600 opacity-80">
               <i class="bi bi-person-circle" />
               {{ adInfo.username }}
+            </div>
+            <div class="text-green-600 opacity-80">
+              <i class="bi bi-envelope-fill" />
+              <a class="ml-1" :href="`mailto:${adUserInfo.email}`"> {{ adUserInfo.email }}</a>
             </div>
             <div class="mt-4" v-html="adDetailsMarkdown"></div>
           </div>

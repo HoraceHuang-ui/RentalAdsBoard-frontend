@@ -39,26 +39,6 @@ watch(curPageAds, () => {
 
 const scrollHeight = ref(0)
 const scrollContentRef = ref<HTMLDivElement>()
-watch(
-  () => {
-    const len = progressArr.value.length
-    if (len > 0) {
-      for (const flag of progressArr.value) {
-        if (flag == false) {
-          return false
-        }
-      }
-      return true
-    } else {
-      return false
-    }
-  },
-  () => {
-    if (scrollContentRef.value) {
-      scrollHeight.value = scrollContentRef.value.scrollHeight
-    }
-  }
-)
 const debounce = (fn: Function, delay: number) => {
   let timer: number | undefined = undefined
   return function () {
@@ -75,6 +55,19 @@ const cancelDebounce = debounce(() => {
     scrollHeight.value = scrollContentRef.value.scrollHeight
   }
 }, 200)
+watch(() => {
+  const len = progressArr.value.length
+  if (len > 0) {
+    for (const flag of progressArr.value) {
+      if (flag == false) {
+        return false
+      }
+    }
+    return true
+  } else {
+    return false
+  }
+}, cancelDebounce)
 
 const toDetails = (adId: number) => {
   router.push({

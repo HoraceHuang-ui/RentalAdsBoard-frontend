@@ -17,6 +17,7 @@ const avatar = ref('')
 const confPwd = ref('')
 const email = ref('')
 const pwdErrorShow = ref(false)
+const emailErrorShow = ref(false)
 
 const progressArr = inject('topProgressArr')
 
@@ -28,6 +29,15 @@ const registerClick = () => {
 
 const cancelRegisterClick = () => {
   reg.value = false
+}
+
+const strContains = (source: string, target: string) => {
+  for (let i = 0; i < source.length - target.length; i++) {
+    if (target == source.substring(i, i + target.length)) {
+      return true
+    }
+  }
+  return false
 }
 
 const router = useRouter()
@@ -64,6 +74,10 @@ const loginClick = () => {
 const registerConfirm = () => {
   if (pwd.value !== confPwd.value) {
     pwdErrorShow.value = true
+    return
+  }
+  if (email.value.length == 0 || !strContains(email.value, '@')) {
+    emailErrorShow.value = true
     return
   }
   if (username.value.length > 20) {
@@ -174,9 +188,12 @@ onMounted(() => {
         {{ username.length }}/20
       </div>
     </div>
-    <div class="flex flex-row mt-2 mx-5">
-      <div class="gs-r mr-2 h-8 mt-1 w-32">Email</div>
-      <my-input type="input" class="w-72" placeholder="Your email" v-model="email" />
+    <div class="flex flex-col">
+      <div class="flex flex-row mt-2 mx-5">
+        <div class="gs-r mr-2 h-8 mt-1 w-32">Email</div>
+        <my-input type="input" class="w-72" placeholder="Your email" v-model="email" />
+      </div>
+      <div v-if="emailErrorShow" class="text-right mr-10 text-red-600 gst-ri">Invalid email!</div>
     </div>
     <div class="flex flex-row mt-2 mx-5">
       <div class="gs-r mr-2 h-8 mt-1 w-32">Password</div>
@@ -196,6 +213,7 @@ onMounted(() => {
         placeholder="Your password again"
         v-model="confPwd"
         @change="pwdErrorShow = false"
+        @keyup.native.enter="registerConfirm"
       />
     </div>
     <div v-if="pwdErrorShow" class="text-right gst-ri text-red-600 pr-10">

@@ -46,14 +46,14 @@ const okClick = () => {
 </script>
 
 <template>
-  <transition>
+  <transition :duration="600">
     <div v-if="cShow">
       <div
-        class="absolute z-50 top-0 bottom-0 left-0 right-0 w-full h-full bg-black opacity-50"
+        class="outer absolute z-50 top-0 bottom-0 left-0 right-0 w-full h-full bg-black opacity-50"
         @click="closeDialog(500)"
       />
       <div
-        class="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-3xl shadow-md shadow-gray-700 bg-green-100"
+        class="inner absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-3xl shadow-md shadow-gray-700 bg-green-100"
         :style="`width: ${width}`"
       >
         <div class="gs-b text-green-600 text-3xl mt-5 ml-6 mr-6">{{ title }}</div>
@@ -83,13 +83,32 @@ const okClick = () => {
 </template>
 
 <style scoped>
-.v-enter-active,
-.v-leave-active {
+.v-enter-active .outer {
   transition: opacity 0.5s ease;
 }
 
-.v-enter-from,
-.v-leave-to {
+.v-leave-active .outer {
+  transition: opacity 0.5s ease;
+  transition-delay: 0.1s;
+}
+
+.v-enter-from .outer,
+.v-leave-to .outer {
   opacity: 0;
+}
+
+.v-enter-active .inner {
+  transition: all 0.3s ease;
+  transition-delay: 0.2s;
+}
+
+.v-leave-active .inner {
+  transition: all 0.3s ease;
+}
+
+.v-enter-from .inner,
+.v-leave-to .inner {
+  opacity: 0;
+  transform: translate(-50%, -20%);
 }
 </style>

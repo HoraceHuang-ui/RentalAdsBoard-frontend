@@ -37,38 +37,39 @@ const curPageUsers = computed(() => {
 const scrollHeight = ref(0)
 const scrollContentRef = ref<HTMLDivElement>()
 const watchFlag = ref(true)
-watch(
-  () => {
-    const len = progressArr.value.length
-    if (len > 0) {
-      for (const flag of progressArr.value) {
-        if (flag == false) {
-          watchFlag.value = !watchFlag.value
-          return watchFlag.value
-        }
-      }
-      watchFlag.value = !watchFlag.value
-      return watchFlag.value
-    } else {
-      watchFlag.value = !watchFlag.value
-      return watchFlag.value
+const debounce = (fn: Function, delay: number) => {
+  let timer: number | undefined = undefined
+  return function () {
+    if (timer) {
+      clearTimeout(timer)
     }
-  },
-  () => {
-    setTimeout(() => {
-      if (scrollContentRef.value) {
-        scrollHeight.value = scrollContentRef.value.scrollHeight
-      }
-    }, 500)
+    timer = setTimeout(() => {
+      fn()
+    }, delay)
   }
-)
-watch(curPage, () => {
-  setTimeout(() => {
-    if (scrollContentRef.value) {
-      scrollHeight.value = scrollContentRef.value.scrollHeight
+}
+const cancelDebounce = debounce(() => {
+  if (scrollContentRef.value) {
+    scrollHeight.value = scrollContentRef.value.scrollHeight
+  }
+}, 200)
+watch(() => {
+  const len = progressArr.value.length
+  if (len > 0) {
+    for (const flag of progressArr.value) {
+      if (flag == false) {
+        watchFlag.value = !watchFlag.value
+        return watchFlag.value
+      }
     }
-  }, 500)
-})
+    watchFlag.value = !watchFlag.value
+    return watchFlag.value
+  } else {
+    watchFlag.value = !watchFlag.value
+    return watchFlag.value
+  }
+}, cancelDebounce)
+watch(curPage, cancelDebounce)
 
 const switchRole = (idx: number) => {
   const user = usersList.value[idx]
