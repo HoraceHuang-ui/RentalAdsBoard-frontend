@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ScrollWrapper from '@/components/ScrollWrapper.vue'
 import TopHeader from '@/components/TopHeader/TopHeader.vue'
-import { computed, inject, onMounted, ref, watch } from 'vue'
+import { inject, onMounted, ref, watch } from 'vue'
 import { ApiDelete, ApiGet, ApiPut, UserAPI } from '@/utils/req'
 import { useTemplateMessage, msgProps } from '@/utils/template-message'
 import TemplateMessage from '@/components/TemplateMessage.vue'
@@ -24,15 +24,27 @@ const usersList = ref<UserInfo[]>([])
 const thisUserInfo = ref<any>({})
 
 const curPage = ref(1)
-const totalPages = computed(() => {
-  return Math.floor((usersList.value.length - 1) / USERS_PER_PAGE) + 1
-})
-const curPageUsers = computed(() => {
-  return usersList.value.slice(
-    (curPage.value - 1) * USERS_PER_PAGE,
-    (curPage.value - 1) * USERS_PER_PAGE + USERS_PER_PAGE
-  )
-})
+const totalPages = ref(1)
+const updateCurPage = () => {
+  progressArr.value = [false]
+
+  ApiGet(UserAPI.LIST_BY_PAGINATION(curPage.value - 1, USERS_PER_PAGE))
+    .then((resp) => {
+      usersList.value = resp.data.obj.voList
+      totalPages.value = resp.data.obj.totalPages
+      progressArr.value[0] = true
+    })
+    .catch((err) => {
+      progressArr.value = []
+      console.error(err)
+      useTemplateMessage(
+        TemplateMessage,
+        msgProps('Error loading contents, try refreshing page.', 'alert', 3000)
+      )
+    })
+}
+
+watch(curPage, updateCurPage)
 
 const scrollHeight = ref(0)
 const scrollContentRef = ref<HTMLDivElement>()
@@ -79,11 +91,11 @@ const switchRole = (idx: number) => {
       .then((resp) => {
         if (resp.data && resp.data.stateCode == 200) {
           progressArr.value[0] = true
-          usersList.value[idx].role = '2'
           useTemplateMessage(
             TemplateMessage,
             msgProps(`Upgraded '${user.username}' to Admin.`, 'success')
           )
+          updateCurPage()
         } else {
           progressArr.value = []
           useTemplateMessage(TemplateMessage, msgProps(resp.data.msg, 'alert', 3000))
@@ -98,11 +110,11 @@ const switchRole = (idx: number) => {
       .then((resp) => {
         if (resp.data && resp.data.stateCode == 200) {
           progressArr.value[0] = true
-          usersList.value[idx].role = '1'
           useTemplateMessage(
             TemplateMessage,
             msgProps(`Downgraded '${user.username}' to average user.`, 'success')
           )
+          updateCurPage()
         } else {
           progressArr.value = []
           useTemplateMessage(TemplateMessage, msgProps(resp.data.msg, 'alert', 3000))
@@ -130,6 +142,7 @@ const resetPwd = (idx: number) => {
               TemplateMessage,
               msgProps(`Successfully reset password of '${user.username}'.`, 'success')
             )
+            updateCurPage()
           } else {
             progressArr.value = []
             useTemplateMessage(TemplateMessage, msgProps(resp.data.msg, 'alert', 3000))
@@ -154,11 +167,11 @@ const deleteUser = (idx: number) => {
         .then((resp) => {
           if (resp.data && resp.data.stateCode == 200) {
             progressArr.value[0] = true
-            usersList.value.splice(idx, 1)
             useTemplateMessage(
               TemplateMessage,
               msgProps(`Deleted '${user.username}' from database`, 'success')
             )
+            updateCurPage()
           } else {
             progressArr.value = []
             useTemplateMessage(TemplateMessage, msgProps(resp.data.msg, 'alert', 3000))
@@ -175,14 +188,13 @@ const deleteUser = (idx: number) => {
 const router = useRouter()
 onMounted(() => {
   progressArr.value = [false, false]
-  ApiGet(UserAPI.LIST)
+  ApiGet(UserAPI.LIST_BY_PAGINATION(0, USERS_PER_PAGE))
     .then((resp) => {
       if (resp.data && resp.data.stateCode == 200) {
         progressArr.value[0] = true
 
-        for (const user of resp.data.obj) {
-          usersList.value.push(user)
-        }
+        usersList.value = resp.data.obj.voList
+        totalPages.value = resp.data.obj.totalPages
       } else {
         progressArr.value = []
         useTemplateMessage(TemplateMessage, msgProps(resp.data.msg, 'alert', 3000))
@@ -229,7 +241,6 @@ onMounted(() => {
     </div>
   </div>
 
-  <!-- TODO: fix admin view scroll issue -->
   <scroll-wrapper
     :show-bar="true"
     :scroll-padding="20"
@@ -248,7 +259,7 @@ onMounted(() => {
     <div ref="scrollContentRef">
       <div class="pt-4 pb-16 pl-8">
         <div
-          v-for="(user, idx) in curPageUsers"
+          v-for="(user, idx) in usersList"
           :key="idx"
           class="h-16 grid grid-cols-3 rounded-full px-2 mr-10"
           :class="idx % 2 == 0 ? 'bg-green-100' : 'bg-white'"
@@ -270,7 +281,7 @@ onMounted(() => {
           </div>
           <div class="text-center text-xl py-5">
             <i
-              @click="switchRole(idx + (curPage - 1) * USERS_PER_PAGE)"
+              @click="switchRole(idx)"
               class="bi hover:text-green-600 cursor-pointer"
               :class="
                 user.role === '1'
@@ -285,7 +296,7 @@ onMounted(() => {
             <div class="w-1" />
             <div class="flex flex-row">
               <div
-                @click="resetPwd(idx + (curPage - 1) * USERS_PER_PAGE)"
+                @click="resetPwd(idx)"
                 class="h-10 mr-2 flex flex-row rounded-full text-blue-600 border border-blue-400 pl-1 pr-3 bg-white cursor-pointer hover:text-blue-100 hover:bg-blue-600 transition-all"
                 :class="user.username === thisUserInfo.username ? 'button-disabled' : ''"
               >
@@ -293,7 +304,7 @@ onMounted(() => {
                 <div class="pt-2">Reset PWD.</div>
               </div>
               <div
-                @click="deleteUser(idx + (curPage - 1) * USERS_PER_PAGE)"
+                @click="deleteUser(idx)"
                 class="h-10 w-10 rounded-full text-red-600 border border-red-400 px-1 pt-2 bg-white cursor-pointer hover:text-red-100 hover:bg-red-600 transition-all"
                 :class="user.username === thisUserInfo.username ? 'button-disabled' : ''"
               >

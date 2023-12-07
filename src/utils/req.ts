@@ -55,17 +55,19 @@ const genParamUrl = (url: string, params?: object) => {
 
 export const AdsAPI = {
   LIST: 'ads/list',
-  SELF_LIST: 'ads/list/self',
+  SELF_LIST_BY_PAGINATION: (page: number, pageSize: number) =>
+    genParamUrl('ads/list/self', { page_number: page, size: pageSize }),
   ADINFO_BY_ADID: (adId: any) => genParamUrl('ads/get', { ad_id: adId }),
-  ADS_BY_START_AND_COUNT: (startIdx: number, count: number) =>
-    genParamUrl('ads/get/index', { start_number: startIdx, ads_number: count }),
+  LIST_BY_PAGINATION: (page: number, pageSize: number) =>
+    genParamUrl('ads/list/index', { page_number: page, size: pageSize }),
   SAVE: 'ads/save',
   UPDATE: 'ads/update',
   DELETE: (adId: any) => genParamUrl('ads/delete', { ad_id: adId })
 }
 
 export const UserAPI = {
-  LIST: 'user/list',
+  LIST_BY_PAGINATION: (page: number, pageSize: number) =>
+    genParamUrl('user/list', { page_number: page, size: pageSize }),
   INFO_SELF: 'user/get',
   INFO_BY_USERNAME: (username: string) => genParamUrl('user/get', { username: username }),
   UPDATE_INFO: 'user/update/info',

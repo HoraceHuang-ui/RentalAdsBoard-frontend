@@ -8,6 +8,8 @@ import axios from 'axios'
 import TemplateMessage from '@/components/TemplateMessage.vue'
 import { useTemplateMessage, msgProps } from '@/utils/template-message'
 import { UserAPI } from '@/utils/req'
+import TemplateDialog from '@/components/TemplateDialog.vue'
+import { useTemplateDialog } from '@/utils/template-dialog'
 
 // login
 const username = ref('')
@@ -139,6 +141,14 @@ const addAvatar = (event) => {
   }
 }
 
+const forgetPasswordClick = () => {
+  useTemplateDialog(TemplateDialog, {
+    title: 'Forgot password?',
+    contents: 'Please contact an admin to reset your password.',
+    width: '30%'
+  })
+}
+
 onMounted(() => {
   const userInfo = localStorage.getItem('userInfo')
   if (userInfo) {
@@ -259,7 +269,12 @@ onMounted(() => {
     </div>
 
     <div class="flex flex-row justify-between mt-4">
-      <div class="w-1"></div>
+      <span
+        class="text-green-600 cursor-pointer rounded-full ml-2 mb-2 px-2 py-1 hover:border hover:border-green-700 transition-all"
+        @click="forgetPasswordClick"
+      >
+        Forgot password?
+      </span>
       <div class="flex flex-row">
         <my-button
           @click="registerClick"

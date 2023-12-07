@@ -25,15 +25,37 @@ const isAdmin = ref(false)
 const progressArr = inject('topProgressArr')
 
 const curPage = ref(1)
-const totalPages = computed(() => {
-  return Math.floor(((adminShowAll.value ? adminAdsList : adsList).value.length - 1) / 6) + 1
-})
-const curPageAds = computed(() => {
-  return (adminShowAll.value ? adminAdsList : adsList).value.slice(
-    (curPage.value - 1) * 6,
-    (curPage.value - 1) * 6 + 6
+const totalPages = ref(1)
+
+const updateCurPage = () => {
+  progressArr.value = [false]
+
+  ApiGet(
+    adminShowAll.value
+      ? AdsAPI.LIST_BY_PAGINATION(curPage.value - 1, 6)
+      : AdsAPI.SELF_LIST_BY_PAGINATION(curPage.value - 1, 6)
   )
+    .then((resp) => {
+      adsList.value = resp.data.obj.voList
+      totalPages.value = resp.data.obj.totalPages
+      progressArr.value[1] = true
+    })
+    .catch((err) => {
+      progressArr.value = []
+      console.error(err)
+      useTemplateMessage(
+        TemplateMessage,
+        msgProps('Error loading contents, try refreshing page.', 'alert', 3000)
+      )
+    })
+}
+
+watch(adminShowAll, () => {
+  curPage.value = 1
+  updateCurPage()
 })
+
+watch(curPage, updateCurPage)
 
 const scrollHeight = ref(0)
 const scrollContentRef = ref<HTMLDivElement>()
@@ -73,7 +95,7 @@ watch(() => {
 watch(adminShowAll, cancelDebounce)
 
 const curProgressIdx = ref(0)
-watch(curPageAds, (value, oldValue) => {
+watch(adsList, (value, oldValue) => {
   curProgressIdx.value = 0
   progressArr.value = []
 
@@ -99,24 +121,6 @@ onMounted(() => {
     .then((resp) => {
       progressArr.value[0] = true
       isAdmin.value = resp.data.obj.role === '2'
-      if (isAdmin.value) {
-        ApiGet(AdsAPI.LIST)
-          .then((resp) => {
-            for (const ad of resp.data.obj) {
-              adminAdsList.value.push(ad)
-            }
-          })
-          .catch((err) => {
-            progressArr.value = []
-            console.error(err)
-            useTemplateMessage(
-              TemplateMessage,
-              msgProps('Error loading contents, try refreshing page.', 'alert', 3000)
-            )
-          })
-      } else {
-        progressArr.value = []
-      }
     })
     .catch((err) => {
       progressArr.value = []
@@ -127,11 +131,10 @@ onMounted(() => {
       )
     })
 
-  ApiGet(AdsAPI.SELF_LIST)
+  ApiGet(AdsAPI.SELF_LIST_BY_PAGINATION(0, 6))
     .then((resp) => {
-      for (const ad of resp.data.obj) {
-        adsList.value.push(ad)
-      }
+      adsList.value = resp.data.obj.voList
+      totalPages.value = resp.data.obj.totalPages
       progressArr.value[1] = true
     })
     .catch((err) => {
@@ -176,16 +179,13 @@ onMounted(() => {
           class="ml-3 my-2"
         ></my-switch>
       </div>
-      <div
-        v-if="(adminShowAll ? adminAdsList : adsList).length > 0"
-        class="main-cards-wrapper w-full gap-2 pr-4 mt-6 pb-4"
-      >
+      <div v-if="adsList.length > 0" class="main-cards-wrapper w-full gap-2 pr-4 mt-6 pb-4">
         <manage-post-card
-          v-for="(ad, idx) in curPageAds"
+          v-for="(ad, idx) in adsList"
           :key="ad.adId"
           :ad="ad"
           @load-complete="progressArr[curProgressIdx++] = true"
-          @delete="(adminShowAll ? adminAdsList : adsList).splice(idx + (curPage - 1) * 6, 1)"
+          @delete="updateCurPage"
           class="border border-gray-400 rounded-3xl z-0"
         />
       </div>

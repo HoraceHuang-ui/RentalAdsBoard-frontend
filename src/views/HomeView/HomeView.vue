@@ -22,17 +22,28 @@ const progressArr = inject('topProgressArr')
 const router = useRouter()
 
 const curPage = ref(1)
-const totalPages = computed(() => {
-  return Math.floor((adsList.value.length - 1) / 6) + 1
-})
-const curPageAds = computed(() => {
-  return adsList.value.slice((curPage.value - 1) * 6, (curPage.value - 1) * 6 + 6)
+const totalPages = ref(1)
+
+watch(curPage, () => {
+  progressArr.value = [false]
+  ApiGet(AdsAPI.LIST_BY_PAGINATION(curPage.value - 1, 6)).then((resp) => {
+    adsList.value = resp.data.obj.voList
+    totalPages.value = resp.data.obj.totalPages
+    progressArr.value[0] = true
+  })
 })
 
-watch(curPageAds, () => {
+// const totalPages = computed(() => {
+//   return Math.floor((adsList.value.length - 1) / 6) + 1
+// })
+// const curPageAds = computed(() => {
+//   return adsList.value.slice((curPage.value - 1) * 6, (curPage.value - 1) * 6 + 6)
+// })
+
+watch(adsList, () => {
   progressArr.value = []
 
-  for (let i = 0; i < curPageAds.value.length; i++) {
+  for (let i = 0; i < adsList.value.length; i++) {
     progressArr.value.push(false)
   }
 })
@@ -83,10 +94,9 @@ onMounted(() => {
 
   // ApiPut('board/root/resetPassword?username=otto', null)
   progressArr.value = [false]
-  ApiGet(AdsAPI.LIST).then((resp) => {
-    for (const ad of resp.data.obj) {
-      adsList.value.push(ad)
-    }
+  ApiGet(AdsAPI.LIST_BY_PAGINATION(0, 6)).then((resp) => {
+    adsList.value = resp.data.obj.voList
+    totalPages.value = resp.data.obj.totalPages
     progressArr.value[0] = true
   })
 })
@@ -113,7 +123,7 @@ onMounted(() => {
       <div class="w-full gs-b text-5xl mt-8">Home</div>
       <div v-if="adsList.length > 0" class="main-cards-wrapper w-full gap-2 pr-4 mt-6 pb-4">
         <home-post-card
-          v-for="(ad, idx) in curPageAds"
+          v-for="(ad, idx) in adsList"
           :key="ad.adId"
           :ad="ad"
           @load-complete="progressArr[idx] = true"
