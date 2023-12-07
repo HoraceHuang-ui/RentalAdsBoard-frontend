@@ -3,7 +3,7 @@ import TemplateDialog from '@/components/TemplateDialog.vue'
 import MyInput from '@/components/MyInput.vue'
 import { ref, inject } from 'vue'
 import { useTemplateMessage, msgProps } from '@/utils/template-message'
-import { ApiPut } from '@/utils/req'
+import { ApiPut, UserAPI } from '@/utils/req'
 import TemplateMessage from '@/components/TemplateMessage.vue'
 import TopProgressBar from '@/components/TopProgressBar.vue'
 
@@ -85,7 +85,7 @@ const confirmClick = () => {
   }
 
   progressArr.value = [false, false]
-  ApiPut('board/update', {
+  ApiPut(UserAPI.UPDATE_INFO, {
     username: username.value.toLowerCase(),
     email: email.value,
     avatarBase64: avatar.value
@@ -112,7 +112,7 @@ const confirmClick = () => {
             )
             return
           }
-          ApiPut('board/update/password', {
+          ApiPut(UserAPI.UPDATE_PWD, {
             originPassword: originPwd.value,
             newPassword: newPwd.value
           })
@@ -130,7 +130,7 @@ const confirmClick = () => {
             })
             .catch((err) => {
               progressArr.value = []
-              useTemplateMessage(TemplateMessage, msgProps(err.data.message, 'warn', 3000))
+              useTemplateMessage(TemplateMessage, msgProps(err.message, 'warn', 3000))
             })
         } else {
           progressArr.value[1] = true
@@ -145,7 +145,7 @@ const confirmClick = () => {
     })
     .catch((err) => {
       progressArr.value = []
-      useTemplateMessage(TemplateMessage, msgProps(err.data.message, 'warn'))
+      useTemplateMessage(TemplateMessage, msgProps(err.message, 'warn'))
     })
 }
 </script>

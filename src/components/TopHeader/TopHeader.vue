@@ -2,7 +2,7 @@
 // 1: home; 2: manage; 3: post/edit
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { ApiDelete, ApiGet } from '@/utils/req'
+import { ApiDelete, ApiGet, UserAPI } from '@/utils/req'
 import { msgProps, useTemplateMessage } from '@/utils/template-message'
 import TemplateMessage from '@/components/TemplateMessage.vue'
 import { useTemplateDialog } from '@/utils/template-dialog'
@@ -20,7 +20,7 @@ onMounted(() => {
   if (userInfo.value) {
     userInfo.value = JSON.parse(userInfo.value)
   }
-  ApiGet('board/home')
+  ApiGet(UserAPI.INFO_SELF)
     .then((resp) => {
       userInfo.value = resp.data.obj
       localStorage.setItem('userInfo', JSON.stringify(userInfo.value))
@@ -53,7 +53,7 @@ const editUserInfoClick = () => {
   useTemplateDialog(InfoEditDialog, {
     userInfo: userInfo.value,
     onClose: () => {
-      // router.go(0)
+      router.go(0)
     }
   })
 }

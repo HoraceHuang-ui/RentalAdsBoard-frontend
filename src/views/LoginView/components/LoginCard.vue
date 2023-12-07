@@ -7,6 +7,7 @@ import { useRouter } from 'vue-router'
 import axios from 'axios'
 import TemplateMessage from '@/components/TemplateMessage.vue'
 import { useTemplateMessage, msgProps } from '@/utils/template-message'
+import { UserAPI } from '@/utils/req'
 
 // login
 const username = ref('')
@@ -46,7 +47,7 @@ const loginClick = () => {
   console.log('login click')
   progressArr.value = [false]
   axios
-    .post('/api/board/login', {
+    .post(UserAPI.LOGIN, {
       username: username.value.toLowerCase(),
       password: pwd.value
     })
@@ -85,7 +86,7 @@ const registerConfirm = () => {
   }
   progressArr.value = [false]
   axios
-    .post('/api/board/register', {
+    .post(UserAPI.REGISTER, {
       username: username.value.toLowerCase(),
       password: pwd.value,
       role: '1',

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import CardTemplate from '@/components/CardTemplate.vue'
 import { computed, onMounted, ref } from 'vue'
-import { ApiGet } from '@/utils/req'
+import { ApiGet, PictureAPI } from '@/utils/req'
 import { marked } from 'marked'
 
 const props = defineProps(['ad'])
@@ -31,7 +31,7 @@ const clipString = (str: string, targetLen: number) => {
 }
 
 onMounted(() => {
-  ApiGet(`picture/get/first?ad_id=${props.ad.adId}`)
+  ApiGet(PictureAPI.FIRST_BY_AD(props.ad.adId))
     .then((resp) => {
       if (resp.data.obj) {
         image.value = resp.data.obj.pictureBase64

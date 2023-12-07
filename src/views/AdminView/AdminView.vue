@@ -2,7 +2,7 @@
 import ScrollWrapper from '@/components/ScrollWrapper.vue'
 import TopHeader from '@/components/TopHeader/TopHeader.vue'
 import { computed, inject, onMounted, ref, watch } from 'vue'
-import { ApiDelete, ApiGet, ApiPut } from '@/utils/req'
+import { ApiDelete, ApiGet, ApiPut, UserAPI } from '@/utils/req'
 import { useTemplateMessage, msgProps } from '@/utils/template-message'
 import TemplateMessage from '@/components/TemplateMessage.vue'
 import { useRouter } from 'vue-router'
@@ -75,7 +75,7 @@ const switchRole = (idx: number) => {
   const user = usersList.value[idx]
   progressArr.value = [false]
   if (user.role === '1') {
-    ApiPut(`board/root/manage?roleChanged=2&username=${user.username}`)
+    ApiPut(UserAPI.UPDATE_ROLE('2', user.username))
       .then((resp) => {
         if (resp.data && resp.data.stateCode == 200) {
           progressArr.value[0] = true
@@ -94,7 +94,7 @@ const switchRole = (idx: number) => {
         useTemplateMessage(TemplateMessage, msgProps('Error switching role', 'alert', 3000))
       })
   } else {
-    ApiPut(`board/root/manage?roleChanged=1&username=${user.username}`)
+    ApiPut(UserAPI.UPDATE_ROLE('1', user.username))
       .then((resp) => {
         if (resp.data && resp.data.stateCode == 200) {
           progressArr.value[0] = true
@@ -122,7 +122,7 @@ const resetPwd = (idx: number) => {
     onOk: () => {
       progressArr.value = [false]
 
-      ApiPut(`board/root/resetPassword?username=${user.username}`)
+      ApiPut(UserAPI.RESET_PWD(user.username))
         .then((resp) => {
           if (resp.data && resp.data.stateCode == 200) {
             progressArr.value[0] = true
@@ -150,7 +150,7 @@ const deleteUser = (idx: number) => {
     onOk: () => {
       progressArr.value = [false]
 
-      ApiDelete(`board/root/delete?username=${user.username}`)
+      ApiDelete(UserAPI.DELETE_BY_USERNAME(user.username))
         .then((resp) => {
           if (resp.data && resp.data.stateCode == 200) {
             progressArr.value[0] = true
@@ -175,7 +175,7 @@ const deleteUser = (idx: number) => {
 const router = useRouter()
 onMounted(() => {
   progressArr.value = [false, false]
-  ApiGet('board/root')
+  ApiGet(UserAPI.LIST)
     .then((resp) => {
       if (resp.data && resp.data.stateCode == 200) {
         progressArr.value[0] = true
@@ -196,7 +196,7 @@ onMounted(() => {
       )
     })
 
-  ApiGet('board/home')
+  ApiGet(UserAPI.INFO_SELF)
     .then((resp) => {
       thisUserInfo.value = resp.data.obj
       progressArr.value[1] = true

@@ -39,3 +39,51 @@ export const ApiDelete = async (path: string) => {
 export const ApiPut = async (path: string, data?: object) => {
   return await instance.put(path, data)
 }
+
+const genParamUrl = (url: string, params?: object) => {
+  let path = url
+  if (params) {
+    path += '?'
+  } else {
+    return path
+  }
+  for (const key of Object.keys(params)) {
+    path += `${key}=${params[key]}&`
+  }
+  return path.substring(0, path.length - 1)
+}
+
+export const AdsAPI = {
+  LIST: 'ads/list',
+  SELF_LIST: 'ads/list/self',
+  ADINFO_BY_ADID: (adId: any) => genParamUrl('ads/get', { ad_id: adId }),
+  ADS_BY_START_AND_COUNT: (startIdx: number, count: number) =>
+    genParamUrl('ads/get/index', { start_number: startIdx, ads_number: count }),
+  SAVE: 'ads/save',
+  UPDATE: 'ads/update',
+  DELETE: (adId: any) => genParamUrl('ads/delete', { ad_id: adId })
+}
+
+export const UserAPI = {
+  LIST: 'user/list',
+  INFO_SELF: 'user/get',
+  INFO_BY_USERNAME: (username: string) => genParamUrl('user/get', { username: username }),
+  UPDATE_INFO: 'user/update/info',
+  UPDATE_PWD: 'user/update/password',
+  UPDATE_ROLE: (newRole: string, username: string) =>
+    genParamUrl('user/admin/role', { roleChanged: newRole, username: username }),
+  RESET_PWD: (username: string) => genParamUrl('user/admin/resetPassword', { username: username }),
+  LOGIN: 'user/login',
+  REGISTER: 'user/register',
+  DELETE_SELF: 'user/delete',
+  DELETE_BY_USERNAME: (username: string) => genParamUrl('user/admin/delete', { username: username })
+}
+
+export const PictureAPI = {
+  GET_BY_ID: (pictureId: any) => genParamUrl('picture/get', { picture_id: pictureId }),
+  FIRST_BY_AD: (adId: any) => genParamUrl('picture/ad/first', { ad_id: adId }),
+  LIST_BY_AD: (adId: any) => genParamUrl('picture/ad/list', { ad_id: adId }),
+  SAVE: 'picture/save',
+  UPDATE: 'picture/update',
+  DELETE: (pictureId: any) => genParamUrl('picture/delete', { picture_id: pictureId })
+}

@@ -4,7 +4,7 @@ import MyInput from '@/components/MyInput.vue'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import ScrollWrapper from '@/components/ScrollWrapper.vue'
-import { ApiDelete, ApiGet, ApiPost } from '@/utils/req'
+import { AdsAPI, ApiDelete, ApiGet, ApiPost, PictureAPI } from '@/utils/req'
 import { marked } from 'marked'
 import { useTemplateMessage, msgProps } from '@/utils/template-message'
 import TemplateMessage from '@/components/TemplateMessage.vue'
@@ -108,7 +108,7 @@ const postClick = () => {
       progressArr.value.push(false)
     }
 
-    ApiPost(editMode ? 'ads/update' : 'ads/save', {
+    ApiPost(editMode ? AdsAPI.UPDATE : AdsAPI.SAVE, {
       adId: editMode ? route.query.adId : null,
       title: title.value,
       address: addr.value,
@@ -124,7 +124,7 @@ const postClick = () => {
           }
           const adId = adResp.data.obj.adId
           for (const [idx, imageId] of imagesToRemove.value.entries()) {
-            ApiDelete(`picture/delete?picture_id=${imageId}`)
+            ApiDelete(PictureAPI.DELETE(imageId))
               .then(() => {
                 progressArr.value[idx + 1] = true
               })
@@ -135,7 +135,7 @@ const postClick = () => {
               })
           }
           for (const [idx, image] of imagesToAdd.value.entries()) {
-            ApiPost('picture/save', {
+            ApiPost(PictureAPI.SAVE, {
               adId: adId,
               pictureBase64: image
             })
@@ -148,7 +148,7 @@ const postClick = () => {
                       TemplateMessage,
                       msgProps('Ad posted successfully', 'success')
                     )
-                    router.go(-1)
+                    router.push('/home')
                   }
                 }
               })
@@ -172,7 +172,7 @@ onMounted(() => {
 
   if (editMode) {
     progressArr.value = [false, false]
-    ApiGet(`ads/user/get?ad_id=${route.query.adId}`)
+    ApiGet(AdsAPI.ADINFO_BY_ADID(route.query.adId))
       .then((resp) => {
         progressArr.value[0] = true
         if (resp.data.obj) {
@@ -180,7 +180,7 @@ onMounted(() => {
           title.value = adInfo.title
           addr.value = adInfo.address
           details.value = adInfo.description
-          ApiGet(`picture/list?ad_id=${adInfo.adId}`).then((pictureResp) => {
+          ApiGet(PictureAPI.LIST_BY_AD(adInfo.adId)).then((pictureResp) => {
             progressArr.value[1] = true
             for (const pictureObj of pictureResp.data.obj) {
               originalImages.value.push(pictureObj)

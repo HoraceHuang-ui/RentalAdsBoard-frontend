@@ -4,7 +4,7 @@ import ScrollWrapper from '@/components/ScrollWrapper.vue'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import ManagePostCard from '@/views/ManageView/components/ManagePostCard.vue'
 import MyPagination from '@/components/MyPagination.vue'
-import { ApiGet } from '@/utils/req'
+import { AdsAPI, ApiGet, UserAPI } from '@/utils/req'
 import MySwitch from '@/components/MySwitch.vue'
 import { useTemplateMessage, msgProps } from '@/utils/template-message'
 import TemplateMessage from '@/components/TemplateMessage.vue'
@@ -95,12 +95,12 @@ onMounted(() => {
   window.addEventListener('resize', cancelDebounce)
 
   progressArr.value = [false, false]
-  ApiGet('board/home')
+  ApiGet(UserAPI.INFO_SELF)
     .then((resp) => {
       progressArr.value[0] = true
       isAdmin.value = resp.data.obj.role === '2'
       if (isAdmin.value) {
-        ApiGet('ads/home')
+        ApiGet(AdsAPI.LIST)
           .then((resp) => {
             for (const ad of resp.data.obj) {
               adminAdsList.value.push(ad)
@@ -127,7 +127,7 @@ onMounted(() => {
       )
     })
 
-  ApiGet('ads/get')
+  ApiGet(AdsAPI.SELF_LIST)
     .then((resp) => {
       for (const ad of resp.data.obj) {
         adsList.value.push(ad)

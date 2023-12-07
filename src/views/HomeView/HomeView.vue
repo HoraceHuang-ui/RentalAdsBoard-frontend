@@ -4,7 +4,7 @@ import ScrollWrapper from '@/components/ScrollWrapper.vue'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import HomePostCard from '@/views/HomeView/componenets/HomePostCard.vue'
 import MyPagination from '@/components/MyPagination.vue'
-import { ApiGet, ApiPut } from '@/utils/req'
+import { AdsAPI, ApiGet, ApiPut } from '@/utils/req'
 import { useRouter } from 'vue-router'
 import { useTemplateMessage, msgProps } from '@/utils/template-message'
 import TemplateMessage from '@/components/TemplateMessage.vue'
@@ -83,7 +83,7 @@ onMounted(() => {
 
   // ApiPut('board/root/resetPassword?username=otto', null)
   progressArr.value = [false]
-  ApiGet('ads/home')
+  ApiGet(AdsAPI.LIST)
     .then((resp) => {
       for (const ad of resp.data.obj) {
         adsList.value.push(ad)

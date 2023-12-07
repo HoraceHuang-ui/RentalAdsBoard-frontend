@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import CardTemplate from '@/components/CardTemplate.vue'
 import { computed, onMounted, ref } from 'vue'
-import { ApiDelete, ApiGet, ApiPost } from '@/utils/req'
+import { AdsAPI, ApiDelete, ApiGet, ApiPost, PictureAPI } from '@/utils/req'
 import { marked } from 'marked'
 import { useTemplateMessage, msgProps } from '@/utils/template-message'
 import TemplateMessage from '@/components/TemplateMessage.vue'
@@ -42,7 +42,7 @@ const editPost = () => {
   })
 }
 const deletePost = () => {
-  ApiDelete(`ads/delete?ad_id=${props.ad.adId}`)
+  ApiDelete(AdsAPI.DELETE(props.ad.adId))
     .then((resp) => {
       if (resp.data.stateCode == 200) {
         emit('delete')
@@ -58,7 +58,7 @@ const deletePost = () => {
 }
 
 onMounted(() => {
-  ApiGet(`picture/get/first?ad_id=${props.ad.adId}`)
+  ApiGet(PictureAPI.FIRST_BY_AD(props.ad.adId))
     .then((resp) => {
       if (resp.data.obj) {
         image.value = resp.data.obj.pictureBase64

@@ -2,7 +2,7 @@
 import { useRoute } from 'vue-router'
 import TopHeader from '@/components/TopHeader/TopHeader.vue'
 import { computed, inject, onMounted, ref, watch } from 'vue'
-import { ApiGet } from '@/utils/req'
+import { AdsAPI, ApiGet, PictureAPI, UserAPI } from '@/utils/req'
 import MyPagination from '@/components/MyPagination.vue'
 import { marked } from 'marked'
 import ScrollWrapper from '@/components/ScrollWrapper.vue'
@@ -81,12 +81,12 @@ onMounted(() => {
   window.addEventListener('resize', cancelDebounce)
 
   progressArr.value = [false, false, false]
-  ApiGet(`ads/user/get?ad_id=${adId}`)
+  ApiGet(AdsAPI.ADINFO_BY_ADID(adId))
     .then((adResp) => {
       progressArr.value[0] = true
       adInfo.value = adResp.data.obj
 
-      ApiGet(`board/home?username=${adInfo.value.username}`)
+      ApiGet(UserAPI.INFO_BY_USERNAME(adInfo.value.username))
         .then((userResp) => {
           progressArr.value[1] = true
           adUserInfo.value = userResp.data.obj
@@ -106,7 +106,7 @@ onMounted(() => {
         msgProps('Error loading contents, try refreshing page.', 'alert')
       )
     })
-  ApiGet(`picture/list?ad_id=${adId}`)
+  ApiGet(PictureAPI.LIST_BY_AD(adId))
     .then((pictureResp) => {
       progressArr.value[2] = true
       for (const pictureObj of pictureResp.data.obj) {
