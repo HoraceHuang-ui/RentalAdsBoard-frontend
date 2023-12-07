@@ -83,20 +83,12 @@ onMounted(() => {
 
   // ApiPut('board/root/resetPassword?username=otto', null)
   progressArr.value = [false]
-  ApiGet(AdsAPI.LIST)
-    .then((resp) => {
-      for (const ad of resp.data.obj) {
-        adsList.value.push(ad)
-      }
-      progressArr.value[0] = true
-    })
-    .catch(() => {
-      progressArr.value = []
-      useTemplateMessage(
-        TemplateMessage,
-        msgProps('Error loading contents, try refreshing page.', 'alert')
-      )
-    })
+  ApiGet(AdsAPI.LIST).then((resp) => {
+    for (const ad of resp.data.obj) {
+      adsList.value.push(ad)
+    }
+    progressArr.value[0] = true
+  })
 })
 </script>
 

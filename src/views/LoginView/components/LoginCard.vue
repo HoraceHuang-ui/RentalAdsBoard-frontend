@@ -47,7 +47,7 @@ const loginClick = () => {
   console.log('login click')
   progressArr.value = [false]
   axios
-    .post(UserAPI.LOGIN, {
+    .post(`/api/${UserAPI.LOGIN}`, {
       username: username.value.toLowerCase(),
       password: pwd.value
     })
@@ -86,7 +86,7 @@ const registerConfirm = () => {
   }
   progressArr.value = [false]
   axios
-    .post(UserAPI.REGISTER, {
+    .post(`/api/${UserAPI.REGISTER}`, {
       username: username.value.toLowerCase(),
       password: pwd.value,
       role: '1',
