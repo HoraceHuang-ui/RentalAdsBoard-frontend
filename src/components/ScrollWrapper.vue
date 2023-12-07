@@ -1,33 +1,29 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
-const props = defineProps([
-  'height',
-  'width',
-  'showBar',
-  'scrollHeight',
-  'wrapperHeight',
-  'scrollPadding'
-])
+defineProps(['height', 'width', 'showBar', 'scrollPadding'])
 
-const scrollRef = ref()
+const outerRef = ref()
+const innerRef = ref()
 // const barRef = ref()
 
-const trackHeight = computed(() => {
-  if (props.wrapperHeight) {
-    return props.wrapperHeight
-  }
-  return scrollRef.value ? scrollRef.value.clientHeight : 0
-}) // 轨道高度
-const wrapContentHeight = computed(() => {
-  if (props.scrollHeight) {
-    // console.log('滚动条轨道高度 trackHeight: ' + trackHeight.value)
-    // console.log('内容高度 wrapContentHeight: ' + props.scrollHeight)
-    // console.log('---------------')
-    return props.scrollHeight
-  }
-  return scrollRef.value ? scrollRef.value.scrollHeight : 0
-}) // 内容滚动高度
+// const trackHeight = computed(() => {
+//   if (props.wrapperHeight) {
+//     return props.wrapperHeight
+//   }
+//   return scrollRef.value ? scrollRef.value.clientHeight : 0
+// }) // 轨道高度
+// const wrapContentHeight = computed(() => {
+//   if (props.scrollHeight) {
+//     // console.log('滚动条轨道高度 trackHeight: ' + trackHeight.value)
+//     // console.log('内容高度 wrapContentHeight: ' + props.scrollHeight)
+//     // console.log('---------------')
+//     return props.scrollHeight
+//   }
+//   return scrollRef.value ? scrollRef.value.scrollHeight : 0
+// }) // 内容滚动高度
+const trackHeight = ref(0)
+const wrapContentHeight = ref(0)
 
 const translateY = ref(0)
 const moveClientY = ref(0)
@@ -65,32 +61,48 @@ const moveTo = () => {
       } else {
         translateY.value = e.clientY - moveClientY.value
       }
-      scrollRef.value.scrollTop = translateY.value / heightPre.value
+      outerRef.value.scrollTop = translateY.value / heightPre.value
     }
   }
 }
 // 鼠标移动结束
 const moveEnd = () => {
-  document.onmouseup = (e) => {
+  document.onmouseup = () => {
     if (isMove.value) {
       isMove.value = false
     }
   }
 }
 
-// onMounted(() => {
-//   // initScrollListener()
-//   console.log('滚动条轨道高度 trackHeight: ' + trackHeight.value)
-//   console.log('内容高度 wrapContentHeight: ' + wrapContentHeight.value)
-//   console.log('---------------')
-// })
+const innerResizeObserver = new ResizeObserver(() => {
+  if (innerRef.value) {
+    wrapContentHeight.value = innerRef.value.scrollHeight
+  }
+})
+const outerResizeObserver = new ResizeObserver(() => {
+  if (outerRef.value) {
+    trackHeight.value = outerRef.value.scrollHeight
+  }
+})
+
+onMounted(() => {
+  // initScrollListener()
+  // console.log('滚动条轨道高度 trackHeight: ' + trackHeight.value)
+  // console.log('内容高度 wrapContentHeight: ' + wrapContentHeight.value)
+  // console.log('---------------')
+
+  innerResizeObserver.observe(innerRef.value)
+  outerResizeObserver.observe(outerRef.value)
+})
 </script>
 
 <template>
   <div class="overflow-hidden" :style="{ height: height, width: width }">
     <div class="h-full relative" style="margin-right: -16px">
-      <div ref="scrollRef" class="h-full overflow-y-scroll" @scroll="onMouseWheel">
-        <slot></slot>
+      <div ref="outerRef" class="h-full overflow-y-scroll" @scroll="onMouseWheel">
+        <div ref="innerRef">
+          <slot />
+        </div>
       </div>
       <div class="absolute top-0 bottom-0 right-4 w-0.5 rounded-full">
         <div

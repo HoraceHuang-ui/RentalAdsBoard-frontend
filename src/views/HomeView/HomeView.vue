@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import TopHeader from '@/components/TopHeader/TopHeader.vue'
 import ScrollWrapper from '@/components/ScrollWrapper.vue'
-import { computed, inject, onMounted, ref, watch } from 'vue'
+import { inject, onMounted, ref, watch } from 'vue'
 import HomePostCard from '@/views/HomeView/componenets/HomePostCard.vue'
 import MyPagination from '@/components/MyPagination.vue'
-import { AdsAPI, ApiGet, ApiPut } from '@/utils/req'
+import { AdsAPI, ApiGet } from '@/utils/req'
 import { useRouter } from 'vue-router'
-import { useTemplateMessage, msgProps } from '@/utils/template-message'
-import TemplateMessage from '@/components/TemplateMessage.vue'
 
 type Ad = {
   adId: number
@@ -33,13 +31,6 @@ watch(curPage, () => {
   })
 })
 
-// const totalPages = computed(() => {
-//   return Math.floor((adsList.value.length - 1) / 6) + 1
-// })
-// const curPageAds = computed(() => {
-//   return adsList.value.slice((curPage.value - 1) * 6, (curPage.value - 1) * 6 + 6)
-// })
-
 watch(adsList, () => {
   progressArr.value = []
 
@@ -47,38 +38,6 @@ watch(adsList, () => {
     progressArr.value.push(false)
   }
 })
-
-const scrollHeight = ref(0)
-const scrollContentRef = ref<HTMLDivElement>()
-const debounce = (fn: Function, delay: number) => {
-  let timer: number | undefined = undefined
-  return function () {
-    if (timer) {
-      clearTimeout(timer)
-    }
-    timer = setTimeout(() => {
-      fn()
-    }, delay)
-  }
-}
-const cancelDebounce = debounce(() => {
-  if (scrollContentRef.value) {
-    scrollHeight.value = scrollContentRef.value.scrollHeight
-  }
-}, 200)
-watch(() => {
-  const len = progressArr.value.length
-  if (len > 0) {
-    for (const flag of progressArr.value) {
-      if (flag == false) {
-        return false
-      }
-    }
-    return true
-  } else {
-    return false
-  }
-}, cancelDebounce)
 
 const toDetails = (adId: number) => {
   router.push({
@@ -90,8 +49,6 @@ const toDetails = (adId: number) => {
 }
 
 onMounted(() => {
-  window.addEventListener('resize', cancelDebounce)
-
   // ApiPut('board/root/resetPassword?username=otto', null)
   progressArr.value = [false]
   ApiGet(AdsAPI.LIST_BY_PAGINATION(0, 6)).then((resp) => {
@@ -107,7 +64,6 @@ onMounted(() => {
   <div class="pt-10"></div>
   <scroll-wrapper
     :show-bar="true"
-    :scroll-height="scrollHeight"
     :scroll-padding="30"
     height="84vh"
     width="96vw"
@@ -119,28 +75,26 @@ onMounted(() => {
       v-model="curPage"
       :total-pages="totalPages"
     />
-    <div ref="scrollContentRef">
-      <div class="w-full gs-b text-5xl mt-8">Home</div>
-      <div v-if="adsList.length > 0" class="main-cards-wrapper w-full gap-2 pr-4 mt-6 pb-4">
-        <home-post-card
-          v-for="(ad, idx) in adsList"
-          :key="ad.adId"
-          :ad="ad"
-          @load-complete="progressArr[idx] = true"
-          @click="toDetails(ad.adId)"
-          class="border border-gray-400 rounded-3xl z-0"
-        />
-      </div>
-      <div v-else class="text-center" style="margin-top: 15%">
-        <i class="bi bi-emoji-frown text-4xl text-green-600 opacity-40" />
-        <div class="mt-1">
-          <span class="text-gray-400 cursor-default">Empty here...</span>
-          <span
-            class="text-green-600 cursor-pointer rounded-full px-2 py-1 hover:border hover:border-green-700 transition-all"
-            @click="$router.push('/post')"
-            >Post one!</span
-          >
-        </div>
+    <div class="w-full gs-b text-5xl mt-8">Home</div>
+    <div v-if="adsList.length > 0" class="main-cards-wrapper w-full gap-2 pr-4 mt-6 pb-4">
+      <home-post-card
+        v-for="(ad, idx) in adsList"
+        :key="ad.adId"
+        :ad="ad"
+        @load-complete="progressArr[idx] = true"
+        @click="toDetails(ad.adId)"
+        class="border border-gray-400 rounded-3xl z-0"
+      />
+    </div>
+    <div v-else class="text-center" style="margin-top: 15%">
+      <i class="bi bi-emoji-frown text-4xl text-green-600 opacity-40" />
+      <div class="mt-1">
+        <span class="text-gray-400 cursor-default">Empty here...</span>
+        <span
+          class="text-green-600 cursor-pointer rounded-full px-2 py-1 hover:border hover:border-green-700 transition-all"
+          @click="$router.push('/post')"
+          >Post one!</span
+        >
       </div>
     </div>
   </scroll-wrapper>

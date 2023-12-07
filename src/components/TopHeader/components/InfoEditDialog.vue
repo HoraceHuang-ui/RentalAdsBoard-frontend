@@ -18,6 +18,8 @@ const props = defineProps({
   }
 })
 
+const imageInput = ref<HTMLInputElement>()
+
 const avatar = ref(props.userInfo.avatarBase64)
 const username = ref(props.userInfo.username)
 const email = ref(props.userInfo.email)
@@ -38,10 +40,8 @@ const closeDialog = (timeout: number) => {
 }
 
 const addAvatarClick = () => {
-  // images.value.push('https://avatars.githubusercontent.com/u/67905897?v=4')
-  const imageInput = document.getElementById('imageInput')
-  if (imageInput) {
-    imageInput.click()
+  if (imageInput.value) {
+    imageInput.value.click()
   }
 }
 
@@ -161,7 +161,7 @@ const confirmClick = () => {
         @click="addAvatarClick"
         class="rounded-full w-16 h-16 border-4 border-dashed border-gray-400 text-center relative text-gray-500 hover:border-green-600 hover:text-green-600 transition-all cursor-pointer"
       >
-        <input type="file" id="imageInput" class="opacity-0" @change="addAvatar($event)" />
+        <input ref="imageInput" type="file" class="opacity-0" @change="addAvatar($event)" />
         <div class="gs-r text-4xl absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
           +
         </div>
@@ -171,6 +171,7 @@ const confirmClick = () => {
           @click="addAvatarClick"
           class="rounded-full w-16 h-16 cursor-pointer object-cover"
           :src="avatar"
+          alt="Current avatar"
         />
       </div>
       <div class="w-0.5"></div>

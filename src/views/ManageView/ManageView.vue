@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import TopHeader from '@/components/TopHeader/TopHeader.vue'
 import ScrollWrapper from '@/components/ScrollWrapper.vue'
-import { computed, inject, onMounted, ref, watch } from 'vue'
+import { inject, onMounted, ref, watch } from 'vue'
 import ManagePostCard from '@/views/ManageView/components/ManagePostCard.vue'
 import MyPagination from '@/components/MyPagination.vue'
 import { AdsAPI, ApiGet, UserAPI } from '@/utils/req'
 import MySwitch from '@/components/MySwitch.vue'
 import { useTemplateMessage, msgProps } from '@/utils/template-message'
 import TemplateMessage from '@/components/TemplateMessage.vue'
-import HomePostCard from '@/views/HomeView/componenets/HomePostCard.vue'
 
 type Ad = {
   adId: number
@@ -18,7 +17,6 @@ type Ad = {
   userId: number
 }
 const adsList = ref<Ad[]>([])
-const adminAdsList = ref<Ad[]>([])
 const adminShowAll = ref(false)
 const isAdmin = ref(false)
 
@@ -57,43 +55,6 @@ watch(adminShowAll, () => {
 
 watch(curPage, updateCurPage)
 
-const scrollHeight = ref(0)
-const scrollContentRef = ref<HTMLDivElement>()
-const watchFlag = ref(true)
-const debounce = (fn: Function, delay: number) => {
-  let timer: number | undefined = undefined
-  return function () {
-    if (timer) {
-      clearTimeout(timer)
-    }
-    timer = setTimeout(() => {
-      fn()
-    }, delay)
-  }
-}
-const cancelDebounce = debounce(() => {
-  if (scrollContentRef.value) {
-    scrollHeight.value = scrollContentRef.value.scrollHeight
-  }
-}, 200)
-watch(() => {
-  const len = progressArr.value.length
-  if (len > 0) {
-    for (const flag of progressArr.value) {
-      if (flag == false) {
-        watchFlag.value = !watchFlag.value
-        return watchFlag.value
-      }
-    }
-    watchFlag.value = !watchFlag.value
-    return watchFlag.value
-  } else {
-    watchFlag.value = !watchFlag.value
-    return watchFlag.value
-  }
-}, cancelDebounce)
-watch(adminShowAll, cancelDebounce)
-
 const curProgressIdx = ref(0)
 watch(adsList, (value, oldValue) => {
   curProgressIdx.value = 0
@@ -114,8 +75,6 @@ watch(adsList, (value, oldValue) => {
 })
 
 onMounted(() => {
-  window.addEventListener('resize', cancelDebounce)
-
   progressArr.value = [false, false]
   ApiGet(UserAPI.INFO_SELF)
     .then((resp) => {
@@ -154,7 +113,6 @@ onMounted(() => {
   <scroll-wrapper
     :show-bar="true"
     :scroll-padding="30"
-    :scroll-height="scrollHeight"
     height="84vh"
     width="96vw"
     class="bg-white mx-2 pl-6 rounded-3xl border border-green-600 relative"
@@ -166,39 +124,37 @@ onMounted(() => {
       :total-pages="totalPages"
     />
 
-    <div ref="scrollContentRef">
-      <div class="flex flex-row w-full mt-8">
-        <div class="gs-b text-5xl">Manage Ads...</div>
-        <my-switch
-          v-if="isAdmin"
-          text-l="All"
-          text-r="Mine"
-          wrapper-width="150px"
-          track-width="75px"
-          v-model="adminShowAll"
-          class="ml-3 my-2"
-        ></my-switch>
-      </div>
-      <div v-if="adsList.length > 0" class="main-cards-wrapper w-full gap-2 pr-4 mt-6 pb-4">
-        <manage-post-card
-          v-for="(ad, idx) in adsList"
-          :key="ad.adId"
-          :ad="ad"
-          @load-complete="progressArr[curProgressIdx++] = true"
-          @delete="updateCurPage"
-          class="border border-gray-400 rounded-3xl z-0"
-        />
-      </div>
-      <div v-else class="text-center" style="margin-top: 15%">
-        <i class="bi bi-emoji-frown text-4xl text-green-600 opacity-40" />
-        <div class="mt-1">
-          <span class="text-gray-400 cursor-default">Empty here...</span>
-          <span
-            class="text-green-600 cursor-pointer rounded-full px-2 py-1 hover:border hover:border-green-700 transition-all"
-            @click="$router.push('/post')"
-            >Post one!</span
-          >
-        </div>
+    <div class="flex flex-row w-full mt-8">
+      <div class="gs-b text-5xl">Manage Ads...</div>
+      <my-switch
+        v-if="isAdmin"
+        text-l="All"
+        text-r="Mine"
+        wrapper-width="150px"
+        track-width="75px"
+        v-model="adminShowAll"
+        class="ml-3 my-2"
+      ></my-switch>
+    </div>
+    <div v-if="adsList.length > 0" class="main-cards-wrapper w-full gap-2 pr-4 mt-6 pb-4">
+      <manage-post-card
+        v-for="ad in adsList"
+        :key="ad.adId"
+        :ad="ad"
+        @load-complete="progressArr[curProgressIdx++] = true"
+        @delete="updateCurPage"
+        class="border border-gray-400 rounded-3xl z-0"
+      />
+    </div>
+    <div v-else class="text-center" style="margin-top: 15%">
+      <i class="bi bi-emoji-frown text-4xl text-green-600 opacity-40" />
+      <div class="mt-1">
+        <span class="text-gray-400 cursor-default">Empty here...</span>
+        <span
+          class="text-green-600 cursor-pointer rounded-full px-2 py-1 hover:border hover:border-green-700 transition-all"
+          @click="$router.push('/post')"
+          >Post one!</span
+        >
       </div>
     </div>
   </scroll-wrapper>
