@@ -54,12 +54,11 @@ const genParamUrl = (url: string, params?: object) => {
 }
 
 export const AdsAPI = {
-  LIST: 'ads/list',
   SELF_LIST_BY_PAGINATION: (page: number, pageSize: number) =>
     genParamUrl('ads/list/self', { page_number: page, size: pageSize }),
   ADINFO_BY_ADID: (adId: any) => genParamUrl('ads/get', { ad_id: adId }),
   LIST_BY_PAGINATION: (page: number, pageSize: number) =>
-    genParamUrl('ads/list/index', { page_number: page, size: pageSize }),
+    genParamUrl('ads/list', { page_number: page, size: pageSize }),
   SAVE: 'ads/save',
   UPDATE: 'ads/update',
   DELETE: (adId: any) => genParamUrl('ads/delete', { ad_id: adId })
@@ -75,17 +74,18 @@ export const UserAPI = {
   UPDATE_ROLE: (newRole: string, username: string) =>
     genParamUrl('user/admin/role', { roleChanged: newRole, username: username }),
   RESET_PWD: (username: string) => genParamUrl('user/admin/resetPassword', { username: username }),
+  DELETE_BY_USERNAME: (username: string) =>
+    genParamUrl('user/admin/delete', { username: username }),
   LOGIN: 'user/login',
   REGISTER: 'user/register',
-  DELETE_SELF: 'user/delete',
-  DELETE_BY_USERNAME: (username: string) => genParamUrl('user/admin/delete', { username: username })
+  DELETE_SELF: 'user/delete'
 }
 
-export const PictureAPI = {
-  GET_BY_ID: (pictureId: any) => genParamUrl('picture/get', { picture_id: pictureId }),
-  FIRST_BY_AD: (adId: any) => genParamUrl('picture/ad/first', { ad_id: adId }),
-  LIST_BY_AD: (adId: any) => genParamUrl('picture/ad/list', { ad_id: adId }),
-  SAVE: 'picture/save',
-  UPDATE: 'picture/update',
-  DELETE: (pictureId: any) => genParamUrl('picture/delete', { picture_id: pictureId })
+export const ImageAPI = {
+  GET_BY_ID: (imageId: any) => genParamUrl('image/get', { image_id: imageId }),
+  FIRST_BY_AD: (adId: any) => genParamUrl('image/ad/first', { ad_id: adId }),
+  LIST_BY_AD: (adId: any) => genParamUrl('image/ad/list', { ad_id: adId }),
+  SAVE: 'image/save',
+  UPDATE: 'image/update',
+  DELETE: (imageId: any) => genParamUrl('image/delete', { image_id: imageId })
 }

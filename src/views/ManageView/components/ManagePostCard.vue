@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import CardTemplate from '@/components/CardTemplate.vue'
 import { computed, onMounted, ref } from 'vue'
-import { AdsAPI, ApiDelete, ApiGet, ApiPost, PictureAPI } from '@/utils/req'
+import { AdsAPI, ApiDelete, ApiGet, ApiPost, ImageAPI } from '@/utils/req'
 import { marked } from 'marked'
 import { useTemplateMessage, msgProps } from '@/utils/template-message'
 import TemplateMessage from '@/components/TemplateMessage.vue'
@@ -58,10 +58,10 @@ const deletePost = () => {
 }
 
 onMounted(() => {
-  ApiGet(PictureAPI.FIRST_BY_AD(props.ad.adId))
+  ApiGet(ImageAPI.FIRST_BY_AD(props.ad.adId))
     .then((resp) => {
       if (resp.data.obj) {
-        image.value = resp.data.obj.pictureBase64
+        image.value = resp.data.obj.imageBase64
       }
       emit('loadComplete')
     })

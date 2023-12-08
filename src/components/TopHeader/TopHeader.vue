@@ -68,7 +68,7 @@ const deleteAccount = () => {
     title: 'Delete Account',
     contents: `Your account as well as all ads posted by you will be permanently deleted from database, this action can't be undone. Are you sure?`,
     onOk: () => {
-      ApiDelete('board/delete')
+      ApiDelete(UserAPI.DELETE_SELF)
         .then((resp) => {
           if (resp.data && resp.data.stateCode == 200) {
             useTemplateMessage(

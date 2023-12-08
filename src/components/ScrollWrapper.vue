@@ -86,11 +86,6 @@ const outerResizeObserver = new ResizeObserver(() => {
 })
 
 onMounted(() => {
-  // initScrollListener()
-  // console.log('滚动条轨道高度 trackHeight: ' + trackHeight.value)
-  // console.log('内容高度 wrapContentHeight: ' + wrapContentHeight.value)
-  // console.log('---------------')
-
   innerResizeObserver.observe(innerRef.value)
   outerResizeObserver.observe(outerRef.value)
 })

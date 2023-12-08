@@ -3,7 +3,7 @@ import TopHeader from '@/components/TopHeader/TopHeader.vue'
 import MyInput from '@/components/MyInput.vue'
 import { computed, inject, onMounted, ref } from 'vue'
 import ScrollWrapper from '@/components/ScrollWrapper.vue'
-import { AdsAPI, ApiDelete, ApiGet, ApiPost, PictureAPI } from '@/utils/req'
+import { AdsAPI, ApiDelete, ApiGet, ApiPost, ImageAPI } from '@/utils/req'
 import { marked } from 'marked'
 import { useTemplateMessage, msgProps } from '@/utils/template-message'
 import TemplateMessage from '@/components/TemplateMessage.vue'
@@ -25,9 +25,9 @@ const titleErrorShow = ref(false)
 const addrErrorShow = ref(false)
 
 type Image = {
-  pictureId: number
+  imageId: number
   adId: number
-  pictureBase64: string
+  imageBase64: string
 }
 
 const originalImages = ref<Image[]>([])
@@ -58,7 +58,7 @@ const addImage = (event) => {
   }
 }
 const deleteOriginalImage = (idx: number) => {
-  imagesToRemove.value.push(originalImages.value.splice(idx, 1)[0].pictureId)
+  imagesToRemove.value.push(originalImages.value.splice(idx, 1)[0].imageId)
 }
 
 const deleteNewImage = (idx: number) => {
@@ -97,7 +97,7 @@ const postClick = () => {
           }
           const adId = adResp.data.obj.adId
           for (const [idx, imageId] of imagesToRemove.value.entries()) {
-            ApiDelete(PictureAPI.DELETE(imageId))
+            ApiDelete(ImageAPI.DELETE(imageId))
               .then(() => {
                 progressArr.value[idx + 1] = true
               })
@@ -107,9 +107,9 @@ const postClick = () => {
               })
           }
           for (const [idx, image] of imagesToAdd.value.entries()) {
-            ApiPost(PictureAPI.SAVE, {
+            ApiPost(ImageAPI.SAVE, {
               adId: adId,
-              pictureBase64: image
+              imageBase64: image
             })
               .then((imgResp) => {
                 progressArr.value[imagesToRemove.value.length + idx + 1] = true
@@ -149,10 +149,10 @@ onMounted(() => {
           title.value = adInfo.title
           addr.value = adInfo.address
           details.value = adInfo.description
-          ApiGet(PictureAPI.LIST_BY_AD(adInfo.adId)).then((pictureResp) => {
+          ApiGet(ImageAPI.LIST_BY_AD(adInfo.adId)).then((imageResp) => {
             progressArr.value[1] = true
-            for (const pictureObj of pictureResp.data.obj) {
-              originalImages.value.push(pictureObj)
+            for (const imageObj of imageResp.data.obj) {
+              originalImages.value.push(imageObj)
             }
           })
         }
@@ -252,7 +252,7 @@ onMounted(() => {
         <div class="grid grid-cols-3 grid-rows-3 gap-2 mt-3" style="height: 380px; width: 380px">
           <div v-for="(image, idx) in originalImages" :key="idx" class="relative">
             <img
-              :src="image.pictureBase64"
+              :src="image.imageBase64"
               alt="Original image"
               class="w-full h-full rounded-2xl shadow-lg shadow-green-300 object-cover"
             />

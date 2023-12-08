@@ -1,71 +1,71 @@
 <script setup lang="ts">
-import { useRoute } from "vue-router";
-import TopHeader from "@/components/TopHeader/TopHeader.vue";
-import { computed, inject, onMounted, ref } from "vue";
-import { AdsAPI, ApiGet, PictureAPI, UserAPI } from "@/utils/req";
-import MyPagination from "@/components/MyPagination.vue";
-import { marked } from "marked";
-import ScrollWrapper from "@/components/ScrollWrapper.vue";
-import { useTemplateMessage, msgProps } from "@/utils/template-message";
-import TemplateMessage from "@/components/TemplateMessage.vue";
+import { useRoute } from 'vue-router'
+import TopHeader from '@/components/TopHeader/TopHeader.vue'
+import { computed, inject, onMounted, ref } from 'vue'
+import { AdsAPI, ApiGet, ImageAPI, UserAPI } from '@/utils/req'
+import MyPagination from '@/components/MyPagination.vue'
+import { marked } from 'marked'
+import ScrollWrapper from '@/components/ScrollWrapper.vue'
+import { useTemplateMessage, msgProps } from '@/utils/template-message'
+import TemplateMessage from '@/components/TemplateMessage.vue'
 
-const route = useRoute();
-const progressArr = inject("topProgressArr");
+const route = useRoute()
+const progressArr = inject('topProgressArr')
 
-const adId = route.query.adId;
-const adInfo = ref<any>({});
-const images = ref<string[]>([]);
-const curImageNum = ref(1);
-const adUserInfo = ref<any>({});
+const adId = route.query.adId
+const adInfo = ref<any>({})
+const images = ref<string[]>([])
+const curImageNum = ref(1)
+const adUserInfo = ref<any>({})
 
 const adDetailsMarkdown = computed(() => {
-  if ("description" in adInfo.value) {
-    return marked(adInfo.value.description);
-  } else return "";
-});
+  if ('description' in adInfo.value) {
+    return marked(adInfo.value.description)
+  } else return ''
+})
 
 onMounted(() => {
-  progressArr.value = [false, false, false];
+  progressArr.value = [false, false, false]
   ApiGet(AdsAPI.ADINFO_BY_ADID(adId))
     .then((adResp) => {
-      progressArr.value[0] = true;
-      adInfo.value = adResp.data.obj;
+      progressArr.value[0] = true
+      adInfo.value = adResp.data.obj
 
       ApiGet(UserAPI.INFO_BY_USERNAME(adInfo.value.username))
         .then((userResp) => {
-          progressArr.value[1] = true;
-          adUserInfo.value = userResp.data.obj;
+          progressArr.value[1] = true
+          adUserInfo.value = userResp.data.obj
         })
         .catch(() => {
-          progressArr.value = [];
+          progressArr.value = []
           useTemplateMessage(
             TemplateMessage,
-            msgProps("Error loading contents, try refreshing page.", "alert")
-          );
-        });
+            msgProps('Error loading contents, try refreshing page.', 'alert')
+          )
+        })
     })
     .catch(() => {
-      progressArr.value = [];
+      progressArr.value = []
       useTemplateMessage(
         TemplateMessage,
-        msgProps("Error loading contents, try refreshing page.", "alert")
-      );
-    });
-  ApiGet(PictureAPI.LIST_BY_AD(adId))
-    .then((pictureResp) => {
-      progressArr.value[2] = true;
-      for (const pictureObj of pictureResp.data.obj) {
-        images.value.push(pictureObj.pictureBase64);
+        msgProps('Error loading contents, try refreshing page.', 'alert')
+      )
+    })
+  ApiGet(ImageAPI.LIST_BY_AD(adId))
+    .then((imageResp) => {
+      progressArr.value[2] = true
+      for (const imageObj of imageResp.data.obj) {
+        images.value.push(imageObj.imageBase64)
       }
     })
     .catch(() => {
-      progressArr.value = [];
+      progressArr.value = []
       useTemplateMessage(
         TemplateMessage,
-        msgProps("Error loading contents, try refreshing page.", "alert")
-      );
-    });
-});
+        msgProps('Error loading contents, try refreshing page.', 'alert')
+      )
+    })
+})
 </script>
 
 <template>
@@ -81,8 +81,11 @@ onMounted(() => {
   >
     <div v-if="images.length > 0" class="post-details-wrapper p-4 content-center justify-center">
       <div class="image-wrapper flex flex-col bg-green-50 rounded-2xl border-2 border-green-100">
-        <img :src="images[curImageNum - 1]" :alt="`Image ${curImageNum} of ${images.length}`"
-             class="image object-contain w-full" />
+        <img
+          :src="images[curImageNum - 1]"
+          :alt="`Image ${curImageNum} of ${images.length}`"
+          class="image object-contain w-full"
+        />
         <div class="w-full flex flex-row justify-center content-center align-middle pt-3">
           <my-pagination
             v-model="curImageNum"
