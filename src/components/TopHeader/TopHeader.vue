@@ -140,7 +140,10 @@ const deleteAccount = () => {
         {{ userInfo.username }}
       </div>
       <div v-if="userInfo.avatarBase64" class="bg-white rounded-full h-10 w-10">
-        <img class="rounded-full object-cover h-10 w-10" :src="userInfo.avatarBase64" />
+        <img
+          class="rounded-full object-cover h-10 w-10"
+          :src="`data:image/png;base64,${userInfo.avatarBase64}`"
+        />
       </div>
       <div v-else class="bg-white rounded-full h-10 w-10">
         <img class="rounded-full object-cover" src="../../assets/images/default_avatar.webp" />

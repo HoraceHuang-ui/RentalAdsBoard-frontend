@@ -109,7 +109,7 @@ const postClick = () => {
           for (const [idx, image] of imagesToAdd.value.entries()) {
             ApiPost(ImageAPI.SAVE, {
               adId: adId,
-              imageBase64: image
+              imageBase64: image.replace(new RegExp('data:image/\\w+;base64,'), '')
             })
               .then((imgResp) => {
                 progressArr.value[imagesToRemove.value.length + idx + 1] = true
@@ -252,7 +252,7 @@ onMounted(() => {
         <div class="grid grid-cols-3 grid-rows-3 gap-2 mt-3" style="height: 380px; width: 380px">
           <div v-for="(image, idx) in originalImages" :key="idx" class="relative">
             <img
-              :src="image.imageBase64"
+              :src="`data:image/png;base64,${image.imageBase64}`"
               alt="Original image"
               class="w-full h-full rounded-2xl shadow-lg shadow-green-300 object-cover"
             />

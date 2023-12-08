@@ -55,7 +55,7 @@ onMounted(() => {
       <img
         class="rounded-xl mx-3 object-cover"
         style="width: max-content; height: 20vh"
-        :src="image"
+        :src="`data:image/png;base64,${image}`"
         :alt="`first image of ${ad.title}`"
       />
     </div>

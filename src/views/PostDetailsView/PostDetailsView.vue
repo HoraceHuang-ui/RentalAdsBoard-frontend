@@ -82,7 +82,7 @@ onMounted(() => {
     <div v-if="images.length > 0" class="post-details-wrapper p-4 content-center justify-center">
       <div class="image-wrapper flex flex-col bg-green-50 rounded-2xl border-2 border-green-100">
         <img
-          :src="images[curImageNum - 1]"
+          :src="`data:image/png;base64,${images[curImageNum - 1]}`"
           :alt="`Image ${curImageNum} of ${images.length}`"
           class="image object-contain w-full"
         />

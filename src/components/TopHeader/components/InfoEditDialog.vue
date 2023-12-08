@@ -88,7 +88,7 @@ const confirmClick = () => {
   ApiPut(UserAPI.UPDATE_INFO, {
     username: username.value.toLowerCase(),
     email: email.value,
-    avatarBase64: avatar.value
+    avatarBase64: avatar.value.replace(new RegExp('data:image/\\w+;base64,'), '')
   })
     .then((resp) => {
       progressArr.value[0] = true
@@ -170,7 +170,7 @@ const confirmClick = () => {
         <img
           @click="addAvatarClick"
           class="rounded-full w-16 h-16 cursor-pointer object-cover"
-          :src="avatar"
+          :src="`data:image/png;base64,${avatar}`"
           alt="Current avatar"
         />
       </div>

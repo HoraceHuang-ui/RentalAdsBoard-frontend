@@ -230,7 +230,7 @@ onMounted(() => {
             <img
               v-if="user.avatarBase64"
               class="rounded-full w-10 h-10 object-cover"
-              :src="user.avatarBase64"
+              :src="`data:image/png;base64,${user.avatarBase64}`"
               :alt="`Avatar of user ${user.username}`"
             />
             <img

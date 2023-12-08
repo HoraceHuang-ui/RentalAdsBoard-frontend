@@ -93,7 +93,7 @@ const registerConfirm = () => {
       password: pwd.value,
       role: '1',
       email: email.value,
-      avatarBase64: avatar.value
+      avatarBase64: avatar.value.replace(new RegExp('data:image/\\w+;base64,'), '')
     })
     .then((resp) => {
       progressArr.value[0] = true
