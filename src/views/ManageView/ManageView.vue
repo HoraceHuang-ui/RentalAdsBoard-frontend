@@ -30,8 +30,8 @@ const updateCurPage = () => {
 
   ApiGet(
     adminShowAll.value
-      ? AdsAPI.LIST_BY_PAGINATION(curPage.value - 1, 6)
-      : AdsAPI.SELF_LIST_BY_PAGINATION(curPage.value - 1, 6)
+      ? AdsAPI.LIST_WITH_PAGINATION(curPage.value - 1, 6)
+      : AdsAPI.SELF_LIST_WITH_PAGINATION(curPage.value - 1, 6)
   )
     .then((resp) => {
       adsList.value = resp.data.obj.voList
@@ -90,7 +90,7 @@ onMounted(() => {
       )
     })
 
-  ApiGet(AdsAPI.SELF_LIST_BY_PAGINATION(0, 6))
+  ApiGet(AdsAPI.SELF_LIST_WITH_PAGINATION(0, 6))
     .then((resp) => {
       adsList.value = resp.data.obj.voList
       totalPages.value = resp.data.obj.totalPages

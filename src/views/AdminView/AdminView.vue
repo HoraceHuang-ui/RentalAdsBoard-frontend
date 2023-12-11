@@ -28,7 +28,7 @@ const totalPages = ref(1)
 const updateCurPage = () => {
   progressArr.value = [false]
 
-  ApiGet(UserAPI.LIST_BY_PAGINATION(curPage.value - 1, USERS_PER_PAGE))
+  ApiGet(UserAPI.LIST_WITH_PAGINATION(curPage.value - 1, USERS_PER_PAGE))
     .then((resp) => {
       usersList.value = resp.data.obj.voList
       totalPages.value = resp.data.obj.totalPages
@@ -151,7 +151,7 @@ const deleteUser = (idx: number) => {
 const router = useRouter()
 onMounted(() => {
   progressArr.value = [false, false]
-  ApiGet(UserAPI.LIST_BY_PAGINATION(0, USERS_PER_PAGE))
+  ApiGet(UserAPI.LIST_WITH_PAGINATION(0, USERS_PER_PAGE))
     .then((resp) => {
       if (resp.data && resp.data.stateCode == 200) {
         progressArr.value[0] = true

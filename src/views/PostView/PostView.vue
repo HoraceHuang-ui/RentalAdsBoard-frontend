@@ -3,7 +3,7 @@ import TopHeader from '@/components/TopHeader/TopHeader.vue'
 import MyInput from '@/components/MyInput.vue'
 import { computed, inject, onMounted, ref } from 'vue'
 import ScrollWrapper from '@/components/ScrollWrapper.vue'
-import { AdsAPI, ApiDelete, ApiGet, ApiPost, ImageAPI } from '@/utils/req'
+import { AdsAPI, ApiDelete, ApiGet, ApiPost, ApiPut, ImageAPI } from '@/utils/req'
 import { marked } from 'marked'
 import { useTemplateMessage, msgProps } from '@/utils/template-message'
 import TemplateMessage from '@/components/TemplateMessage.vue'
@@ -81,12 +81,20 @@ const postClick = () => {
       progressArr.value.push(false)
     }
 
-    ApiPost(editMode ? AdsAPI.UPDATE : AdsAPI.SAVE, {
-      adId: editMode ? route.query.adId : null,
-      title: title.value,
-      address: addr.value,
-      description: details.value
-    })
+    ;(editMode
+      ? ApiPut(AdsAPI.UPDATE, {
+          adId: editMode ? route.query.adId : null,
+          title: title.value,
+          address: addr.value,
+          description: details.value
+        })
+      : ApiPost(AdsAPI.SAVE, {
+          adId: editMode ? route.query.adId : null,
+          title: title.value,
+          address: addr.value,
+          description: details.value
+        })
+    )
       .then((adResp) => {
         progressArr.value[0] = true
 
