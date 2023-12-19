@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // 1: home; 2: manage; 3: post/edit
-import { onMounted, ref } from 'vue'
+import { inject, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ApiDelete, ApiGet, UserAPI } from '@/utils/req'
 import { msgProps, useTemplateMessage } from '@/utils/template-message'
@@ -13,17 +13,30 @@ defineProps(['selection'])
 const userInfo = ref<any>({})
 const userOptionsShow = ref(false)
 
+const ws = inject('websocket')
+
 const router = useRouter()
 onMounted(() => {
   // userInfo.value = auth.userInfo
   userInfo.value = localStorage.getItem('userInfo')
   if (userInfo.value) {
     userInfo.value = JSON.parse(userInfo.value)
+    ws.value = new WebSocket(`ws://localhost:9810/websocket/${userInfo.value.username}`)
+    // TODO: global message on receive websocket
+    // ws.value.onmessage = (event) => {
+    //   console.log(event.data)
+    //   console.log('aaa')
+    // }
   }
   ApiGet(UserAPI.INFO_SELF)
     .then((resp) => {
       userInfo.value = resp.data.obj
       localStorage.setItem('userInfo', JSON.stringify(userInfo.value))
+      ws.value = new WebSocket(`ws://localhost:9810/websocket/${userInfo.value.username}`)
+      // ws.value.onmessage = (event) => {
+      //   console.log(event.data)
+      //   console.log('aaa')
+      // }
     })
     .catch(() => {
       useTemplateMessage(TemplateMessage, {
@@ -34,6 +47,9 @@ onMounted(() => {
       router.push('/')
     })
 })
+onUnmounted(() => {
+  ws.value.close()
+})
 
 const homeClick = () => {
   router.push('/home')
@@ -43,6 +59,9 @@ const manageClick = () => {
 }
 const postClick = () => {
   router.push('/post')
+}
+const chatClick = () => {
+  router.push('/chat')
 }
 
 const adminManageUsersClick = () => {
@@ -102,7 +121,7 @@ const deleteAccount = () => {
         <i class="bi bi-house-fill"></i>
         <div class="gs-b ml-2 mt-0.5">Home</div>
       </div>
-      <div class="v-divisor"></div>
+      <div class="v-divisor" />
       <div
         class="icontext-wrapper"
         :class="selection == 2 ? 'icontext-chosen' : 'icontext-unchosen'"
@@ -111,7 +130,7 @@ const deleteAccount = () => {
         <i class="bi bi-menu-app-fill"></i>
         <div class="gs-b ml-2 mt-0.5">Manage</div>
       </div>
-      <div class="v-divisor"></div>
+      <div class="v-divisor" />
       <div
         class="icontext-wrapper"
         :class="selection == 3 ? 'icontext-chosen' : 'icontext-unchosen'"
@@ -119,6 +138,15 @@ const deleteAccount = () => {
       >
         <i class="bi bi-send-fill"></i>
         <div class="gs-b ml-2 mt-0.5">Post Ad...</div>
+      </div>
+      <div class="v-divisor" />
+      <div
+        class="icontext-wrapper pt-1"
+        :class="selection == 4 ? 'icontext-chosen' : 'icontext-unchosen'"
+        @click="chatClick"
+      >
+        <i class="bi bi-envelope-open"></i>
+        <div class="gs-b ml-2 mt-0.5">Chat</div>
       </div>
     </div>
 

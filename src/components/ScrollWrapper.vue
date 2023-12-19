@@ -1,7 +1,28 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 
-defineProps(['height', 'width', 'showBar', 'scrollPadding'])
+const props = defineProps({
+  height: {
+    type: String,
+    default: '100%'
+  },
+  width: {
+    type: String,
+    default: '100%'
+  },
+  showBar: {
+    type: Boolean,
+    default: true
+  },
+  scrollPadding: {
+    type: Number,
+    default: 5
+  },
+  stickBottom: {
+    type: Boolean,
+    default: false
+  }
+})
 
 const outerRef = ref()
 const innerRef = ref()
@@ -78,10 +99,24 @@ const innerResizeObserver = new ResizeObserver(() => {
   if (innerRef.value) {
     wrapContentHeight.value = innerRef.value.scrollHeight
   }
+  if (props.stickBottom) {
+    outerRef.value.scrollTo({
+      top: wrapContentHeight.value,
+      behavior: 'smooth'
+    })
+    scrollY(wrapContentHeight.value)
+  }
 })
 const outerResizeObserver = new ResizeObserver(() => {
   if (outerRef.value) {
-    trackHeight.value = outerRef.value.scrollHeight
+    trackHeight.value = outerRef.value.clientHeight
+  }
+  if (props.stickBottom) {
+    outerRef.value.scrollTo({
+      top: wrapContentHeight.value,
+      behavior: 'smooth'
+    })
+    scrollY(wrapContentHeight.value)
   }
 })
 

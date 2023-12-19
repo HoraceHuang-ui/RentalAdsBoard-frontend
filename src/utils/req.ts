@@ -54,12 +54,11 @@ const genParamUrl = (url: string, params?: object) => {
 }
 
 export const AdsAPI = {
-  LIST: 'ads/home',
   SELF_LIST_WITH_PAGINATION: (page: number, pageSize: number) =>
-    genParamUrl('ads/get', { page_number: page, size: pageSize }),
-  ADINFO_BY_ADID: (adId: any) => genParamUrl('ads/user/get', { ad_id: adId }),
+    genParamUrl('ads/list/self', { page_number: page, size: pageSize }),
+  ADINFO_BY_ADID: (adId: any) => genParamUrl('ads/get', { ad_id: adId }),
   LIST_WITH_PAGINATION: (page: number, pageSize: number) =>
-    genParamUrl('ads/index/get', { page_number: page, size: pageSize }),
+    genParamUrl('ads/list', { page_number: page, size: pageSize }),
   SEARCH_KEYWORD_WITH_PAGINATION: (keyword: string, page: number, pageSize: number) =>
     genParamUrl('ads/search', { Key: keyword, page_number: page, size: pageSize }),
   SAVE: 'ads/save',
@@ -69,25 +68,34 @@ export const AdsAPI = {
 
 export const UserAPI = {
   LIST_WITH_PAGINATION: (page: number, pageSize: number) =>
-    genParamUrl('board/root', { page_number: page, size: pageSize }),
-  INFO_SELF: 'board/home',
-  INFO_BY_USERNAME: (username: string) => genParamUrl('board/home', { username: username }),
-  UPDATE_INFO: 'board/update',
-  UPDATE_PWD: 'board/update/password',
+    genParamUrl('user/list', { page_number: page, size: pageSize }),
+  INFO_SELF: 'user/get',
+  INFO_BY_USERNAME: (username: string) => genParamUrl('user/get', { username: username }),
+  UPDATE_INFO: 'user/update/info',
+  UPDATE_PWD: 'user/update/password',
   UPDATE_ROLE: (newRole: string, username: string) =>
-    genParamUrl('board/root/manage', { roleChanged: newRole, username: username }),
-  RESET_PWD: (username: string) => genParamUrl('board/root/resetPassword', { username: username }),
-  LOGIN: 'board/login',
-  REGISTER: 'board/register',
-  DELETE_SELF: 'board/delete',
-  DELETE_BY_USERNAME: (username: string) => genParamUrl('board/root/delete', { username: username })
+    genParamUrl('user/admin/role', { roleChanged: newRole, username: username }),
+  RESET_PWD: (username: string) => genParamUrl('user/admin/resetPassword', { username: username }),
+  LOGIN: 'user/login',
+  REGISTER: 'user/register',
+  DELETE_SELF: 'user/delete',
+  DELETE_BY_USERNAME: (username: string) => genParamUrl('user/admin/delete', { username: username })
 }
 
 export const ImageAPI = {
-  GET_BY_ID: (imageId: any) => genParamUrl('picture/get', { picture_id: imageId }),
-  FIRST_BY_AD: (adId: any) => genParamUrl('picture/get/first', { ad_id: adId }),
-  LIST_BY_AD: (adId: any) => genParamUrl('picture/list', { ad_id: adId }),
-  SAVE: 'picture/save',
-  UPDATE: 'picture/update',
-  DELETE: (imageId: any) => genParamUrl('picture/delete', { picture_id: imageId })
+  GET_BY_ID: (imageId: any) => genParamUrl('image/get', { image_id: imageId }),
+  FIRST_BY_AD: (adId: any) => genParamUrl('image/ad/first', { ad_id: adId }),
+  LIST_BY_AD: (adId: any) => genParamUrl('image/ad/list', { ad_id: adId }),
+  SAVE: 'image/save',
+  UPDATE: 'image/update',
+  DELETE: (imageId: any) => genParamUrl('image/delete', { image_id: imageId })
+}
+
+export const ChatAPI = {
+  HISTORY_USERS: (username: string) => genParamUrl('chat/history/chatter', { username: username }),
+  HISTORY_MESSAGES: (from: string, to: string) =>
+    genParamUrl('chat/history/message', {
+      user_from: from,
+      user_to: to
+    })
 }
