@@ -2,11 +2,11 @@
 import TopHeader from '@/components/TopHeader/TopHeader.vue'
 import ScrollWrapper from '@/components/ScrollWrapper.vue'
 import { inject, onMounted, provide, ref, watch } from 'vue'
-import HomePostCard from '@/views/HomeView/componenets/HomePostCard.vue'
+import HomePostCard from '@/views/HomeView/components/HomePostCard.vue'
 import MyPagination from '@/components/MyPagination.vue'
 import { AdsAPI, ApiGet } from '@/utils/req'
 import { useRouter } from 'vue-router'
-import MySearch from '@/views/HomeView/componenets/MySearch.vue'
+import MySearch from '@/views/HomeView/components/MySearch.vue'
 import { useTemplateMessage, msgProps } from '@/utils/template-message'
 import TemplateMessage from '@/components/TemplateMessage.vue'
 
