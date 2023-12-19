@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import TopHeader from '@/components/TopHeader/TopHeader.vue'
 import { computed, inject, onMounted, ref } from 'vue'
 import { AdsAPI, ApiGet, ImageAPI, UserAPI } from '@/utils/req'
@@ -10,6 +10,7 @@ import { useTemplateMessage, msgProps } from '@/utils/template-message'
 import TemplateMessage from '@/components/TemplateMessage.vue'
 
 const route = useRoute()
+const router = useRouter()
 const progressArr = inject('topProgressArr')
 
 const adId = route.query.adId
@@ -17,12 +18,22 @@ const adInfo = ref<any>({})
 const images = ref<string[]>([])
 const curImageNum = ref(1)
 const adUserInfo = ref<any>({})
+const selfUserInfo = JSON.parse(localStorage.getItem('userInfo')!!)
 
 const adDetailsMarkdown = computed(() => {
   if ('description' in adInfo.value) {
     return marked(adInfo.value.description)
   } else return ''
 })
+
+const msgClick = () => {
+  router.push({
+    name: 'chat',
+    query: {
+      username: adUserInfo.value.username
+    }
+  })
+}
 
 onMounted(() => {
   progressArr.value = [false, false, false]
@@ -96,20 +107,47 @@ onMounted(() => {
       </div>
       <scroll-wrapper height="100%" width="100%" :show-bar="true" class="details-wrapper">
         <div class="w-full pr-4">
-          <div class="gs-b text-green-600 text-5xl">{{ adInfo.title }}</div>
-          <div class="text-green-600 opacity-80 flex flex-row mt-2">
-            <i class="bi bi-geo-alt-fill" />
-            <div class="ml-1">
-              {{ adInfo.address }}
+          <div
+            class="gs-b text-green-600 text-5xl"
+            style="overflow-wrap: break-word; word-break: break-word"
+          >
+            {{ adInfo.title }}
+          </div>
+          <div class="flex flex-row justify-between">
+            <div class="w-3/4">
+              <div
+                class="text-green-600 opacity-80 flex flex-row mt-2"
+                style="overflow-wrap: break-word; word-break: break-word"
+              >
+                <i class="bi bi-geo-alt-fill" />
+                <div class="ml-1">
+                  {{ adInfo.address }}
+                </div>
+              </div>
+              <div
+                class="text-green-600 opacity-80"
+                style="overflow-wrap: break-word; word-break: break-word"
+              >
+                <i class="bi bi-envelope-fill" />
+                <a class="ml-1" :href="`mailto:${adUserInfo.email}`"> {{ adUserInfo.email }}</a>
+              </div>
+              <div
+                class="text-green-600 opacity-80"
+                style="overflow-wrap: break-word; word-break: break-word"
+              >
+                <i class="bi bi-person-circle" />
+                {{ adInfo.username }}
+              </div>
             </div>
-          </div>
-          <div class="text-green-600 opacity-80">
-            <i class="bi bi-person-circle" />
-            {{ adInfo.username }}
-          </div>
-          <div class="text-green-600 opacity-80">
-            <i class="bi bi-envelope-fill" />
-            <a class="ml-1" :href="`mailto:${adUserInfo.email}`"> {{ adUserInfo.email }}</a>
+            <div
+              v-if="adUserInfo.username !== selfUserInfo.username"
+              class="w-1/4 text-right text-xl mt-3 mr-5"
+            >
+              <i
+                class="bi bi-chat-left-dots text-green-600 rounded-full py-2 px-2.5 cursor-pointer hover:bg-green-600 hover:text-white transition-all"
+                @click="msgClick"
+              />
+            </div>
           </div>
           <div class="mt-4" v-html="adDetailsMarkdown"></div>
         </div>

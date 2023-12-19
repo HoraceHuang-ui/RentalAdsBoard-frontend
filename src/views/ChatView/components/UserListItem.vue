@@ -13,22 +13,25 @@ defineProps({
 
 <template>
   <div
-    class="h-16 flex flex-row cursor-default hover:bg-green-200 hover:text-green-600 transition-all"
+    class="h-16 flex flex-row justify-between w-full cursor-default hover:bg-green-200 hover:text-green-600 transition-all"
     :class="selected ? 'item-selected' : ''"
   >
-    <img
-      v-if="user.avatarBase64"
-      class="rounded-full object-cover bg-white w-10 h-10 m-3"
-      :src="`data:image/png;base64,${user.avatarBase64}`"
-      :alt="`Avatar of user ${user.username}`"
-    />
-    <img
-      v-else
-      class="rounded-full object-cover bg-white w-10 h-10 m-3"
-      src="../../../assets/images/default_avatar.webp"
-      :alt="`Default avatar of user ${user.username}`"
-    />
-    <div class="text-xl my-5">{{ user.username }}</div>
+    <div class="flex flex-row">
+      <img
+        v-if="user.avatarBase64"
+        class="rounded-full object-cover bg-white w-10 h-10 m-3"
+        :src="`data:image/png;base64,${user.avatarBase64}`"
+        :alt="`Avatar of user ${user.username}`"
+      />
+      <img
+        v-else
+        class="rounded-full object-cover bg-white w-10 h-10 m-3"
+        src="../../../assets/images/default_avatar.webp"
+        :alt="`Default avatar of user ${user.username}`"
+      />
+      <div class="text-xl my-5">{{ user.username }}</div>
+    </div>
+    <div v-if="user.unread" class="w-2 h-2 rounded-full bg-red-500 my-7 mr-2" />
   </div>
 </template>
 

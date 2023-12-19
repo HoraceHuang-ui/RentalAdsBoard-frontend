@@ -16,6 +16,7 @@ type Message = {
 const route = useRoute()
 const router = useRouter()
 const ws = inject('websocket')
+const progressArr = inject('topProgressArr')
 
 const users = ref([])
 const curUserInfo = ref<any>({})
@@ -24,8 +25,10 @@ const chatMessages = ref<Array<Message>>([])
 const selfUserInfo = JSON.parse(localStorage.getItem('userInfo'))
 const msgBuf = ref('')
 
-const userClick = (username: string) => {
+const userClick = (username: string, idx: number) => {
   curUsername.value = username
+  users.value[idx].unread = false
+  chatMessages.value = []
   router.push({
     name: 'chat',
     query: {
@@ -35,22 +38,23 @@ const userClick = (username: string) => {
 }
 
 watch(curUsername, () => {
+  progressArr.value = [false, false]
   ApiGet(UserAPI.INFO_BY_USERNAME(curUsername.value))
     .then((resp) => {
+      progressArr.value[0] = true
       curUserInfo.value = resp.data.obj
     })
     .catch((err) => {
+      progressArr.value = []
       console.error(err)
     })
   ApiGet(ChatAPI.HISTORY_MESSAGES(selfUserInfo.username, curUsername.value))
     .then((resp) => {
-      console.log(resp)
+      progressArr.value[1] = true
       chatMessages.value = resp.data.obj
-      ws.value.onmessage = (event) => {
-        chatMessages.value.push(JSON.parse(event.data))
-      }
     })
     .catch((err) => {
+      progressArr.value = []
       console.error(err)
     })
 })
@@ -74,17 +78,68 @@ const sendMsg = () => {
 
 onMounted(() => {
   curUsername.value = route.query.username
-  console.log(curUsername.value)
-  ApiGet(UserAPI.LIST_WITH_PAGINATION(0, 9999))
+  progressArr.value = [false, false]
+  ApiGet(ChatAPI.HISTORY_USERS(selfUserInfo.username))
     .then((resp) => {
-      for (const user of resp.data.obj.voList) {
+      progressArr.value[0] = true
+      let curExist = false
+      for (const user of resp.data.obj) {
         if (user.username === selfUserInfo.username) {
           continue
         }
-        users.value.push(user)
+        if (user.username === curUsername.value) {
+          curExist = true
+        }
+        users.value.push({
+          ...user,
+          unread: false
+        })
+      }
+      if (!curExist && curUsername.value && curUsername.value !== '') {
+        ApiGet(UserAPI.INFO_BY_USERNAME(curUsername.value))
+          .then((resp) => {
+            progressArr.value[1] = true
+            const user = resp.data.obj
+            users.value.push({
+              ...user,
+              unread: false
+            })
+          })
+          .catch((err) => {
+            progressArr.value = []
+            console.error(err)
+          })
+      } else {
+        progressArr.value[1] = true
+      }
+      ws.value.onmessage = (event) => {
+        const data = JSON.parse(event.data)
+        if (data.userFrom === curUsername.value) {
+          chatMessages.value.push(data)
+        } else {
+          let idx: number, user: any
+          for ([idx, user] of users.value.entries()) {
+            if (user.username === data.userFrom) {
+              users.value[idx].unread = true
+              const target = users.value.splice(idx, 1)[0]
+              users.value.unshift(target)
+              break
+            }
+          }
+          if (idx == users.value.length) {
+            ApiGet(UserAPI.INFO_BY_USERNAME(data.userFrom)).then((resp) => {
+              const user = resp.data.obj
+              users.value.push({
+                ...user,
+                unread: true
+              })
+            })
+          }
+        }
       }
     })
     .catch((err) => {
+      progressArr.value = []
       console.error(err)
     })
 })
@@ -98,17 +153,29 @@ onMounted(() => {
     style="height: 84vh; width: 96vw"
   >
     <div class="h-full w-1/4 border-r border-green-300 bg-green-50">
-      <scroll-wrapper width="100%" height="100%" :show-bar="true" :scroll-padding="0">
+      <scroll-wrapper
+        v-if="users && users.length > 0"
+        width="100%"
+        height="100%"
+        :show-bar="true"
+        :scroll-padding="0"
+      >
         <div class="flex flex-col">
           <user-list-item
-            v-for="user in users"
-            :key="user.username"
+            v-for="(user, idx) in users"
+            :key="idx"
             :user="user"
             :selected="curUsername === user.username"
-            @click="userClick(user.username)"
+            @click="userClick(user.username, idx)"
           />
         </div>
       </scroll-wrapper>
+      <div v-else class="w-full h-full relative">
+        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
+          <i class="bi bi-person-raised-hand text-3xl text-green-600 opacity-50" />
+          <div class="opacity-80 mt-2">It's quiet here...</div>
+        </div>
+      </div>
     </div>
     <div class="h-full w-3/4">
       <div v-if="!curUsername || curUsername === ''" class="w-full h-full relative">
@@ -193,7 +260,7 @@ onMounted(() => {
             @keyup.native.enter="sendMsg"
           />
           <i
-            class="bi bi-arrow-up-circle-fill text-3xl text-green-600 hover:text-green-500 transition-all"
+            class="bi bi-arrow-up-circle-fill text-3xl cursor-pointer text-green-600 hover:text-green-500 transition-all"
             :class="msgBuf === '' ? 'send-disabled' : ''"
             @click="sendMsg"
           />

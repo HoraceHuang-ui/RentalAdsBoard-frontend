@@ -99,24 +99,26 @@ const innerResizeObserver = new ResizeObserver(() => {
   if (innerRef.value) {
     wrapContentHeight.value = innerRef.value.scrollHeight
   }
-  if (props.stickBottom) {
-    outerRef.value.scrollTo({
-      top: wrapContentHeight.value,
-      behavior: 'smooth'
-    })
-    scrollY(wrapContentHeight.value)
+  if (outerRef.value) {
+    if (props.stickBottom) {
+      outerRef.value.scrollTo({
+        top: wrapContentHeight.value,
+        behavior: 'smooth'
+      })
+      scrollY(wrapContentHeight.value)
+    }
   }
 })
 const outerResizeObserver = new ResizeObserver(() => {
   if (outerRef.value) {
     trackHeight.value = outerRef.value.clientHeight
-  }
-  if (props.stickBottom) {
-    outerRef.value.scrollTo({
-      top: wrapContentHeight.value,
-      behavior: 'smooth'
-    })
-    scrollY(wrapContentHeight.value)
+    if (props.stickBottom) {
+      outerRef.value.scrollTo({
+        top: wrapContentHeight.value,
+        behavior: 'smooth'
+      })
+      scrollY(wrapContentHeight.value)
+    }
   }
 })
 
