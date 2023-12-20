@@ -69,8 +69,14 @@ onMounted(() => {
         class="w-max py-2 px-3 bg-white rounded-2xl border border-blue-600 shadow-2xl shadow-blue-100 text-blue-700 hover:bg-blue-50 hover:shadow-blue-300 transition-all cursor-pointer"
         @click="msgClick"
       >
-        <div class="opacity-80 pr-6">{{ userFrom }}</div>
-        <div style="overflow-wrap: break-word; word-break: break-word; max-width: 30vw">
+        <div class="flex flex-row opacity-80">
+          <i class="bi bi-person-circle mr-2" />
+          <div class="pr-6">{{ userFrom }}</div>
+        </div>
+        <div
+          class="text-black"
+          style="overflow-wrap: break-word; word-break: break-word; max-width: 30vw"
+        >
           {{ msg }}
         </div>
       </div>
