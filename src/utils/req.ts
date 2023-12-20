@@ -97,5 +97,7 @@ export const ChatAPI = {
     genParamUrl('chat/history/message', {
       user_from: from,
       user_to: to
-    })
+    }),
+  LATEST_MSG: (from: string, to: string) =>
+    genParamUrl('chat/message/last', { user_from: from, user_to: to })
 }

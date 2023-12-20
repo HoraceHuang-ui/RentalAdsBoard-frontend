@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import TopHeader from '@/components/TopHeader/TopHeader.vue'
 import ScrollWrapper from '@/components/ScrollWrapper.vue'
-import { inject, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, inject, onMounted, onUnmounted, ref, watch } from 'vue'
 import { ApiGet, ChatAPI, UserAPI } from '@/utils/req'
 import { useRoute, useRouter } from 'vue-router'
 import UserListItem from '@/views/ChatView/components/UserListItem.vue'
@@ -22,6 +22,14 @@ const msgUnread = inject('msgUnread')
 const users = ref<any[]>([])
 const curUserInfo = ref<any>({})
 const curUsername = ref<string>()
+const curIdx = computed(() => {
+  for (const [idx, user] of users.value.entries()) {
+    if (user.username === curUserInfo.value.username) {
+      return idx
+    }
+  }
+  return -1
+})
 const chatMessages = ref<Array<Message>>([])
 const selfUserInfo = JSON.parse(localStorage.getItem('userInfo'))
 const msgBuf = ref('')
@@ -74,8 +82,9 @@ const sendMsg = () => {
     message: msgBuf.value
   }
   ws.value.send(JSON.stringify(msgItem))
-
   chatMessages.value.push(msgItem)
+
+  users.value[curIdx.value].lastMsg = msgItem.message
 
   msgBuf.value = ''
 }
@@ -86,19 +95,48 @@ onMounted(() => {
   progressArr.value = [false, false]
   ApiGet(ChatAPI.HISTORY_USERS(selfUserInfo.username))
     .then((resp) => {
+      for (let i = 0; i < resp.data.obj.length; i++) {
+        progressArr.value.push(false)
+      }
+
       progressArr.value[0] = true
       let curExist = false
-      for (const user of resp.data.obj) {
+
+      for (const [idx, user] of resp.data.obj.entries()) {
         if (user.username === selfUserInfo.username) {
+          progressArr.value[idx + 2] = true
           continue
         }
         if (user.username === curUsername.value) {
           curExist = true
         }
-        users.value.push({
-          ...user,
-          unread: false
-        })
+
+        ApiGet(ChatAPI.LATEST_MSG(user.username, selfUserInfo.username))
+          .then((msgResp) => {
+            progressArr.value[idx + 2] = true
+            let unread = false
+            let lastMsg = ''
+            lastMsg = msgResp.data.obj.message
+            unread =
+              msgResp.data.obj.userFrom === selfUserInfo.username ? false : !msgResp.data.obj.read
+            if (unread) {
+              users.value.unshift({
+                ...user,
+                unread: unread,
+                lastMsg: lastMsg
+              })
+            } else {
+              users.value.push({
+                ...user,
+                unread: unread,
+                lastMsg: lastMsg
+              })
+            }
+          })
+          .catch((err) => {
+            progressArr.value[idx + 2] = true
+            console.error(err)
+          })
       }
       if (!curExist && curUsername.value && curUsername.value !== '') {
         ApiGet(UserAPI.INFO_BY_USERNAME(curUsername.value))
@@ -107,7 +145,8 @@ onMounted(() => {
             const user = resp.data.obj
             users.value.push({
               ...user,
-              unread: false
+              unread: false,
+              lastMsg: ''
             })
           })
           .catch((err) => {
@@ -129,6 +168,7 @@ onMounted(() => {
             console.log(idx)
             if (user.username === data.userFrom) {
               users.value[idx].unread = true
+              users.value[idx].lastMsg = data.message
               const target = users.value.splice(idx, 1)[0]
               users.value.unshift(target)
               found = true
@@ -140,7 +180,8 @@ onMounted(() => {
               const user = resp.data.obj
               users.value.unshift({
                 ...user,
-                unread: true
+                unread: true,
+                lastMsg: ''
               })
             })
           }

@@ -66,7 +66,7 @@ onMounted(() => {
       @mouseleave="startCountdown(1000)"
     >
       <div
-        class="w-max py-2 px-3 bg-white rounded-2xl border border-blue-600 shadow-2xl shadow-blue-100 text-blue-700 hover:bg-blue-50 hover:shadow-blue-300 transition-all cursor-pointer"
+        class="w-max py-2 px-3 bg-white rounded-2xl border shadow-2xl shadow-blue-100 text-blue-700 hover:bg-blue-50 hover:shadow-blue-300 hover:border-blue-600 transition-all cursor-pointer"
         @click="msgClick"
       >
         <div class="flex flex-row opacity-80">
