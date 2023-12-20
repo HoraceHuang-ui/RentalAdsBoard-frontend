@@ -6,6 +6,7 @@ import { ApiGet, ChatAPI, UserAPI } from '@/utils/req'
 import { useRoute, useRouter } from 'vue-router'
 import UserListItem from '@/views/ChatView/components/UserListItem.vue'
 import MyInput from '@/components/MyInput.vue'
+import ChatBubble from '@/views/ChatView/components/ChatBubble.vue'
 
 type Message = {
   userFrom: string
@@ -255,53 +256,14 @@ onUnmounted(() => {
           :show-bar="true"
           :stick-bottom="true"
         >
-          <div v-for="(msg, idx) in chatMessages" :key="idx" class="flex flex-col w-full pr-4">
-            <div
-              v-if="msg.userFrom === curUsername"
-              class="flex flex-row m-3"
-              style="overflow-wrap: break-word; word-break: break-word; max-width: 80%"
-            >
-              <img
-                v-if="curUserInfo.avatarBase64"
-                class="rounded-full object-cover bg-white w-10 h-10"
-                :src="`data:image/png;base64,${curUserInfo.avatarBase64}`"
-                :alt="`Avatar of user ${curUserInfo.username}`"
-              />
-              <img
-                v-else
-                class="rounded-full object-cover bg-white w-10 h-10"
-                src="../../assets/images/default_avatar.webp"
-                :alt="`Default avatar of user ${curUserInfo.username}`"
-              />
-              <div class="ml-2 rounded-3xl bg-gray-100 py-2 px-3">
-                {{ msg.message }}
-              </div>
-            </div>
-            <div
-              v-else
-              class="flex flex-row m-3 justify-between"
-              style="overflow-wrap: break-word; word-break: break-word"
-            >
-              <div class="w-1" />
-              <div class="flex flex-row" style="max-width: 80%">
-                <div class="mr-2 rounded-3xl bg-green-600 py-2 px-3 text-white">
-                  {{ msg.message }}
-                </div>
-                <img
-                  v-if="selfUserInfo.avatarBase64"
-                  class="rounded-full object-cover bg-white w-10 h-10"
-                  :src="`data:image/png;base64,${selfUserInfo.avatarBase64}`"
-                  :alt="`Avatar of user ${selfUserInfo.username}`"
-                />
-                <img
-                  v-else
-                  class="rounded-full object-cover bg-white w-10 h-10"
-                  src="../../assets/images/default_avatar.webp"
-                  :alt="`Default avatar of user ${selfUserInfo.username}`"
-                />
-              </div>
-            </div>
-          </div>
+          <chat-bubble
+            v-for="(msg, idx) in chatMessages"
+            :key="idx"
+            :msg="msg.message"
+            :self="msg.userFrom !== curUsername"
+            :user="msg.userFrom === curUsername ? curUserInfo : selfUserInfo"
+            class="pr-2"
+          />
         </scroll-wrapper>
         <div v-else class="w-full h-full border rounded-3xl mt-4 relative">
           <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
