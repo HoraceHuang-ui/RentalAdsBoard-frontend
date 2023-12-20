@@ -38,3 +38,17 @@ export function sysMsgProps(msg?: string, msgType?: MsgType, msgTimeout?: number
     timeout: msgTimeout
   }
 }
+
+export function chatMsgProps(
+  userFrom: string,
+  msg?: string,
+  onClick?: Function,
+  msgTimeout?: number
+) {
+  return {
+    msg: msg,
+    timeout: msgTimeout,
+    userFrom: userFrom,
+    onClick: onClick
+  }
+}

@@ -26,6 +26,9 @@ const selfUserInfo = JSON.parse(localStorage.getItem('userInfo'))
 const msgBuf = ref('')
 
 const userClick = (username: string, idx: number) => {
+  if (username === curUsername.value) {
+    return
+  }
   curUsername.value = username
   users.value[idx].unread = false
   chatMessages.value = []

@@ -3,11 +3,12 @@
 import { inject, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ApiDelete, ApiGet, UserAPI } from '@/utils/req'
-import { sysMsgProps, useMessage } from '@/utils/template-message'
+import { chatMsgProps, sysMsgProps, useMessage } from '@/utils/template-message'
 import SysMessage from '@/components/SysMessage.vue'
 import { useTemplateDialog } from '@/utils/template-dialog'
 import InfoEditDialog from '@/components/TopHeader/components/InfoEditDialog.vue'
 import ConfirmDialog from '@/views/AdminView/components/ConfirmDialog.vue'
+import ChatMessage from '@/components/ChatMessage.vue'
 
 defineProps(['selection'])
 const userInfo = ref<any>({})
@@ -25,6 +26,17 @@ onMounted(() => {
     // TODO: global message on receive websocket
     ws.value.onmessage = (event) => {
       const data = JSON.parse(event.data)
+      useMessage(
+        ChatMessage,
+        chatMsgProps(data.userFrom, data.message, () => {
+          router.push({
+            name: 'chat',
+            query: {
+              username: data.userFrom
+            }
+          })
+        })
+      )
     }
   }
   ApiGet(UserAPI.INFO_SELF)
@@ -32,10 +44,20 @@ onMounted(() => {
       userInfo.value = resp.data.obj
       localStorage.setItem('userInfo', JSON.stringify(userInfo.value))
       ws.value = new WebSocket(`ws://localhost:9810/websocket/${userInfo.value.username}`)
-      // ws.value.onmessage = (event) => {
-      //   console.log(event.data)
-      //   console.log('aaa')
-      // }
+      ws.value.onmessage = (event) => {
+        const data = JSON.parse(event.data)
+        useMessage(
+          ChatMessage,
+          chatMsgProps(data.userFrom, data.message, () => {
+            router.push({
+              name: 'chat',
+              query: {
+                username: data.userFrom
+              }
+            })
+          })
+        )
+      }
     })
     .catch(() => {
       useMessage(SysMessage, {
