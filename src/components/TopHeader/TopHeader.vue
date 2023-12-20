@@ -47,21 +47,25 @@ onMounted(() => {
     .then((resp) => {
       userInfo.value = resp.data.obj
       localStorage.setItem('userInfo', JSON.stringify(userInfo.value))
-      ws.value = new WebSocket(`ws://localhost:9810/websocket/${userInfo.value.username}`)
-      ws.value.onmessage = (event) => {
-        const data = JSON.parse(event.data)
-        useMessage(
-          ChatMessage,
-          chatMsgProps(data.userFrom, data.message, () => {
-            router.push({
-              name: 'chat',
-              query: {
-                username: data.userFrom
-              }
+      if (!ws.value) {
+        ws.value = new WebSocket(`ws://localhost:9810/websocket/${userInfo.value.username}`)
+      }
+      if (props.selection != 4) {
+        ws.value.onmessage = (event) => {
+          const data = JSON.parse(event.data)
+          useMessage(
+            ChatMessage,
+            chatMsgProps(data.userFrom, data.message, () => {
+              router.push({
+                name: 'chat',
+                query: {
+                  username: data.userFrom
+                }
+              })
             })
-          })
-        )
-        msgUnread.value = true
+          )
+          msgUnread.value = true
+        }
       }
     })
     .catch(() => {

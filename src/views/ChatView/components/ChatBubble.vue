@@ -30,7 +30,7 @@ defineProps({
     <img
       v-else
       class="rounded-full object-cover bg-white w-10 h-10"
-      src="../../assets/images/default_avatar.webp"
+      src="../../../assets/images/default_avatar.webp"
       :alt="`Default avatar of user ${user.username}`"
     />
     <div class="ml-2 rounded-3xl bg-gray-100 py-2 px-3">
@@ -56,7 +56,7 @@ defineProps({
       <img
         v-else
         class="rounded-full object-cover bg-white w-10 h-10"
-        src="../../assets/images/default_avatar.webp"
+        src="../../../assets/images/default_avatar.webp"
         :alt="`Default avatar of user ${user.username}`"
       />
     </div>

@@ -92,6 +92,36 @@ const sendMsg = () => {
 
 onMounted(() => {
   curUsername.value = route.query.username
+
+  ws.value.onmessage = (event) => {
+    const data = JSON.parse(event.data)
+    if (data.userFrom === curUsername.value) {
+      chatMessages.value.push(data)
+    } else {
+      let found = false
+      for (const [idx, user] of users.value.entries()) {
+        if (user.username === data.userFrom) {
+          users.value[idx].unread = true
+          users.value[idx].lastMsg = data.message
+          const target = users.value.splice(idx, 1)[0]
+          users.value.unshift(target)
+          found = true
+          break
+        }
+      }
+      if (!found) {
+        ApiGet(UserAPI.INFO_BY_USERNAME(data.userFrom)).then((resp) => {
+          const user = resp.data.obj
+          users.value.unshift({
+            ...user,
+            unread: true,
+            lastMsg: data.message
+          })
+        })
+      }
+    }
+  }
+
   msgUnread.value = false
   progressArr.value = [false, false]
   ApiGet(ChatAPI.HISTORY_USERS(selfUserInfo.username))
@@ -156,37 +186,6 @@ onMounted(() => {
           })
       } else {
         progressArr.value[1] = true
-      }
-      console.log('load history data')
-      ws.value.onmessage = (event) => {
-        const data = JSON.parse(event.data)
-        console.log(data)
-        if (data.userFrom === curUsername.value) {
-          chatMessages.value.push(data)
-        } else {
-          let found = false
-          for (const [idx, user] of users.value.entries()) {
-            console.log(idx)
-            if (user.username === data.userFrom) {
-              users.value[idx].unread = true
-              users.value[idx].lastMsg = data.message
-              const target = users.value.splice(idx, 1)[0]
-              users.value.unshift(target)
-              found = true
-              break
-            }
-          }
-          if (!found) {
-            ApiGet(UserAPI.INFO_BY_USERNAME(data.userFrom)).then((resp) => {
-              const user = resp.data.obj
-              users.value.unshift({
-                ...user,
-                unread: true,
-                lastMsg: ''
-              })
-            })
-          }
-        }
       }
     })
     .catch((err) => {
