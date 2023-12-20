@@ -10,33 +10,37 @@ import InfoEditDialog from '@/components/TopHeader/components/InfoEditDialog.vue
 import ConfirmDialog from '@/views/AdminView/components/ConfirmDialog.vue'
 import ChatMessage from '@/components/ChatMessage.vue'
 
-defineProps(['selection'])
+const props = defineProps(['selection'])
 const userInfo = ref<any>({})
 const userOptionsShow = ref(false)
 
 const ws = inject('websocket')
+const msgUnread = inject('msgUnread')
 
 const router = useRouter()
 onMounted(() => {
-  // userInfo.value = auth.userInfo
   userInfo.value = localStorage.getItem('userInfo')
   if (userInfo.value) {
     userInfo.value = JSON.parse(userInfo.value)
-    ws.value = new WebSocket(`ws://localhost:9810/websocket/${userInfo.value.username}`)
-    // TODO: global message on receive websocket
-    ws.value.onmessage = (event) => {
-      const data = JSON.parse(event.data)
-      useMessage(
-        ChatMessage,
-        chatMsgProps(data.userFrom, data.message, () => {
-          router.push({
-            name: 'chat',
-            query: {
-              username: data.userFrom
-            }
+    if (!ws.value) {
+      ws.value = new WebSocket(`ws://localhost:9810/websocket/${userInfo.value.username}`)
+    }
+    if (props.selection != 4) {
+      ws.value.onmessage = (event) => {
+        const data = JSON.parse(event.data)
+        useMessage(
+          ChatMessage,
+          chatMsgProps(data.userFrom, data.message, () => {
+            router.push({
+              name: 'chat',
+              query: {
+                username: data.userFrom
+              }
+            })
           })
-        })
-      )
+        )
+        msgUnread.value = true
+      }
     }
   }
   ApiGet(UserAPI.INFO_SELF)
@@ -57,6 +61,7 @@ onMounted(() => {
             })
           })
         )
+        msgUnread.value = true
       }
     })
     .catch(() => {
@@ -70,6 +75,7 @@ onMounted(() => {
 })
 onUnmounted(() => {
   ws.value.close()
+  ws.value = undefined
 })
 
 const homeClick = () => {
@@ -159,12 +165,17 @@ const deleteAccount = () => {
       </div>
       <div class="v-divisor" />
       <div
-        class="icontext-wrapper pt-1"
+        class="icontext-wrapper pt-1 relative"
         :class="selection == 4 ? 'icontext-chosen' : 'icontext-unchosen'"
         @click="chatClick"
       >
-        <i class="bi bi-envelope-open"></i>
+        <i v-if="msgUnread && msgUnread > 0" class="bi bi-envelope-open-fill" />
+        <i v-else class="bi bi-envelope-open" />
         <div class="gs-b ml-2 mt-0.5">Chat</div>
+        <div
+          v-if="msgUnread && msgUnread > 0"
+          class="absolute top-2 left-1 w-2 h-2 rounded-full bg-red-500"
+        />
       </div>
     </div>
 

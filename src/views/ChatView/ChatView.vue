@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import TopHeader from '@/components/TopHeader/TopHeader.vue'
 import ScrollWrapper from '@/components/ScrollWrapper.vue'
-import { inject, onMounted, ref, watch } from 'vue'
+import { inject, onMounted, onUnmounted, ref, watch } from 'vue'
 import { ApiGet, ChatAPI, UserAPI } from '@/utils/req'
 import { useRoute, useRouter } from 'vue-router'
 import UserListItem from '@/views/ChatView/components/UserListItem.vue'
@@ -17,8 +17,9 @@ const route = useRoute()
 const router = useRouter()
 const ws = inject('websocket')
 const progressArr = inject('topProgressArr')
+const msgUnread = inject('msgUnread')
 
-const users = ref([])
+const users = ref<any[]>([])
 const curUserInfo = ref<any>({})
 const curUsername = ref<string>()
 const chatMessages = ref<Array<Message>>([])
@@ -81,6 +82,7 @@ const sendMsg = () => {
 
 onMounted(() => {
   curUsername.value = route.query.username
+  msgUnread.value = false
   progressArr.value = [false, false]
   ApiGet(ChatAPI.HISTORY_USERS(selfUserInfo.username))
     .then((resp) => {
@@ -115,24 +117,28 @@ onMounted(() => {
       } else {
         progressArr.value[1] = true
       }
+      console.log('load history data')
       ws.value.onmessage = (event) => {
         const data = JSON.parse(event.data)
+        console.log(data)
         if (data.userFrom === curUsername.value) {
           chatMessages.value.push(data)
         } else {
-          let idx: number, user: any
-          for ([idx, user] of users.value.entries()) {
+          let found = false
+          for (const [idx, user] of users.value.entries()) {
+            console.log(idx)
             if (user.username === data.userFrom) {
               users.value[idx].unread = true
               const target = users.value.splice(idx, 1)[0]
               users.value.unshift(target)
+              found = true
               break
             }
           }
-          if (idx == users.value.length) {
+          if (!found) {
             ApiGet(UserAPI.INFO_BY_USERNAME(data.userFrom)).then((resp) => {
               const user = resp.data.obj
-              users.value.push({
+              users.value.unshift({
                 ...user,
                 unread: true
               })
@@ -145,6 +151,14 @@ onMounted(() => {
       progressArr.value = []
       console.error(err)
     })
+})
+onUnmounted(() => {
+  for (const user of users.value) {
+    if (user.unread) {
+      msgUnread.value = true
+      break
+    }
+  }
 })
 </script>
 

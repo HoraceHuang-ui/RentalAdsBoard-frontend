@@ -24,8 +24,11 @@ const show = inject('app/showMessage', false)
 const unmount: () => void = inject('app/unmountMessage', () => undefined)
 const cShow = ref(show)
 
+let timer: number | undefined = undefined
+
 const hide = () => {
   cShow.value = false
+  clearTimeout(timer)
   setTimeout(unmount, 350)
 }
 
@@ -34,18 +37,34 @@ const msgClick = () => {
   hide()
 }
 
-const startCountdown = () => {
-  setTimeout(hide, props.timeout)
+const startCountdown = (timeout: number) => {
+  if (timer) {
+    clearTimeout(timer)
+    timer = undefined
+  }
+  timer = setTimeout(hide, timeout)
+}
+
+const stopCountdown = () => {
+  if (timer) {
+    clearTimeout(timer)
+    timer = undefined
+  }
 }
 
 onMounted(() => {
-  startCountdown()
+  startCountdown(props.timeout)
 })
 </script>
 
 <template>
   <transition name="slide-right">
-    <div v-if="cShow" class="absolute top-4 right-4 flex flex-row z-50 cursor-default">
+    <div
+      v-if="cShow"
+      class="absolute top-4 right-4 flex flex-row z-50 cursor-default"
+      @mouseenter="stopCountdown"
+      @mouseleave="startCountdown(1000)"
+    >
       <div
         class="w-max py-2 px-3 bg-white rounded-2xl border border-blue-600 shadow-2xl shadow-blue-100 text-blue-700 hover:bg-blue-50 hover:shadow-blue-300 transition-all cursor-pointer"
         @click="msgClick"
