@@ -7,8 +7,8 @@ import MyPagination from '@/components/MyPagination.vue'
 import { AdsAPI, ApiGet } from '@/utils/req'
 import { useRouter } from 'vue-router'
 import MySearch from '@/views/HomeView/components/MySearch.vue'
-import { useTemplateMessage, msgProps } from '@/utils/template-message'
-import TemplateMessage from '@/components/TemplateMessage.vue'
+import { useMessage, sysMsgProps } from '@/utils/template-message'
+import SysMessage from '@/components/SysMessage.vue'
 
 type Ad = {
   adId: number
@@ -42,17 +42,17 @@ const updateCurPage = () => {
         totalPages.value = resp.data.obj.totalPages
       } else {
         progressArr.value = []
-        useTemplateMessage(
-          TemplateMessage,
-          msgProps('Failed loading content, try refreshing page.', 'alert', 3000)
+        useMessage(
+          SysMessage,
+          sysMsgProps('Failed loading content, try refreshing page.', 'alert', 3000)
         )
       }
     })
     .catch(() => {
       progressArr.value = []
-      useTemplateMessage(
-        TemplateMessage,
-        msgProps('Failed loading content, try refreshing page.', 'alert', 3000)
+      useMessage(
+        SysMessage,
+        sysMsgProps('Failed loading content, try refreshing page.', 'alert', 3000)
       )
     })
 }

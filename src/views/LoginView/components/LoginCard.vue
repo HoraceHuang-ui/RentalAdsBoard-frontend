@@ -5,8 +5,8 @@ import MyButton from '@/components/MyButton.vue'
 import MyInput from '@/components/MyInput.vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
-import TemplateMessage from '@/components/TemplateMessage.vue'
-import { useTemplateMessage, msgProps } from '@/utils/template-message'
+import SysMessage from '@/components/SysMessage.vue'
+import { useMessage, sysMsgProps } from '@/utils/template-message'
 import { UserAPI } from '@/utils/req'
 import TemplateDialog from '@/components/TemplateDialog.vue'
 import { useTemplateDialog } from '@/utils/template-dialog'
@@ -57,20 +57,17 @@ const loginClick = () => {
       progressArr.value[0] = true
       if (resp.data.stateCode == 200) {
         localStorage.setItem('token', 'Bearer ' + resp.data.obj)
-        useTemplateMessage(TemplateMessage, msgProps('Login successful', 'success', 3000))
+        useMessage(SysMessage, sysMsgProps('Login successful', 'success', 3000))
         router.push('/home')
       } else {
         pwd.value = ''
-        useTemplateMessage(TemplateMessage, msgProps(resp.data.message, 'alert'))
+        useMessage(SysMessage, sysMsgProps(resp.data.message, 'alert'))
       }
     })
     .catch((err) => {
       progressArr.value = []
       pwd.value = ''
-      useTemplateMessage(
-        TemplateMessage,
-        msgProps('Login failed, please check connection.', 'alert')
-      )
+      useMessage(SysMessage, sysMsgProps('Login failed, please check connection.', 'alert'))
     })
 }
 
@@ -105,14 +102,14 @@ const registerConfirm = () => {
         email.value = ''
         avatar.value = ''
         reg.value = false
-        useTemplateMessage(TemplateMessage, msgProps('Register successful', 'success'))
+        useMessage(SysMessage, sysMsgProps('Register successful', 'success'))
       } else {
-        useTemplateMessage(TemplateMessage, msgProps(resp.data.message, 'alert'))
+        useMessage(SysMessage, sysMsgProps(resp.data.message, 'alert'))
       }
     })
     .catch((err) => {
       progressArr.value = []
-      useTemplateMessage(TemplateMessage, msgProps('Register failed', 'alert'))
+      useMessage(SysMessage, sysMsgProps('Register failed', 'alert'))
     })
 }
 

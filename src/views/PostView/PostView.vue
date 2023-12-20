@@ -5,8 +5,8 @@ import { computed, inject, onMounted, ref } from 'vue'
 import ScrollWrapper from '@/components/ScrollWrapper.vue'
 import { AdsAPI, ApiDelete, ApiGet, ApiPost, ApiPut, ImageAPI } from '@/utils/req'
 import { marked } from 'marked'
-import { useTemplateMessage, msgProps } from '@/utils/template-message'
-import TemplateMessage from '@/components/TemplateMessage.vue'
+import { useMessage, sysMsgProps } from '@/utils/template-message'
+import SysMessage from '@/components/SysMessage.vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
@@ -100,7 +100,7 @@ const postClick = () => {
 
         if (adResp.data.stateCode == 200) {
           if (imagesToAdd.value.length == 0) {
-            useTemplateMessage(TemplateMessage, msgProps('Ad posted successfully', 'success'))
+            useMessage(SysMessage, sysMsgProps('Ad posted successfully', 'success'))
             router.go(-1)
           }
           const adId = adResp.data.obj.adId
@@ -111,7 +111,7 @@ const postClick = () => {
               })
               .catch(() => {
                 progressArr.value = []
-                useTemplateMessage(TemplateMessage, msgProps('Failed posting ad', 'warn'))
+                useMessage(SysMessage, sysMsgProps('Failed posting ad', 'warn'))
               })
           }
           for (const [idx, image] of imagesToAdd.value.entries()) {
@@ -124,24 +124,21 @@ const postClick = () => {
 
                 if (imgResp.data.stateCode == 200) {
                   if (idx == imagesToAdd.value.length - 1) {
-                    useTemplateMessage(
-                      TemplateMessage,
-                      msgProps('Ad posted successfully', 'success')
-                    )
+                    useMessage(SysMessage, sysMsgProps('Ad posted successfully', 'success'))
                     router.push('/home')
                   }
                 }
               })
               .catch((err) => {
                 progressArr.value = []
-                useTemplateMessage(TemplateMessage, msgProps(err.data.message, 'warn'))
+                useMessage(SysMessage, sysMsgProps(err.data.message, 'warn'))
               })
           }
         }
       })
       .catch(() => {
         progressArr.value = []
-        useTemplateMessage(TemplateMessage, msgProps('Failed posting ad', 'warn'))
+        useMessage(SysMessage, sysMsgProps('Failed posting ad', 'warn'))
       })
   }
 }
@@ -168,9 +165,9 @@ onMounted(() => {
       .catch(() => {
         progressArr.value[0] = true
         progressArr.value[1] = true
-        useTemplateMessage(
-          TemplateMessage,
-          msgProps('Error loading contents, try refreshing page.', 'alert', 3000)
+        useMessage(
+          SysMessage,
+          sysMsgProps('Error loading contents, try refreshing page.', 'alert', 3000)
         )
       })
   }

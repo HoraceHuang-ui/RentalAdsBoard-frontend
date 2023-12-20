@@ -6,8 +6,8 @@ import { AdsAPI, ApiGet, ImageAPI, UserAPI } from '@/utils/req'
 import MyPagination from '@/components/MyPagination.vue'
 import { marked } from 'marked'
 import ScrollWrapper from '@/components/ScrollWrapper.vue'
-import { useTemplateMessage, msgProps } from '@/utils/template-message'
-import TemplateMessage from '@/components/TemplateMessage.vue'
+import { useMessage, sysMsgProps } from '@/utils/template-message'
+import SysMessage from '@/components/SysMessage.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -49,18 +49,15 @@ onMounted(() => {
         })
         .catch(() => {
           progressArr.value = []
-          useTemplateMessage(
-            TemplateMessage,
-            msgProps('Error loading contents, try refreshing page.', 'alert')
+          useMessage(
+            SysMessage,
+            sysMsgProps('Error loading contents, try refreshing page.', 'alert')
           )
         })
     })
     .catch(() => {
       progressArr.value = []
-      useTemplateMessage(
-        TemplateMessage,
-        msgProps('Error loading contents, try refreshing page.', 'alert')
-      )
+      useMessage(SysMessage, sysMsgProps('Error loading contents, try refreshing page.', 'alert'))
     })
   ApiGet(ImageAPI.LIST_BY_AD(adId))
     .then((imageResp) => {
@@ -71,10 +68,7 @@ onMounted(() => {
     })
     .catch(() => {
       progressArr.value = []
-      useTemplateMessage(
-        TemplateMessage,
-        msgProps('Error loading contents, try refreshing page.', 'alert')
-      )
+      useMessage(SysMessage, sysMsgProps('Error loading contents, try refreshing page.', 'alert'))
     })
 })
 </script>

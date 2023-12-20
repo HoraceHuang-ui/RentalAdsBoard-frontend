@@ -6,8 +6,8 @@ import ManagePostCard from '@/views/ManageView/components/ManagePostCard.vue'
 import MyPagination from '@/components/MyPagination.vue'
 import { AdsAPI, ApiGet, UserAPI } from '@/utils/req'
 import MySwitch from '@/components/MySwitch.vue'
-import { useTemplateMessage, msgProps } from '@/utils/template-message'
-import TemplateMessage from '@/components/TemplateMessage.vue'
+import { useMessage, sysMsgProps } from '@/utils/template-message'
+import SysMessage from '@/components/SysMessage.vue'
 
 type Ad = {
   adId: number
@@ -41,9 +41,9 @@ const updateCurPage = () => {
     .catch((err) => {
       progressArr.value = []
       console.error(err)
-      useTemplateMessage(
-        TemplateMessage,
-        msgProps('Error loading contents, try refreshing page.', 'alert', 3000)
+      useMessage(
+        SysMessage,
+        sysMsgProps('Error loading contents, try refreshing page.', 'alert', 3000)
       )
     })
 }
@@ -84,9 +84,9 @@ onMounted(() => {
     .catch((err) => {
       progressArr.value = []
       console.error(err)
-      useTemplateMessage(
-        TemplateMessage,
-        msgProps('Error loading contents, try refreshing page.', 'alert', 3000)
+      useMessage(
+        SysMessage,
+        sysMsgProps('Error loading contents, try refreshing page.', 'alert', 3000)
       )
     })
 
@@ -99,9 +99,9 @@ onMounted(() => {
     .catch((err) => {
       progressArr.value = []
       console.error(err)
-      useTemplateMessage(
-        TemplateMessage,
-        msgProps('Error loading contents, try refreshing page.', 'alert', 3000)
+      useMessage(
+        SysMessage,
+        sysMsgProps('Error loading contents, try refreshing page.', 'alert', 3000)
       )
     })
 })

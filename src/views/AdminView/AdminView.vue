@@ -3,8 +3,8 @@ import ScrollWrapper from '@/components/ScrollWrapper.vue'
 import TopHeader from '@/components/TopHeader/TopHeader.vue'
 import { inject, onMounted, ref, watch } from 'vue'
 import { ApiDelete, ApiGet, ApiPut, UserAPI } from '@/utils/req'
-import { useTemplateMessage, msgProps } from '@/utils/template-message'
-import TemplateMessage from '@/components/TemplateMessage.vue'
+import { useMessage, sysMsgProps } from '@/utils/template-message'
+import SysMessage from '@/components/SysMessage.vue'
 import { useRouter } from 'vue-router'
 import MyPagination from '@/components/MyPagination.vue'
 import { useTemplateDialog } from '@/utils/template-dialog'
@@ -37,9 +37,9 @@ const updateCurPage = () => {
     .catch((err) => {
       progressArr.value = []
       console.error(err)
-      useTemplateMessage(
-        TemplateMessage,
-        msgProps('Error loading contents, try refreshing page.', 'alert', 3000)
+      useMessage(
+        SysMessage,
+        sysMsgProps('Error loading contents, try refreshing page.', 'alert', 3000)
       )
     })
 }
@@ -54,38 +54,35 @@ const switchRole = (idx: number) => {
       .then((resp) => {
         if (resp.data && resp.data.stateCode == 200) {
           progressArr.value[0] = true
-          useTemplateMessage(
-            TemplateMessage,
-            msgProps(`Upgraded '${user.username}' to Admin.`, 'success')
-          )
+          useMessage(SysMessage, sysMsgProps(`Upgraded '${user.username}' to Admin.`, 'success'))
           updateCurPage()
         } else {
           progressArr.value = []
-          useTemplateMessage(TemplateMessage, msgProps(resp.data.msg, 'alert', 3000))
+          useMessage(SysMessage, sysMsgProps(resp.data.msg, 'alert', 3000))
         }
       })
       .catch(() => {
         progressArr.value = []
-        useTemplateMessage(TemplateMessage, msgProps('Error switching role', 'alert', 3000))
+        useMessage(SysMessage, sysMsgProps('Error switching role', 'alert', 3000))
       })
   } else {
     ApiPut(UserAPI.UPDATE_ROLE('1', user.username))
       .then((resp) => {
         if (resp.data && resp.data.stateCode == 200) {
           progressArr.value[0] = true
-          useTemplateMessage(
-            TemplateMessage,
-            msgProps(`Downgraded '${user.username}' to average user.`, 'success')
+          useMessage(
+            SysMessage,
+            sysMsgProps(`Downgraded '${user.username}' to average user.`, 'success')
           )
           updateCurPage()
         } else {
           progressArr.value = []
-          useTemplateMessage(TemplateMessage, msgProps(resp.data.msg, 'alert', 3000))
+          useMessage(SysMessage, sysMsgProps(resp.data.msg, 'alert', 3000))
         }
       })
       .catch(() => {
         progressArr.value = []
-        useTemplateMessage(TemplateMessage, msgProps('Error switching role', 'alert', 3000))
+        useMessage(SysMessage, sysMsgProps('Error switching role', 'alert', 3000))
       })
   }
 }
@@ -101,19 +98,19 @@ const resetPwd = (idx: number) => {
         .then((resp) => {
           if (resp.data && resp.data.stateCode == 200) {
             progressArr.value[0] = true
-            useTemplateMessage(
-              TemplateMessage,
-              msgProps(`Successfully reset password of '${user.username}'.`, 'success')
+            useMessage(
+              SysMessage,
+              sysMsgProps(`Successfully reset password of '${user.username}'.`, 'success')
             )
             updateCurPage()
           } else {
             progressArr.value = []
-            useTemplateMessage(TemplateMessage, msgProps(resp.data.msg, 'alert', 3000))
+            useMessage(SysMessage, sysMsgProps(resp.data.msg, 'alert', 3000))
           }
         })
         .catch(() => {
           progressArr.value = []
-          useTemplateMessage(TemplateMessage, msgProps('Error deleting user', 'alert', 3000))
+          useMessage(SysMessage, sysMsgProps('Error deleting user', 'alert', 3000))
         })
     }
   })
@@ -130,19 +127,19 @@ const deleteUser = (idx: number) => {
         .then((resp) => {
           if (resp.data && resp.data.stateCode == 200) {
             progressArr.value[0] = true
-            useTemplateMessage(
-              TemplateMessage,
-              msgProps(`Deleted '${user.username}' from database`, 'success')
+            useMessage(
+              SysMessage,
+              sysMsgProps(`Deleted '${user.username}' from database`, 'success')
             )
             updateCurPage()
           } else {
             progressArr.value = []
-            useTemplateMessage(TemplateMessage, msgProps(resp.data.msg, 'alert', 3000))
+            useMessage(SysMessage, sysMsgProps(resp.data.msg, 'alert', 3000))
           }
         })
         .catch(() => {
           progressArr.value = []
-          useTemplateMessage(TemplateMessage, msgProps('Error deleting user', 'alert', 3000))
+          useMessage(SysMessage, sysMsgProps('Error deleting user', 'alert', 3000))
         })
     }
   })
@@ -160,14 +157,14 @@ onMounted(() => {
         totalPages.value = resp.data.obj.totalPages
       } else {
         progressArr.value = []
-        useTemplateMessage(TemplateMessage, msgProps(resp.data.msg, 'alert', 3000))
+        useMessage(SysMessage, sysMsgProps(resp.data.msg, 'alert', 3000))
       }
     })
     .catch(() => {
       progressArr.value = []
-      useTemplateMessage(
-        TemplateMessage,
-        msgProps('Error loading content, try refreshing page.', 'alert', 3000)
+      useMessage(
+        SysMessage,
+        sysMsgProps('Error loading content, try refreshing page.', 'alert', 3000)
       )
     })
 
@@ -179,7 +176,7 @@ onMounted(() => {
     .catch((err) => {
       progressArr.value = []
       if (err.response.data === 'need to login') {
-        useTemplateMessage(TemplateMessage, {
+        useMessage(SysMessage, {
           msg: 'Auth expired, please re-login.',
           type: 'alert'
         })

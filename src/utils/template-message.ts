@@ -1,7 +1,7 @@
 import { createApp, nextTick, ref } from 'vue'
 import type { Component } from 'vue'
 
-export function useTemplateMessage(component: Component, props: Record<string, any> = {}) {
+export function useMessage(component: Component, props: Record<string, any> = {}) {
   const app = createApp(component, props)
   const dom = document.createElement('div')
 
@@ -31,7 +31,7 @@ export function useTemplateMessage(component: Component, props: Record<string, a
 
 type MsgType = 'info' | 'alert' | 'success' | 'warn'
 
-export function msgProps(msg?: string, msgType?: MsgType, msgTimeout?: number) {
+export function sysMsgProps(msg?: string, msgType?: MsgType, msgTimeout?: number) {
   return {
     msg: msg,
     type: msgType as string,

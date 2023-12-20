@@ -3,8 +3,8 @@
 import { inject, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ApiDelete, ApiGet, UserAPI } from '@/utils/req'
-import { msgProps, useTemplateMessage } from '@/utils/template-message'
-import TemplateMessage from '@/components/TemplateMessage.vue'
+import { sysMsgProps, useMessage } from '@/utils/template-message'
+import SysMessage from '@/components/SysMessage.vue'
 import { useTemplateDialog } from '@/utils/template-dialog'
 import InfoEditDialog from '@/components/TopHeader/components/InfoEditDialog.vue'
 import ConfirmDialog from '@/views/AdminView/components/ConfirmDialog.vue'
@@ -23,10 +23,9 @@ onMounted(() => {
     userInfo.value = JSON.parse(userInfo.value)
     ws.value = new WebSocket(`ws://localhost:9810/websocket/${userInfo.value.username}`)
     // TODO: global message on receive websocket
-    // ws.value.onmessage = (event) => {
-    //   console.log(event.data)
-    //   console.log('aaa')
-    // }
+    ws.value.onmessage = (event) => {
+      const data = JSON.parse(event.data)
+    }
   }
   ApiGet(UserAPI.INFO_SELF)
     .then((resp) => {
@@ -39,7 +38,7 @@ onMounted(() => {
       // }
     })
     .catch(() => {
-      useTemplateMessage(TemplateMessage, {
+      useMessage(SysMessage, {
         msg: 'Auth expired, please re-login.',
         type: 'alert'
       })
@@ -90,17 +89,14 @@ const deleteAccount = () => {
       ApiDelete(UserAPI.DELETE_SELF)
         .then((resp) => {
           if (resp.data && resp.data.stateCode == 200) {
-            useTemplateMessage(
-              TemplateMessage,
-              msgProps(`Account deleted from database.`, 'success')
-            )
+            useMessage(SysMessage, sysMsgProps(`Account deleted from database.`, 'success'))
             logout()
           } else {
-            useTemplateMessage(TemplateMessage, msgProps(resp.data.msg, 'alert', 3000))
+            useMessage(SysMessage, sysMsgProps(resp.data.msg, 'alert', 3000))
           }
         })
         .catch(() => {
-          useTemplateMessage(TemplateMessage, msgProps('Error deleting account', 'alert', 3000))
+          useMessage(SysMessage, sysMsgProps('Error deleting account', 'alert', 3000))
         })
     }
   })

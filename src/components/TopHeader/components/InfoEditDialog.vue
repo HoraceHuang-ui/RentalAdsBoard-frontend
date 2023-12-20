@@ -2,9 +2,9 @@
 import TemplateDialog from '@/components/TemplateDialog.vue'
 import MyInput from '@/components/MyInput.vue'
 import { ref, inject } from 'vue'
-import { useTemplateMessage, msgProps } from '@/utils/template-message'
+import { useMessage, sysMsgProps } from '@/utils/template-message'
 import { ApiPut, UserAPI } from '@/utils/req'
-import TemplateMessage from '@/components/TemplateMessage.vue'
+import SysMessage from '@/components/SysMessage.vue'
 import TopProgressBar from '@/components/TopProgressBar.vue'
 
 const props = defineProps({
@@ -72,15 +72,15 @@ const strContains = (source: string, target: string) => {
 
 const confirmClick = () => {
   if (username.value.length > 20) {
-    useTemplateMessage(TemplateMessage, msgProps('Username too long', 'warn'))
+    useMessage(SysMessage, sysMsgProps('Username too long', 'warn'))
     return
   }
   if (email.value.length == 0 || !strContains(email.value, '@')) {
-    useTemplateMessage(TemplateMessage, msgProps('Invalid email', 'warn'))
+    useMessage(SysMessage, sysMsgProps('Invalid email', 'warn'))
     return
   }
   if (originPwd.value !== '' && newPwd.value !== confirmPwd.value) {
-    useTemplateMessage(TemplateMessage, msgProps('Inconsistent passwords', 'warn'))
+    useMessage(SysMessage, sysMsgProps('Inconsistent passwords', 'warn'))
     return
   }
 
@@ -106,9 +106,9 @@ const confirmClick = () => {
         if (originPwd.value !== '') {
           if (originPwd.value === newPwd.value) {
             progressArr.value = []
-            useTemplateMessage(
-              TemplateMessage,
-              msgProps(`The new password can't be the same as the original one`, 'warn', 3000)
+            useMessage(
+              SysMessage,
+              sysMsgProps(`The new password can't be the same as the original one`, 'warn', 3000)
             )
             return
           }
@@ -120,32 +120,32 @@ const confirmClick = () => {
               console.log(pwdResp)
               progressArr.value[1] = true
               if (pwdResp.data && pwdResp.data.stateCode == 200) {
-                useTemplateMessage(TemplateMessage, msgProps('User info updated', 'success'))
+                useMessage(SysMessage, sysMsgProps('User info updated', 'success'))
                 props.onClose()
                 closeDialog(500)
               } else {
                 progressArr.value = []
-                useTemplateMessage(TemplateMessage, msgProps(pwdResp.data.message, 'warn', 3000))
+                useMessage(SysMessage, sysMsgProps(pwdResp.data.message, 'warn', 3000))
               }
             })
             .catch((err) => {
               progressArr.value = []
-              useTemplateMessage(TemplateMessage, msgProps(err.message, 'warn', 3000))
+              useMessage(SysMessage, sysMsgProps(err.message, 'warn', 3000))
             })
         } else {
           progressArr.value[1] = true
-          useTemplateMessage(TemplateMessage, msgProps('User info updated', 'success'))
+          useMessage(SysMessage, sysMsgProps('User info updated', 'success'))
           props.onClose()
           closeDialog(500)
         }
       } else {
         progressArr.value = []
-        useTemplateMessage(TemplateMessage, msgProps(resp.data.message, 'warn'))
+        useMessage(SysMessage, sysMsgProps(resp.data.message, 'warn'))
       }
     })
     .catch((err) => {
       progressArr.value = []
-      useTemplateMessage(TemplateMessage, msgProps(err.message, 'warn'))
+      useMessage(SysMessage, sysMsgProps(err.message, 'warn'))
     })
 }
 </script>

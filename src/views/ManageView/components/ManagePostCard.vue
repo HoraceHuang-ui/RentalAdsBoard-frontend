@@ -3,8 +3,8 @@ import CardTemplate from '@/components/CardTemplate.vue'
 import { computed, onMounted, ref } from 'vue'
 import { AdsAPI, ApiDelete, ApiGet, ApiPost, ImageAPI } from '@/utils/req'
 import { marked } from 'marked'
-import { useTemplateMessage, msgProps } from '@/utils/template-message'
-import TemplateMessage from '@/components/TemplateMessage.vue'
+import { useMessage, sysMsgProps } from '@/utils/template-message'
+import SysMessage from '@/components/SysMessage.vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps(['ad'])
@@ -46,11 +46,11 @@ const deletePost = () => {
     .then((resp) => {
       if (resp.data.stateCode == 200) {
         emit('delete')
-        useTemplateMessage(TemplateMessage, msgProps('Delete ad success', 'success'))
+        useMessage(SysMessage, sysMsgProps('Delete ad success', 'success'))
       }
     })
     .catch(() => {
-      useTemplateMessage(TemplateMessage, {
+      useMessage(SysMessage, {
         msg: 'Delete ad failed',
         type: 'alert'
       })
