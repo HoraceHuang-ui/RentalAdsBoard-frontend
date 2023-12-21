@@ -117,7 +117,6 @@ const confirmClick = () => {
             newPassword: newPwd.value
           })
             .then((pwdResp) => {
-              console.log(pwdResp)
               progressArr.value[1] = true
               if (pwdResp.data && pwdResp.data.stateCode == 200) {
                 useMessage(SysMessage, sysMsgProps('User info updated', 'success'))

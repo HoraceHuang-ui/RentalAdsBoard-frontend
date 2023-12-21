@@ -92,12 +92,10 @@ export const ImageAPI = {
 }
 
 export const ChatAPI = {
-  HISTORY_USERS: (username: string) => genParamUrl('chat/history/chatter', { username: username }),
-  HISTORY_MESSAGES: (from: string, to: string) =>
+  HISTORY_USERS: 'chat/history/chatter',
+  HISTORY_MESSAGES: (to: string) =>
     genParamUrl('chat/history/message', {
-      user_from: from,
       user_to: to
     }),
-  LATEST_MSG: (from: string, to: string) =>
-    genParamUrl('chat/message/last', { user_from: from, user_to: to })
+  LATEST_MSG: (to: string) => genParamUrl('chat/message/last', { user_to: to })
 }

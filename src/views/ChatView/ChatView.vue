@@ -61,7 +61,7 @@ watch(curUsername, () => {
       progressArr.value = []
       console.error(err)
     })
-  ApiGet(ChatAPI.HISTORY_MESSAGES(selfUserInfo.username, curUsername.value))
+  ApiGet(ChatAPI.HISTORY_MESSAGES(curUsername.value))
     .then((resp) => {
       progressArr.value[1] = true
       chatMessages.value = resp.data.obj
@@ -82,6 +82,7 @@ const sendMsg = () => {
     userTo: curUsername.value,
     message: msgBuf.value
   }
+
   ws.value.send(JSON.stringify(msgItem))
   chatMessages.value.push(msgItem)
 
@@ -124,7 +125,7 @@ onMounted(() => {
 
   msgUnread.value = false
   progressArr.value = [false, false]
-  ApiGet(ChatAPI.HISTORY_USERS(selfUserInfo.username))
+  ApiGet(ChatAPI.HISTORY_USERS)
     .then((resp) => {
       for (let i = 0; i < resp.data.obj.length; i++) {
         progressArr.value.push(false)
@@ -142,11 +143,11 @@ onMounted(() => {
           curExist = true
         }
 
-        ApiGet(ChatAPI.LATEST_MSG(user.username, selfUserInfo.username))
+        ApiGet(ChatAPI.LATEST_MSG(user.username))
           .then((msgResp) => {
             progressArr.value[idx + 2] = true
-            let unread = false
-            let lastMsg = ''
+            let unread
+            let lastMsg
             lastMsg = msgResp.data.obj.message
             unread =
               msgResp.data.obj.userFrom === selfUserInfo.username ? false : !msgResp.data.obj.read

@@ -46,7 +46,6 @@ const strContains = (source: string, target: string) => {
 const router = useRouter()
 // const auth = useAuthStore()
 const loginClick = () => {
-  console.log('login click')
   progressArr.value = [false]
   axios
     .post(`/api/${UserAPI.LOGIN}`, {
@@ -64,7 +63,7 @@ const loginClick = () => {
         useMessage(SysMessage, sysMsgProps(resp.data.message, 'alert'))
       }
     })
-    .catch((err) => {
+    .catch(() => {
       progressArr.value = []
       pwd.value = ''
       useMessage(SysMessage, sysMsgProps('Login failed, please check connection.', 'alert'))
@@ -94,7 +93,6 @@ const registerConfirm = () => {
     })
     .then((resp) => {
       progressArr.value[0] = true
-      console.log(resp)
       if (resp.data.stateCode == 200) {
         username.value = ''
         pwd.value = ''
@@ -107,7 +105,7 @@ const registerConfirm = () => {
         useMessage(SysMessage, sysMsgProps(resp.data.message, 'alert'))
       }
     })
-    .catch((err) => {
+    .catch(() => {
       progressArr.value = []
       useMessage(SysMessage, sysMsgProps('Register failed', 'alert'))
     })
@@ -115,7 +113,6 @@ const registerConfirm = () => {
 
 const addAvatarClick = () => {
   // images.value.push('https://avatars.githubusercontent.com/u/67905897?v=4')
-  console.log('avatar click')
   const imageInput = document.getElementById('imageInput')
   if (imageInput) {
     imageInput.click()
@@ -175,6 +172,7 @@ onMounted(() => {
       <img
         v-show="avatar !== ''"
         :src="avatar"
+        alt="Avatar to be registered"
         @click="addAvatarClick"
         class="rounded-full w-16 h-16 cursor-pointer object-cover"
       />
