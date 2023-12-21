@@ -22,6 +22,19 @@ The dependencies can be seen in `packages.json`.
 ## Features
 <details>
   <summary>Click to view screenshots</summary>
+
+  **NEW EXTRA POINTS UPDATE**
+  
+  **Search**
+  - LEFT: Searching a keyword 'as'
+  - RIGHT: Searching a keyword which no ad contains
+  ![image](https://github.com/HoraceHuang-ui/RentalAdsBoard-frontend/assets/67905897/da47877d-302b-401c-a577-dae2a019ae78)
+
+  **Chat**
+  - LEFT: A user receiving a text message from the user on the right
+  - RIGHT: A user sending a text message to the user on the left
+  <img width="85%" src="https://github.com/HoraceHuang-ui/RentalAdsBoard-frontend/assets/67905897/a428a2fd-eadf-4db6-87f6-7ef9a9e9f75c" />
+
   
   - LEFT: Register view <br />
   - RIGHT: login view with token expired message
@@ -86,6 +99,11 @@ The dependencies can be seen in `packages.json`.
 - One can **edit** his **account information** in a separate dialog view, including
   username, email, password, and avatar image.
 - One can **log out** or **delete his account**.
+> Extra points
+- One can **search** ads by keyword.
+- One can have an **instant chat** with another user via clicking the message button in
+  post details. When the receiver is not in the chat view, then he/she will receive a
+  pop-up message on the upper-left corner.
 
 ## Development
 
