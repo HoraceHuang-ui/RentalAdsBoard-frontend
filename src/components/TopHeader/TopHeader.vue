@@ -68,7 +68,8 @@ onMounted(() => {
         }
       }
     })
-    .catch(() => {
+    .catch((err) => {
+      console.error(err)
       useMessage(SysMessage, {
         msg: 'Auth expired, please re-login.',
         type: 'alert'
@@ -78,7 +79,9 @@ onMounted(() => {
     })
 })
 onUnmounted(() => {
-  ws.value.close()
+  if (ws.value) {
+    ws.value.close()
+  }
   ws.value = undefined
 })
 
