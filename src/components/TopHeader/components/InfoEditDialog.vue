@@ -127,9 +127,9 @@ const confirmClick = () => {
                 useMessage(SysMessage, sysMsgProps(pwdResp.data.message, 'warn', 3000))
               }
             })
-            .catch((err) => {
+            .catch(() => {
               progressArr.value = []
-              useMessage(SysMessage, sysMsgProps(err.message, 'warn', 3000))
+              useMessage(SysMessage, sysMsgProps('Wrong password', 'warn', 3000))
             })
         } else {
           progressArr.value[1] = true
