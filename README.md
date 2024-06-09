@@ -4,6 +4,8 @@
 
 Frontend repository by **21321108 Huang Yiyu**
 
+[Backend repository](https://github.com/HoraceHuang-ui/rental-ads-server) \(in development\) also by **21321108 Huang Yiyu**
+
 ## Tech Stack
 
 This project is built with `Vue3` + `Vite` + `TypeScript` for the ease of
